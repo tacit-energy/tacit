@@ -1,0 +1,13 @@
+sensor_id,name,unit,cumulative,energy_type,role,branch,description
+900101,Central chilled water production,kWh,False,cold,source,campus,Total hourly chilled-water production.
+900102,North branch chilled water supply,kWh,False,cold,branch,north,North branch chilled-water hourly load.
+900103,South branch chilled water supply,kWh,False,cold,branch,south,South branch chilled-water hourly load used as comparison.
+900104,Critical zone cooling load,kWh,False,cold,consumer,north,Critical zone cooling load; primary anomaly driver.
+900105,Lab zone cooling load,kWh,False,cold,consumer,north,Lab zone cooling load; secondary affected consumer.
+900106,General zone cooling load,kWh,False,cold,consumer,south,General zone cooling load on the unaffected comparison branch.
+900107,North branch return temperature,°C,False,,return,north,North branch return temperature.
+900108,South branch return temperature,°C,False,,return,south,South branch return temperature.
+900109,North pump power,kW,False,electricity,support,north,North branch pump electrical power.
+900110,Outdoor air temperature,°C,False,,reference,reference,Outdoor air temperature reference.
+900111,Expected cooling demand,kWh,False,cold,reference,campus,Expected campus cooling profile before measured deviations.
+900112,North branch balance,kWh,False,cold,balance,north,North branch imbalance: measured branch minus consumers.
