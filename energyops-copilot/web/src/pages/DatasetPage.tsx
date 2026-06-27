@@ -6,6 +6,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ClipboardList,
+  ExternalLink,
   GitFork,
   MessageSquarePlus,
   Play,
@@ -196,6 +197,10 @@ export function DatasetPage({
       }))
     ].sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
   }, [annotations, decisions]);
+
+  const sessionsById = useMemo(() => {
+    return new Map(sessions.map(session => [session.id, session]));
+  }, [sessions]);
 
   const selectTable = (table: string) => {
     setSelectedTable(table);
@@ -608,6 +613,9 @@ export function DatasetPage({
                   {logEntries.map(entry => {
                     if (entry.type === 'decision') {
                       const d = entry.item;
+                      const savedSession = d.session_id
+                        ? sessionsById.get(d.session_id)
+                        : undefined;
                       return (
                         <Card key={`decision-${d.id}`} className="p-4">
                           <div className="flex flex-wrap items-start justify-between gap-2">
@@ -622,11 +630,25 @@ export function DatasetPage({
                                 </div>
                                 <div className="mt-0.5 flex flex-wrap gap-2 text-[12px] text-[var(--muted-foreground)]">
                                   <span>{d.decision_type}</span>
-                                  {d.session_id && <span>session {d.session_id}</span>}
+                                  {savedSession ? (
+                                    <span>{savedSession.name}</span>
+                                  ) : d.session_id ? (
+                                    <span>session deleted</span>
+                                  ) : null}
                                   <span>{new Date(d.created_at).toLocaleString()}</span>
                                 </div>
                               </div>
                             </div>
+                            {savedSession && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => onOpenSession(savedSession.id)}
+                              >
+                                <ExternalLink size={14} />
+                                Open session
+                              </Button>
+                            )}
                           </div>
                           {d.rationale && (
                             <p className="mt-3 whitespace-pre-wrap text-[13px] leading-5">
@@ -650,6 +672,9 @@ export function DatasetPage({
                     }
 
                     const a = entry.item;
+                    const savedSession = a.source_session_id
+                      ? sessionsById.get(a.source_session_id)
+                      : undefined;
                     return (
                       <Card
                         key={`annotation-${a.target_kind}-${a.target_id}`}
@@ -665,11 +690,28 @@ export function DatasetPage({
                               <div className="truncate text-[13px] font-semibold">
                                 {a.target_kind} {a.target_id}
                               </div>
-                              <div className="mt-0.5 text-[12px] text-[var(--muted-foreground)]">
-                                updated {new Date(a.updated_at).toLocaleString()}
+                              <div className="mt-0.5 flex flex-wrap gap-2 text-[12px] text-[var(--muted-foreground)]">
+                                {savedSession ? (
+                                  <span>{savedSession.name}</span>
+                                ) : a.source_session_id ? (
+                                  <span>session deleted</span>
+                                ) : null}
+                                <span>
+                                  updated {new Date(a.updated_at).toLocaleString()}
+                                </span>
                               </div>
                             </div>
                           </div>
+                          {savedSession && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => onOpenSession(savedSession.id)}
+                            >
+                              <ExternalLink size={14} />
+                              Open session
+                            </Button>
+                          )}
                         </div>
                         <p className="mt-3 whitespace-pre-wrap text-[13px] leading-5">
                           {a.text}

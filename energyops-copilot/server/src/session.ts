@@ -133,6 +133,7 @@ export class Session {
 
     const tools = makeEoTools({
       datasetId,
+      sessionId: id,
       broadcast: this.bus.broadcast,
       nextWidgetId: () => `w${++this.widgetSeq}`
     });

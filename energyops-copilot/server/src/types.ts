@@ -19,6 +19,7 @@ export interface TopologySpec {
     id: string;
     label: string;
     sensorId?: number;
+    energyType?: string | null;
     role?: string;
     branch?: string;
     group?: string;
@@ -33,6 +34,7 @@ export interface TopologySpec {
     target: string;
     label?: string;
     emphasis?: boolean;
+    animated?: boolean;
   }[];
   highlight?: string[]; // node ids to spotlight
   collapsedGroups?: string[]; // group keys rendered as one node (simplification)

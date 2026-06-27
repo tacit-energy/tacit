@@ -22,6 +22,7 @@ const topoNode = z.object({
   id: z.string(),
   label: z.string(),
   sensorId: z.number().optional(),
+  energyType: z.string().nullable().optional(),
   role: z.string().optional(),
   branch: z.string().optional(),
   group: z.string().optional(),
@@ -34,7 +35,8 @@ const topoEdge = z.object({
   source: z.string(),
   target: z.string(),
   label: z.string().optional(),
-  emphasis: z.boolean().optional()
+  emphasis: z.boolean().optional(),
+  animated: z.boolean().optional()
 });
 
 const REPLACE_ID_DESC =
@@ -149,6 +151,7 @@ export function widgetTools(ctx: ToolContext) {
               id: n.id,
               label: n.label,
               sensorId: n.sensorId,
+              energyType: n.energyType,
               role: n.role,
               branch: n.branch,
               unit: n.unit,

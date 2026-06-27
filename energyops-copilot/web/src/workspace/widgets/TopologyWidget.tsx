@@ -29,8 +29,31 @@ const STATUS_BORDER: Record<NodeStatus, string> = {
   missing: '#d946ef'
 };
 
+const ENERGY_COLORS: Record<string, { bg: string; border: string; text: string }> = {
+  cold: { bg: 'rgb(14 165 233 / 0.2)', border: '#0ea5e9', text: '#bae6fd' },
+  cooling: { bg: 'rgb(14 165 233 / 0.2)', border: '#0ea5e9', text: '#bae6fd' },
+  chilled: { bg: 'rgb(14 165 233 / 0.2)', border: '#0ea5e9', text: '#bae6fd' },
+  electricity: { bg: 'rgb(250 204 21 / 0.2)', border: '#facc15', text: '#fef3c7' },
+  electric: { bg: 'rgb(250 204 21 / 0.2)', border: '#facc15', text: '#fef3c7' },
+  heating: { bg: 'rgb(249 115 22 / 0.22)', border: '#f97316', text: '#fed7aa' },
+  heat: { bg: 'rgb(249 115 22 / 0.22)', border: '#f97316', text: '#fed7aa' },
+  gas: { bg: 'rgb(168 85 247 / 0.2)', border: '#a855f7', text: '#e9d5ff' },
+  water: { bg: 'rgb(20 184 166 / 0.2)', border: '#14b8a6', text: '#ccfbf1' },
+  steam: { bg: 'rgb(148 163 184 / 0.22)', border: '#94a3b8', text: '#e2e8f0' }
+};
+const FALLBACK_ENERGY_COLOR = {
+  bg: 'var(--secondary)',
+  border: 'var(--border)',
+  text: 'var(--muted-foreground)'
+};
+
 const NODE_W = 180;
-const NODE_H = 52;
+const NODE_H = 66;
+
+function energyColors(energyType?: string | null) {
+  if (!energyType) return FALLBACK_ENERGY_COLOR;
+  return ENERGY_COLORS[energyType.toLowerCase()] ?? FALLBACK_ENERGY_COLOR;
+}
 
 function layout(spec: TopologySpec): Node[] {
   const hasPositions = spec.nodes.every(n => n.position);
@@ -58,6 +81,7 @@ function toNode(
 ): Node {
   const highlighted = false;
   const status = n.status;
+  const energy = energyColors(n.energyType);
   return {
     id: n.id,
     position: pos ?? n.position ?? { x: 0, y: 0 },
@@ -71,6 +95,11 @@ function toNode(
               {n.unit ? ` ${n.unit}` : ''}
             </div>
           )}
+          {n.energyType && (
+            <div style={{ color: energy.text, fontSize: 10, fontWeight: 600, marginTop: 2 }}>
+              {n.energyType}
+            </div>
+          )}
           {n.annotation && (
             <div style={{ fontSize: 10, color: 'var(--accent)' }}>note</div>
           )}
@@ -79,12 +108,16 @@ function toNode(
     },
     style: {
       width: NODE_W,
-      background: status ? STATUS_BG[status] : 'var(--secondary)',
+      background: energy.bg,
       color: 'var(--foreground)',
-      border: `1px solid ${status ? STATUS_BORDER[status] : 'var(--border)'}`,
+      border: `1px solid ${energy.border}`,
       borderRadius: 8,
       padding: 6,
-      boxShadow: highlighted ? '0 0 0 2px var(--accent)' : undefined
+      boxShadow: highlighted
+        ? '0 0 0 2px var(--accent)'
+        : status
+          ? `inset 0 0 0 1px ${STATUS_BORDER[status]}, 0 0 0 3px ${STATUS_BG[status]}`
+          : undefined
     },
     sourcePosition: 'right' as never,
     targetPosition: 'left' as never
@@ -112,27 +145,38 @@ export function TopologyWidget({
         : highlight.has(node.id)
           ? '0 0 0 2px var(--accent)'
           : undefined;
+      const baseShadow =
+        typeof node.style?.boxShadow === 'string' ? node.style.boxShadow : undefined;
       return {
         ...node,
         style: {
           ...node.style,
-          boxShadow: ring,
+          boxShadow: [baseShadow, ring].filter(Boolean).join(', ') || undefined,
           cursor: clickable ? 'pointer' : 'default'
         }
       };
     });
+    const nodeById = new Map(spec.nodes.map(n => [n.id, n]));
     const es: Edge[] = spec.edges.map((e, i) => ({
       id: `e${i}`,
       source: e.source,
       target: e.target,
       label: e.label,
-      animated: e.emphasis,
+      type: 'smoothstep',
+      animated: e.animated ?? e.emphasis ?? true,
       style: {
-        stroke: e.emphasis ? 'var(--accent)' : 'var(--muted-foreground)'
+        stroke:
+          e.emphasis
+            ? 'var(--accent)'
+            : energyColors(nodeById.get(e.source)?.energyType).border,
+        strokeWidth: e.emphasis ? 2.5 : 2
       },
       markerEnd: {
         type: MarkerType.ArrowClosed,
-        color: 'var(--muted-foreground)'
+        color:
+          e.emphasis
+            ? 'var(--accent)'
+            : energyColors(nodeById.get(e.source)?.energyType).border
       },
       labelStyle: { fill: 'var(--muted-foreground)', fontSize: 10 }
     }));

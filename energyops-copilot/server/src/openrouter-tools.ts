@@ -126,7 +126,7 @@ const numberProp = { type: 'number' };
 const arrayProp = { type: 'array', items: {} };
 
 export function makeOpenRouterTools(ctx: ToolContext): OpenRouterTool[] {
-  const { datasetId } = ctx;
+  const { datasetId, sessionId } = ctx;
   const newId = () => ctx.nextWidgetId();
 
   return [
@@ -234,6 +234,7 @@ export function makeOpenRouterTools(ctx: ToolContext): OpenRouterTool[] {
               id: n.id,
               label: n.label,
               sensorId: n.sensorId,
+              energyType: n.energyType,
               role: n.role,
               branch: n.branch,
               unit: n.unit,
@@ -351,7 +352,16 @@ export function makeOpenRouterTools(ctx: ToolContext): OpenRouterTool[] {
       name: 'set_annotation',
       description: 'Pin or update a durable operator annotation on an entity.',
       parameters: objectSchema({ kind: textProp, id: textProp, text: textProp }, ['kind', 'id', 'text']),
-      execute: async input => json(setAnnotation(datasetId, str(input.kind) as AnnotationKind, str(input.id), str(input.text)))
+      execute: async input =>
+        json(
+          setAnnotation(
+            datasetId,
+            str(input.kind) as AnnotationKind,
+            str(input.id),
+            str(input.text),
+            sessionId
+          )
+        )
     }
   ];
 }

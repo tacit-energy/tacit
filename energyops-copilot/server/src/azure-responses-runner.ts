@@ -54,6 +54,7 @@ export class AzureResponsesRunner {
     this.bus = options.bus;
     const ctx: ToolContext = {
       datasetId: options.datasetId,
+      sessionId: options.id,
       broadcast: options.bus.broadcast,
       nextWidgetId: options.nextWidgetId
     };

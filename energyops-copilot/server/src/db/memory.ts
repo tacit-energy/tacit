@@ -28,6 +28,7 @@ db.exec(`
     target_kind TEXT NOT NULL,
     target_id   TEXT NOT NULL,
     text        TEXT NOT NULL,
+    source_session_id TEXT,
     updated_at  TEXT NOT NULL,
     PRIMARY KEY (dataset_id, target_kind, target_id)
   );
@@ -72,6 +73,13 @@ if (sessionCols.length && !sessionCols.some(c => c.name === 'model')) {
   db.exec('ALTER TABLE sessions ADD COLUMN model TEXT');
 }
 
+const currentAnnCols = db.prepare('PRAGMA table_info(annotations)').all() as {
+  name: string;
+}[];
+if (currentAnnCols.length && !currentAnnCols.some(c => c.name === 'source_session_id')) {
+  db.exec('ALTER TABLE annotations ADD COLUMN source_session_id TEXT');
+}
+
 // --- Annotations (dataset-scoped) ------------------------------------------
 
 export type AnnotationKind =
@@ -87,27 +95,35 @@ export interface Annotation {
   target_kind: AnnotationKind;
   target_id: string;
   text: string;
+  source_session_id: string | null;
   updated_at: string;
 }
 
 const upsertStmt = db.prepare(`
-  INSERT INTO annotations (dataset_id, target_kind, target_id, text, updated_at)
-  VALUES (@dataset_id, @target_kind, @target_id, @text, @updated_at)
+  INSERT INTO annotations
+    (dataset_id, target_kind, target_id, text, source_session_id, updated_at)
+  VALUES
+    (@dataset_id, @target_kind, @target_id, @text, @source_session_id, @updated_at)
   ON CONFLICT(dataset_id, target_kind, target_id)
-  DO UPDATE SET text = excluded.text, updated_at = excluded.updated_at
+  DO UPDATE SET
+    text = excluded.text,
+    source_session_id = COALESCE(excluded.source_session_id, annotations.source_session_id),
+    updated_at = excluded.updated_at
 `);
 
 export function setAnnotation(
   datasetId: string,
   kind: AnnotationKind,
   id: string,
-  text: string
+  text: string,
+  sourceSessionId?: string | null
 ): Annotation {
   const row: Annotation = {
     dataset_id: datasetId,
     target_kind: kind,
     target_id: String(id),
     text,
+    source_session_id: sourceSessionId ?? null,
     updated_at: new Date().toISOString()
   };
   upsertStmt.run(row);

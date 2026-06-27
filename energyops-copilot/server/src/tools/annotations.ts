@@ -23,7 +23,7 @@ const jsonText = (obj: unknown) => ({
 });
 
 export function annotationTools(ctx: ToolContext) {
-  const { datasetId } = ctx;
+  const { datasetId, sessionId } = ctx;
   return [
     tool(
       'get_annotations',
@@ -43,7 +43,7 @@ export function annotationTools(ctx: ToolContext) {
       'Pin or update a durable description on an entity when the operator tells you a fact about it (what it is, a known defect, a special operating mode). This is documentation, not an event note. target.kind is sensor/node/edge/subsystem/dataset; target.id is the entity id (e.g. sensor_id).',
       { kind: KIND, id: z.string(), text: z.string() },
       async ({ kind, id, text }) =>
-        jsonText(setAnnotation(datasetId, kind as AnnotationKind, id, text))
+        jsonText(setAnnotation(datasetId, kind as AnnotationKind, id, text, sessionId))
     )
   ];
 }

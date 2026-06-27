@@ -10,7 +10,7 @@ export interface TopoNode {
   label: string;
   sensorId?: number;
   unit?: string;
-  energyType?: string;
+  energyType?: string | null;
   role?: string;
   branch?: string;
   position?: { x: number; y: number };
@@ -19,6 +19,7 @@ export interface TopoEdge {
   source: string;
   target: string;
   label?: string;
+  animated?: boolean;
 }
 export interface Diagram {
   id: string;
@@ -46,12 +47,26 @@ function load(datasetId: string): Map<string, Diagram> {
       const nodes: TopoNode[] = (raw.nodes ?? []).map(
         (n: Record<string, unknown>) => {
           const d = (n.data ?? {}) as Record<string, unknown>;
+          const rawSensorId = d.sensor_id ?? d.sensorId;
+          const rawMeterId = d.meterId;
+          const sensorId =
+            typeof rawSensorId === 'number'
+              ? rawSensorId
+              : typeof rawSensorId === 'string'
+                ? Number.parseInt(rawSensorId.replace(/^sensor_/, ''), 10)
+                : typeof rawMeterId === 'string'
+                  ? Number.parseInt(rawMeterId.replace(/^sensor_/, ''), 10)
+                  : undefined;
+          const rawEnergyType = d.energy_type ?? d.energyType;
           return {
             id: String(n.id),
             label: String(d.label ?? n.id),
-            sensorId: d.sensor_id as number | undefined,
+            sensorId: Number.isFinite(sensorId) ? sensorId : undefined,
             unit: d.unit as string | undefined,
-            energyType: d.energy_type as string | undefined,
+            energyType:
+              typeof rawEnergyType === 'string' || rawEnergyType === null
+                ? rawEnergyType
+                : undefined,
             role: d.role as string | undefined,
             branch: d.branch as string | undefined,
             position: n.position as { x: number; y: number } | undefined
@@ -64,7 +79,8 @@ function load(datasetId: string): Map<string, Diagram> {
           return {
             source: String(e.source),
             target: String(e.target),
-            label: (d.label as string) ?? undefined
+            label: (d.label as string) ?? undefined,
+            animated: typeof e.animated === 'boolean' ? e.animated : undefined
           };
         }
       );

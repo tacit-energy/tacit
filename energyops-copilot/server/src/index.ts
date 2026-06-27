@@ -331,7 +331,7 @@ app.post('/sessions/:id/annotation', async c => {
     id: string;
     text: string;
   }>();
-  return c.json(setAnnotation(s.datasetId, kind, String(id), String(text ?? '')));
+  return c.json(setAnnotation(s.datasetId, kind, String(id), String(text ?? ''), s.id));
 });
 
 // --- Decisions (dataset-scoped, recorded directly from the UI) -------------
@@ -455,7 +455,7 @@ app.post('/annotation', async c => {
     id: string;
     text: string;
   }>();
-  return c.json(setAnnotation(s.datasetId, kind, String(id), String(text ?? '')));
+  return c.json(setAnnotation(s.datasetId, kind, String(id), String(text ?? ''), s.id));
 });
 
 serve({ fetch: app.fetch, port: PORT }, info => {

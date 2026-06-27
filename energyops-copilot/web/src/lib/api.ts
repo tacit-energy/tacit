@@ -62,6 +62,7 @@ export interface Annotation {
   target_kind: AnnotationKind;
   target_id: string;
   text: string;
+  source_session_id: string | null;
   updated_at: string;
 }
 

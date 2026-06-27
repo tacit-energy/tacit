@@ -4,6 +4,7 @@ import type { ServerEvent, Widget } from '../types.js';
 
 export interface ToolContext {
   datasetId: string;
+  sessionId?: string;
   broadcast: (event: ServerEvent) => void;
   nextWidgetId: () => string;
 }
