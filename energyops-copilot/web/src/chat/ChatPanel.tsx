@@ -34,6 +34,153 @@ const inputDescription = (input: unknown) => {
     : null;
 };
 
+const blockStarts = (line: string) =>
+  /^```/.test(line) ||
+  /^#{1,3}\s+/.test(line) ||
+  /^[-*]\s+/.test(line) ||
+  /^\d+\.\s+/.test(line);
+
+const renderInline = (text: string): ReactNode[] => {
+  const nodes: ReactNode[] = [];
+  const pattern =
+    /(`[^`]+`|\*\*[^*]+\*\*|__[^_]+__|\*[^*\s][^*]*\*|_[^_\s][^_]*_|\[[^\]]+\]\([^)]+\))/g;
+  let last = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = pattern.exec(text))) {
+    if (match.index > last) nodes.push(text.slice(last, match.index));
+    const token = match[0];
+    const key = `${match.index}-${token}`;
+
+    if (token.startsWith('`')) {
+      nodes.push(
+        <code
+          key={key}
+          className="rounded bg-[var(--background)] px-1 py-0.5 font-mono text-[0.92em]"
+        >
+          {token.slice(1, -1)}
+        </code>
+      );
+    } else if (token.startsWith('**') || token.startsWith('__')) {
+      nodes.push(<strong key={key}>{token.slice(2, -2)}</strong>);
+    } else if (token.startsWith('*') || token.startsWith('_')) {
+      nodes.push(<em key={key}>{token.slice(1, -1)}</em>);
+    } else {
+      const link = /^\[([^\]]+)\]\(([^)]+)\)$/.exec(token);
+      if (link) {
+        nodes.push(
+          <a
+            key={key}
+            href={link[2]}
+            target="_blank"
+            rel="noreferrer"
+            className="text-[var(--accent)] underline underline-offset-2"
+          >
+            {link[1]}
+          </a>
+        );
+      }
+    }
+    last = match.index + token.length;
+  }
+
+  if (last < text.length) nodes.push(text.slice(last));
+  return nodes;
+};
+
+function MarkdownContent({ text }: { text: string }) {
+  const lines = text.replace(/\r\n/g, '\n').split('\n');
+  const blocks: ReactNode[] = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+    if (!line.trim()) {
+      i += 1;
+      continue;
+    }
+
+    if (line.startsWith('```')) {
+      const code: string[] = [];
+      i += 1;
+      while (i < lines.length && !lines[i].startsWith('```')) {
+        code.push(lines[i]);
+        i += 1;
+      }
+      if (i < lines.length) i += 1;
+      blocks.push(
+        <pre
+          key={blocks.length}
+          className="overflow-auto rounded-md bg-[var(--background)] p-2 text-[12px]"
+        >
+          <code>{code.join('\n')}</code>
+        </pre>
+      );
+      continue;
+    }
+
+    const heading = /^(#{1,3})\s+(.+)$/.exec(line);
+    if (heading) {
+      const HeadingTag = heading[1].length === 1 ? 'h2' : 'h3';
+      blocks.push(
+        <HeadingTag
+          key={blocks.length}
+          className="font-semibold text-[var(--secondary-foreground)]"
+        >
+          {renderInline(heading[2])}
+        </HeadingTag>
+      );
+      i += 1;
+      continue;
+    }
+
+    if (/^[-*]\s+/.test(line)) {
+      const items: string[] = [];
+      while (i < lines.length && /^[-*]\s+/.test(lines[i])) {
+        items.push(lines[i].replace(/^[-*]\s+/, ''));
+        i += 1;
+      }
+      blocks.push(
+        <ul key={blocks.length} className="list-disc space-y-1 pl-5">
+          {items.map((item, index) => (
+            <li key={index}>{renderInline(item)}</li>
+          ))}
+        </ul>
+      );
+      continue;
+    }
+
+    if (/^\d+\.\s+/.test(line)) {
+      const items: string[] = [];
+      while (i < lines.length && /^\d+\.\s+/.test(lines[i])) {
+        items.push(lines[i].replace(/^\d+\.\s+/, ''));
+        i += 1;
+      }
+      blocks.push(
+        <ol key={blocks.length} className="list-decimal space-y-1 pl-5">
+          {items.map((item, index) => (
+            <li key={index}>{renderInline(item)}</li>
+          ))}
+        </ol>
+      );
+      continue;
+    }
+
+    const paragraph: string[] = [];
+    while (i < lines.length && lines[i].trim() && !blockStarts(lines[i])) {
+      paragraph.push(lines[i]);
+      i += 1;
+    }
+    blocks.push(
+      <p key={blocks.length} className="whitespace-pre-wrap">
+        {renderInline(paragraph.join('\n'))}
+      </p>
+    );
+  }
+
+  return <div className="space-y-2 leading-relaxed">{blocks}</div>;
+}
+
 function DetailBlock({
   label,
   open,
@@ -205,6 +352,136 @@ function PermissionCard({
   );
 }
 
+interface AskQuestion {
+  header?: string;
+  question: string;
+  multiSelect?: boolean;
+  options: { label: string; description?: string }[];
+}
+
+function AskQuestionCard({
+  item,
+  answerPermission
+}: {
+  item: Extract<FeedItem, { kind: 'permission' }>;
+  answerPermission: Props['answerPermission'];
+}) {
+  const questions =
+    (item.input as { questions?: AskQuestion[] })?.questions ?? [];
+  const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
+  const waiting = item.status === 'waiting';
+
+  const isSelected = (q: AskQuestion, label: string) => {
+    const a = answers[q.question];
+    return q.multiSelect
+      ? Array.isArray(a) && a.includes(label)
+      : a === label;
+  };
+
+  const choose = (q: AskQuestion, label: string) => {
+    if (!waiting) return;
+    setAnswers(prev => {
+      if (q.multiSelect) {
+        const cur = Array.isArray(prev[q.question])
+          ? (prev[q.question] as string[])
+          : [];
+        return {
+          ...prev,
+          [q.question]: cur.includes(label)
+            ? cur.filter(l => l !== label)
+            : [...cur, label]
+        };
+      }
+      return { ...prev, [q.question]: label };
+    });
+  };
+
+  const allAnswered = questions.every(q => {
+    const a = answers[q.question];
+    return q.multiSelect ? Array.isArray(a) && a.length > 0 : typeof a === 'string';
+  });
+
+  return (
+    <Card className="max-w-[680px] border-[var(--accent)] p-3 text-[13px]">
+      <div className="flex items-center gap-2 font-medium">
+        <ShieldCheck size={14} className="text-[var(--accent)]" />
+        The agent has a question
+        <Badge>{item.status}</Badge>
+      </div>
+
+      {questions.map((q, qi) => (
+        <div key={qi} className="mt-3">
+          <div className="mb-1.5 text-[12px] font-medium text-[var(--foreground)]">
+            {q.header ? `${q.header} — ${q.question}` : q.question}
+            {q.multiSelect && (
+              <span className="ml-1 text-[var(--muted-foreground)]">
+                (choose any)
+              </span>
+            )}
+          </div>
+          <div className="flex flex-col gap-1.5">
+            {q.options.map((opt, oi) => {
+              const sel = isSelected(q, opt.label);
+              return (
+                <button
+                  key={oi}
+                  type="button"
+                  disabled={!waiting}
+                  onClick={() => choose(q, opt.label)}
+                  className={`rounded-md border px-3 py-2 text-left transition ${
+                    sel
+                      ? 'border-[var(--accent)] bg-[var(--accent)]/10'
+                      : 'border-[var(--border)] bg-[var(--background)] hover:border-[var(--accent)]'
+                  } ${waiting ? '' : 'opacity-70'}`}
+                >
+                  <div className="text-[13px] text-[var(--foreground)]">
+                    {opt.label}
+                  </div>
+                  {opt.description && (
+                    <div className="text-[12px] text-[var(--muted-foreground)]">
+                      {opt.description}
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+
+      {waiting && (
+        <div className="mt-3 flex justify-end gap-2">
+          <Button
+            variant="default"
+            onClick={() => answerPermission(item.id, { behavior: 'deny' })}
+          >
+            Skip
+          </Button>
+          <Button
+            variant="primary"
+            disabled={!allAnswered}
+            onClick={() =>
+              answerPermission(item.id, {
+                behavior: 'allow',
+                updatedInput: { questions, answers }
+              })
+            }
+          >
+            Answer
+          </Button>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+const hasQuestions = (input: unknown) =>
+  Boolean(
+    input &&
+      typeof input === 'object' &&
+      Array.isArray((input as { questions?: unknown }).questions)
+  );
+
 function Item({
   item,
   answerPermission
@@ -221,8 +498,8 @@ function Item({
       );
     case 'assistant':
       return (
-        <div className="max-w-[680px] self-start whitespace-pre-wrap rounded-xl bg-[var(--secondary)] px-3.5 py-2.5 text-[14px] text-[var(--secondary-foreground)]">
-          {item.text}
+        <div className="max-w-[680px] self-start rounded-xl bg-[var(--secondary)] px-3.5 py-2.5 text-[14px] text-[var(--secondary-foreground)]">
+          <MarkdownContent text={item.text} />
         </div>
       );
     case 'thinking':
@@ -240,7 +517,11 @@ function Item({
       return <ToolCard item={item} />;
     case 'permission':
       return (
-        <PermissionCard item={item} answerPermission={answerPermission} />
+        hasQuestions(item.input) ? (
+          <AskQuestionCard item={item} answerPermission={answerPermission} />
+        ) : (
+          <PermissionCard item={item} answerPermission={answerPermission} />
+        )
       );
     case 'meta':
       return (
@@ -308,8 +589,8 @@ export function ChatPanel({ state, send, answerPermission, interrupt }: Props) {
           <Item key={item.id} item={item} answerPermission={answerPermission} />
         ))}
         {state.streaming && (
-          <div className="max-w-[680px] self-start whitespace-pre-wrap rounded-xl bg-[var(--secondary)] px-3.5 py-2.5 text-[14px] text-[var(--muted-foreground)] opacity-80">
-            {state.streaming}
+          <div className="max-w-[680px] self-start rounded-xl bg-[var(--secondary)] px-3.5 py-2.5 text-[14px] text-[var(--muted-foreground)] opacity-80">
+            <MarkdownContent text={state.streaming} />
           </div>
         )}
       </div>
