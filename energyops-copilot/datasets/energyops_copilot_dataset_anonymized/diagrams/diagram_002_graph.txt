@@ -1,0 +1,231 @@
+# Energy topology 002 (diagram_002)
+
+Water meter 025 -> Water meter 092
+Water meter 025 -> Water meter 075
+Water meter 025 -> Water meter 071
+Water meter 025 -> Water meter 067
+Water meter 092 -> Utility aggregate 001
+Water meter 075 -> Utility aggregate 001
+Water meter 071 -> Utility aggregate 001
+Water meter 067 -> Utility aggregate 001
+Utility aggregate 002 -> Heating meter 095
+Utility aggregate 002 -> Heating meter 100
+Utility aggregate 002 -> Heating meter 001
+Utility aggregate 002 -> Heating meter 085
+Utility aggregate 002 -> Heating meter 103
+Utility aggregate 002 -> Heating meter 040
+Utility aggregate 002 -> Heating meter 033
+Utility aggregate 002 -> Heating meter 002
+Heating meter 002 -> Utility aggregate 003
+Heating meter 040 -> Utility aggregate 003
+Heating meter 033 -> Utility aggregate 004
+Heating meter 001 -> Utility aggregate 004
+Heating meter 100 -> Utility aggregate 005
+Utility aggregate 005 -> Heating meter 1726
+Utility aggregate 005 -> Heating meter 1739
+Utility aggregate 005 -> Heating meter 1729
+Utility aggregate 005 -> Heating meter 1730
+Utility aggregate 005 -> Heating meter 1731
+Utility aggregate 005 -> Heating meter 1732
+Utility aggregate 003 -> Heating meter 063
+Utility aggregate 003 -> Heating meter 767
+Utility aggregate 003 -> Heating meter 1266
+Utility aggregate 003 -> Heating meter 1008
+Utility aggregate 003 -> Heating meter 108
+Utility aggregate 003 -> Heating meter 900
+Utility aggregate 003 -> Heating meter 118
+Utility aggregate 003 -> Heating meter 068
+Utility aggregate 003 -> Heating meter 043
+Utility aggregate 003 -> Heating meter 122
+Utility aggregate 003 -> Heating meter 055
+Utility aggregate 003 -> Heating meter 113
+Utility aggregate 003 -> Heating meter 098
+Utility aggregate 003 -> Heating meter 011
+Utility aggregate 003 -> Heating meter 061
+Utility aggregate 003 -> Heating meter 090
+Utility aggregate 003 -> Heating meter 036
+Utility aggregate 003 -> Heating meter 005
+Utility aggregate 003 -> Heating meter 031
+Utility aggregate 003 -> Heating meter 010
+Utility aggregate 003 -> Heating meter 016
+Utility aggregate 003 -> Heating meter 045
+Utility aggregate 003 -> Heating meter 008
+Utility aggregate 003 -> Heating meter 089
+Utility aggregate 003 -> Heating meter 069
+Utility aggregate 003 -> Heating meter 106
+Utility aggregate 003 -> Heating meter 121
+Utility aggregate 003 -> Heating meter 059
+Utility aggregate 003 -> Heating meter 348
+Utility aggregate 003 -> Heating meter 022
+Utility aggregate 003 -> Heating meter 2635
+Utility aggregate 003 -> Heating meter 349
+Utility aggregate 003 -> Heating meter 023
+Utility aggregate 003 -> Heating meter 087
+Utility aggregate 003 -> Heating meter 442
+Utility aggregate 003 -> Heating meter 1579
+Utility aggregate 003 -> Heating meter 029
+Utility aggregate 003 -> Heating meter 035
+Utility aggregate 003 -> Heating meter 018
+Utility aggregate 003 -> Heating meter 116
+Utility aggregate 003 -> Heating meter 044
+Utility aggregate 003 -> Heating meter 042
+Utility aggregate 003 -> Heating meter 347
+Heating meter 767 -> Utility aggregate 006
+Heating meter 1266 -> Utility aggregate 006
+Heating meter 1008 -> Utility aggregate 006
+Heating meter 108 -> Utility aggregate 006
+Heating meter 900 -> Utility aggregate 006
+Heating meter 118 -> Utility aggregate 006
+Heating meter 068 -> Utility aggregate 006
+Heating meter 043 -> Utility aggregate 006
+Heating meter 122 -> Utility aggregate 006
+Heating meter 055 -> Utility aggregate 006
+Heating meter 063 -> Utility aggregate 006
+Heating meter 113 -> Utility aggregate 006
+Heating meter 098 -> Utility aggregate 006
+Heating meter 011 -> Utility aggregate 006
+Heating meter 090 -> Utility aggregate 006
+Heating meter 036 -> Utility aggregate 006
+Heating meter 005 -> Utility aggregate 006
+Heating meter 031 -> Utility aggregate 006
+Heating meter 010 -> Utility aggregate 006
+Heating meter 016 -> Utility aggregate 006
+Heating meter 045 -> Utility aggregate 006
+Heating meter 008 -> Utility aggregate 006
+Heating meter 089 -> Utility aggregate 006
+Heating meter 069 -> Utility aggregate 006
+Heating meter 106 -> Utility aggregate 006
+Heating meter 121 -> Utility aggregate 007
+Heating meter 059 -> Utility aggregate 007
+Heating meter 348 -> Utility aggregate 007
+Heating meter 022 -> Utility aggregate 007
+Heating meter 2635 -> Utility aggregate 007
+Heating meter 349 -> Utility aggregate 007
+Heating meter 023 -> Utility aggregate 007
+Heating meter 087 -> Utility aggregate 007
+Heating meter 442 -> Utility aggregate 007
+Heating meter 1579 -> Utility aggregate 007
+Heating meter 035 -> Utility aggregate 007
+Heating meter 018 -> Utility aggregate 007
+Heating meter 116 -> Utility aggregate 007
+Heating meter 044 -> Utility aggregate 007
+Heating meter 042 -> Utility aggregate 007
+Heating meter 347 -> Utility aggregate 007
+Utility aggregate 008 -> Heating meter 015
+Utility aggregate 008 -> Heating meter 2289
+Heating meter 731 -> Utility aggregate 008
+Chilled water meter 1290 -> Utility aggregate 010
+Chilled water meter 065 -> Utility aggregate 010
+Chilled water meter 004 -> Utility aggregate 010
+Chilled water meter 112 -> Utility aggregate 010
+Chilled water meter 760 -> Utility aggregate 010
+Chilled water meter 086 -> Utility aggregate 010
+Chilled water meter 2493 -> Utility aggregate 010
+Chilled water meter 1260 -> Utility aggregate 010
+Chilled water meter 901 -> Utility aggregate 010
+Chilled water meter 922 -> Utility aggregate 010
+Chilled water meter 083 -> Utility aggregate 010
+Chilled water meter 102 -> Utility aggregate 010
+Chilled water meter 082 -> Utility aggregate 010
+Chilled water meter 028 -> Utility aggregate 010
+Chilled water meter 078 -> Utility aggregate 010
+Chilled water meter 119 -> Utility aggregate 010
+Chilled water meter 072 -> Utility aggregate 010
+Chilled water meter 077 -> Utility aggregate 010
+Chilled water meter 350 -> Utility aggregate 011
+Chilled water meter 051 -> Utility aggregate 011
+Chilled water meter 049 -> Utility aggregate 011
+Chilled water meter 024 -> Utility aggregate 011
+Chilled water meter 019 -> Utility aggregate 011
+Chilled water meter 080 -> Utility aggregate 011
+Chilled water meter 009 -> Utility aggregate 011
+Chilled water meter 017 -> Utility aggregate 011
+Chilled water meter 070 -> Utility aggregate 011
+Chilled water meter 109 -> Utility aggregate 011
+Chilled water meter 105 -> Utility aggregate 011
+Chilled water meter 081 -> Utility aggregate 011
+Chilled water meter 111 -> Utility aggregate 012
+Chilled water meter 117 -> Utility aggregate 012
+Chilled water meter 079 -> Utility aggregate 012
+Chilled water meter 058 -> Utility aggregate 012
+Chilled water meter 088 -> Utility aggregate 012
+Chilled water meter 084 -> Utility aggregate 012
+Utility aggregate 009 -> Chilled water meter 1290
+Utility aggregate 009 -> Chilled water meter 065
+Utility aggregate 009 -> Chilled water meter 004
+Utility aggregate 009 -> Chilled water meter 112
+Utility aggregate 009 -> Chilled water meter 760
+Utility aggregate 009 -> Chilled water meter 086
+Utility aggregate 009 -> Chilled water meter 2493
+Utility aggregate 009 -> Chilled water meter 1260
+Utility aggregate 009 -> Chilled water meter 901
+Utility aggregate 009 -> Chilled water meter 922
+Utility aggregate 009 -> Chilled water meter 083
+Utility aggregate 009 -> Chilled water meter 102
+Utility aggregate 009 -> Chilled water meter 082
+Utility aggregate 009 -> Chilled water meter 028
+Utility aggregate 009 -> Chilled water meter 119
+Utility aggregate 009 -> Chilled water meter 072
+Utility aggregate 009 -> Chilled water meter 351
+Utility aggregate 009 -> Chilled water meter 350
+Utility aggregate 009 -> Chilled water meter 051
+Utility aggregate 009 -> Chilled water meter 049
+Utility aggregate 009 -> Chilled water meter 024
+Utility aggregate 009 -> Chilled water meter 019
+Utility aggregate 009 -> Chilled water meter 080
+Utility aggregate 009 -> Chilled water meter 070
+Utility aggregate 009 -> Chilled water meter 009
+Utility aggregate 009 -> Chilled water meter 017
+Utility aggregate 009 -> Chilled water meter 109
+Utility aggregate 009 -> Chilled water meter 105
+Utility aggregate 009 -> Chilled water meter 081
+Utility aggregate 009 -> Chilled water meter 117
+Utility aggregate 009 -> Chilled water meter 111
+Utility aggregate 009 -> Chilled water meter 079
+Utility aggregate 009 -> Chilled water meter 058
+Utility aggregate 009 -> Chilled water meter 088
+Utility aggregate 009 -> Chilled water meter 084
+Utility aggregate 009 -> Chilled water meter 078
+Utility aggregate 013 -> Chilled water meter 066
+Utility aggregate 013 -> Chilled water meter 003
+Utility aggregate 013 -> Utility aggregate 009
+Utility aggregate 013 -> Chilled water meter 091
+Chilled water meter 048 -> Utility aggregate 013
+Chilled water meter 054 -> Utility aggregate 013
+Chilled water meter 115 -> Utility aggregate 013
+Utility aggregate 014 -> Chilled water meter 115
+Utility aggregate 014 -> Chilled water meter 048
+Utility aggregate 014 -> Chilled water meter 054
+Utility aggregate 015 -> Utility aggregate 014
+Chilled water meter 020 -> Utility aggregate 015
+Chilled water meter 041 -> Utility aggregate 015
+Chilled water meter 038 -> Utility aggregate 015
+Chilled water meter 062 -> Utility aggregate 015
+Chilled water meter 120 -> Utility aggregate 015
+Chilled water meter 032 -> Utility aggregate 015
+Chilled water meter 110 -> Utility aggregate 014
+Chilled water meter 073 -> Utility aggregate 014
+Heating meter 076 -> Utility aggregate 006
+Utility aggregate 003 -> Heating meter 076
+Heating meter 103 -> Utility aggregate 016
+Utility aggregate 016 -> Chilled water meter 073
+Utility aggregate 016 -> Chilled water meter 110
+Chilled water meter 114 -> Utility aggregate 014
+Utility aggregate 001 -> Utility aggregate 017
+Utility aggregate 017 -> Chilled water meter 114
+Electricity meter 099 -> Utility aggregate 017
+Electricity meter 021 -> Chilled water meter 020
+Electricity meter 014 -> Chilled water meter 041
+Electricity meter 013 -> Chilled water meter 032
+Electricity meter 097 -> Chilled water meter 062
+Electricity meter 093 -> Chilled water meter 120
+Utility aggregate 018 -> Electricity meter 021
+Utility aggregate 018 -> Electricity meter 014
+Utility aggregate 018 -> Electricity meter 097
+Utility aggregate 018 -> Electricity meter 093
+Utility aggregate 018 -> Electricity meter 013
+Chilled water meter 091 -> Chilled water meter 1733
+Chilled water meter 091 -> Chilled water meter 1734
+Chilled water meter 091 -> Chilled water meter 1735
+Chilled water meter 091 -> Chilled water meter 1736
+Chilled water meter 091 -> Chilled water meter 1738

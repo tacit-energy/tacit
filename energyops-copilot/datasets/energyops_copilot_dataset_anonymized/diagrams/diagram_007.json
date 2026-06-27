@@ -1,0 +1,1108 @@
+{
+  "id": "diagram_007",
+  "name": "Energy topology 007",
+  "type": "energy_topology",
+  "nodes": [
+    {
+      "id": "node_0001",
+      "type": "meterNode",
+      "position": {
+        "x": -31.113318616227616,
+        "y": 3813.1156357721757
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0001",
+        "label": "Water meter 712",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0712"
+      }
+    },
+    {
+      "id": "node_0002",
+      "type": "meterNode",
+      "position": {
+        "x": -32.613318616227616,
+        "y": 3914.6156357721757
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0002",
+        "label": "Water meter 1565",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1565"
+      }
+    },
+    {
+      "id": "node_0003",
+      "type": "meterNode",
+      "position": {
+        "x": -32.613318616227616,
+        "y": 4014.415635772175
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0003",
+        "label": "Water meter 1092",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1092"
+      }
+    },
+    {
+      "id": "node_0004",
+      "type": "meterNode",
+      "position": {
+        "x": 234.07418138377238,
+        "y": 3915.165635772175
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0004",
+        "label": "Utility aggregate 001",
+        "unit": "m³",
+        "energyType": null,
+        "linkedDiagram": null,
+        "kind": "sum",
+        "sumMode": "incoming",
+        "showLoss": false
+      }
+    },
+    {
+      "id": "node_0005",
+      "type": "meterNode",
+      "position": {
+        "x": 1489.4907252142639,
+        "y": 3669.852718122519
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0005",
+        "label": "Water meter 342",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0342"
+      }
+    },
+    {
+      "id": "node_0006",
+      "type": "meterNode",
+      "position": {
+        "x": 1487.4907252142639,
+        "y": 3770.852718122519
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0006",
+        "label": "Water meter 236",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0236"
+      }
+    },
+    {
+      "id": "node_0007",
+      "type": "meterNode",
+      "position": {
+        "x": 1488.4907252142639,
+        "y": 3877.852718122519
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0007",
+        "label": "Water meter 240",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0240"
+      }
+    },
+    {
+      "id": "node_0008",
+      "type": "meterNode",
+      "position": {
+        "x": 1487.4907252142639,
+        "y": 3981.852718122519
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0008",
+        "label": "Water meter 241",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0241"
+      }
+    },
+    {
+      "id": "node_0009",
+      "type": "meterNode",
+      "position": {
+        "x": 1488.856279902037,
+        "y": 4093.0968492607017
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0009",
+        "label": "Water meter 242",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0242"
+      }
+    },
+    {
+      "id": "node_0010",
+      "type": "meterNode",
+      "position": {
+        "x": 1490.17578781281,
+        "y": 4197.337974211761
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0010",
+        "label": "Water meter 243",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0243"
+      }
+    },
+    {
+      "id": "node_0011",
+      "type": "meterNode",
+      "position": {
+        "x": 1491.4952957235828,
+        "y": 4389.986129184603
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0011",
+        "label": "Water meter 2638",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_2638"
+      }
+    },
+    {
+      "id": "node_0012",
+      "type": "meterNode",
+      "position": {
+        "x": 1494.1343115451286,
+        "y": 4492.90774622489
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0012",
+        "label": "Water meter 2639",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_2639"
+      }
+    },
+    {
+      "id": "node_0013",
+      "type": "meterNode",
+      "position": {
+        "x": 1494.1343115451286,
+        "y": 4598.603764939555
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0013",
+        "label": "Water meter 476",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0476"
+      }
+    },
+    {
+      "id": "node_0014",
+      "type": "meterNode",
+      "position": {
+        "x": 1498.0928352774472,
+        "y": 4705.876323023635
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0014",
+        "label": "Water meter 698",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0698"
+      }
+    },
+    {
+      "id": "node_0015",
+      "type": "meterNode",
+      "position": {
+        "x": 1495.4538194559013,
+        "y": 4810.117447974693
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0015",
+        "label": "Water meter 695",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0695"
+      }
+    },
+    {
+      "id": "node_0016",
+      "type": "meterNode",
+      "position": {
+        "x": 1492.8148036343555,
+        "y": 4914.358572925753
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0016",
+        "label": "Water meter 238",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0238"
+      }
+    },
+    {
+      "id": "node_0017",
+      "type": "meterNode",
+      "position": {
+        "x": 1498.0928352774472,
+        "y": 5130.757870292507
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0017",
+        "label": "Water meter 273",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0273"
+      }
+    },
+    {
+      "id": "node_0018",
+      "type": "meterNode",
+      "position": {
+        "x": 1504.6571355989036,
+        "y": 5358.045943202918
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0018",
+        "label": "Water meter 237",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0237"
+      }
+    },
+    {
+      "id": "node_0019",
+      "type": "meterNode",
+      "position": {
+        "x": 1508.6571355989036,
+        "y": 5464.045943202918
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0019",
+        "label": "Water meter 438",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0438"
+      }
+    },
+    {
+      "id": "node_0020",
+      "type": "meterNode",
+      "position": {
+        "x": 1510.6571355989036,
+        "y": 5570.045943202918
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0020",
+        "label": "Water meter 443",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0443"
+      }
+    },
+    {
+      "id": "node_0021",
+      "type": "meterNode",
+      "position": {
+        "x": 1508.6571355989045,
+        "y": 5680.045943202918
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0021",
+        "label": "Water meter 483",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0483"
+      }
+    },
+    {
+      "id": "node_0022",
+      "type": "meterNode",
+      "position": {
+        "x": 1510.1776464972331,
+        "y": 5796.659688507459
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0022",
+        "label": "Water meter 341",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0341"
+      }
+    },
+    {
+      "id": "node_0023",
+      "type": "meterNode",
+      "position": {
+        "x": 1512.8271599244626,
+        "y": 5909.7284150301675
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0023",
+        "label": "Water meter 1627",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1627"
+      }
+    },
+    {
+      "id": "node_0024",
+      "type": "meterNode",
+      "position": {
+        "x": 1515.8585930574836,
+        "y": 6021.891440951937
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0024",
+        "label": "Water meter 399",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0399"
+      }
+    },
+    {
+      "id": "node_0025",
+      "type": "meterNode",
+      "position": {
+        "x": 1515.8585930574836,
+        "y": 6140.7236197663515
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0025",
+        "label": "Water meter 386",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0386"
+      }
+    },
+    {
+      "id": "node_0026",
+      "type": "meterNode",
+      "position": {
+        "x": 1531.6315842754375,
+        "y": 6295.614452748805
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0026",
+        "label": "Water meter 300",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0300"
+      }
+    },
+    {
+      "id": "node_0027",
+      "type": "meterNode",
+      "position": {
+        "x": 1512.7834119107065,
+        "y": 6404.616533929111
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0027",
+        "label": "Water meter 381",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0381"
+      }
+    },
+    {
+      "id": "node_0028",
+      "type": "meterNode",
+      "position": {
+        "x": 1515.2308788106511,
+        "y": 6681.461816356759
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0028",
+        "label": "Water meter 856",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0856"
+      }
+    },
+    {
+      "id": "node_0029",
+      "type": "meterNode",
+      "position": {
+        "x": 1506.2404851701394,
+        "y": 6790.542737762013
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0029",
+        "label": "Water meter 855",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0855"
+      }
+    },
+    {
+      "id": "node_0030",
+      "type": "meterNode",
+      "position": {
+        "x": 1509.2404851701394,
+        "y": 6895.542737762013
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0030",
+        "label": "Water meter 930",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0930"
+      }
+    },
+    {
+      "id": "node_0031",
+      "type": "meterNode",
+      "position": {
+        "x": 1510.2404851701394,
+        "y": 7006.542737762013
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0031",
+        "label": "Water meter 929",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0929"
+      }
+    },
+    {
+      "id": "node_0032",
+      "type": "meterNode",
+      "position": {
+        "x": 1510.2404851701394,
+        "y": 7116.542737762013
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0032",
+        "label": "Water meter 1028",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1028"
+      }
+    },
+    {
+      "id": "node_0033",
+      "type": "meterNode",
+      "position": {
+        "x": 1510.2404851701394,
+        "y": 7227.542737762012
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0033",
+        "label": "Water meter 512",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0512"
+      }
+    },
+    {
+      "id": "node_0034",
+      "type": "meterNode",
+      "position": {
+        "x": 1513.2404851701394,
+        "y": 7334.542737762012
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0034",
+        "label": "Water meter 509",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0509"
+      }
+    },
+    {
+      "id": "node_0035",
+      "type": "meterNode",
+      "position": {
+        "x": 1513.2404851701394,
+        "y": 7443.542737762012
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0035",
+        "label": "Water meter 1016",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1016"
+      }
+    },
+    {
+      "id": "node_0036",
+      "type": "meterNode",
+      "position": {
+        "x": 1514.2404851701394,
+        "y": 7577.542737762012
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0036",
+        "label": "Water meter 1315",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1315"
+      }
+    },
+    {
+      "id": "node_0037",
+      "type": "meterNode",
+      "position": {
+        "x": 1513.2404851701394,
+        "y": 7682.542737762012
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0037",
+        "label": "Water meter 710",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0710"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_0001",
+      "source": "node_0001",
+      "target": "node_0004",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0002",
+      "source": "node_0003",
+      "target": "node_0004",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0003",
+      "source": "node_0002",
+      "target": "node_0004",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0004",
+      "source": "node_0004",
+      "target": "node_0005",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0005",
+      "source": "node_0004",
+      "target": "node_0006",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0006",
+      "source": "node_0004",
+      "target": "node_0007",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0007",
+      "source": "node_0004",
+      "target": "node_0008",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0008",
+      "source": "node_0004",
+      "target": "node_0009",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0009",
+      "source": "node_0004",
+      "target": "node_0010",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0010",
+      "source": "node_0004",
+      "target": "node_0011",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0011",
+      "source": "node_0004",
+      "target": "node_0012",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0012",
+      "source": "node_0004",
+      "target": "node_0013",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0013",
+      "source": "node_0004",
+      "target": "node_0014",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0014",
+      "source": "node_0004",
+      "target": "node_0015",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0015",
+      "source": "node_0004",
+      "target": "node_0016",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0016",
+      "source": "node_0004",
+      "target": "node_0017",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0017",
+      "source": "node_0004",
+      "target": "node_0018",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0018",
+      "source": "node_0004",
+      "target": "node_0019",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0019",
+      "source": "node_0004",
+      "target": "node_0020",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0020",
+      "source": "node_0004",
+      "target": "node_0021",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0021",
+      "source": "node_0004",
+      "target": "node_0022",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0022",
+      "source": "node_0004",
+      "target": "node_0023",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0023",
+      "source": "node_0004",
+      "target": "node_0024",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0024",
+      "source": "node_0004",
+      "target": "node_0025",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0025",
+      "source": "node_0004",
+      "target": "node_0026",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0026",
+      "source": "node_0004",
+      "target": "node_0027",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0027",
+      "source": "node_0004",
+      "target": "node_0028",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0028",
+      "source": "node_0004",
+      "target": "node_0029",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0029",
+      "source": "node_0004",
+      "target": "node_0030",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0030",
+      "source": "node_0004",
+      "target": "node_0031",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0031",
+      "source": "node_0004",
+      "target": "node_0032",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0032",
+      "source": "node_0004",
+      "target": "node_0033",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0033",
+      "source": "node_0004",
+      "target": "node_0034",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0034",
+      "source": "node_0004",
+      "target": "node_0035",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0035",
+      "source": "node_0004",
+      "target": "node_0036",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0036",
+      "source": "node_0004",
+      "target": "node_0037",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    }
+  ]
+}

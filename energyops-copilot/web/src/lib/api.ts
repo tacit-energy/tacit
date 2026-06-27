@@ -31,6 +31,11 @@ export interface TableInfo {
   rows: number;
 }
 
+export interface AnalysisRange {
+  from?: string;
+  to?: string;
+}
+
 async function getJSON<T>(url: string): Promise<T> {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`${url} → ${res.status}`);
@@ -47,12 +52,13 @@ export const getTables = (datasetId: string) =>
 
 export async function startSession(
   datasetId: string,
-  prompt?: string
+  prompt?: string,
+  range?: AnalysisRange
 ): Promise<string> {
   const res = await fetch(`/datasets/${datasetId}/sessions`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt })
+    body: JSON.stringify({ prompt, range })
   });
   const { id } = (await res.json()) as { id: string };
   return id;

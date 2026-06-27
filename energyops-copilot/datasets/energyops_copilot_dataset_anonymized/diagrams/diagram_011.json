@@ -1,0 +1,88 @@
+{
+  "id": "diagram_011",
+  "name": "Energy topology 011",
+  "type": "energy_topology",
+  "nodes": [
+    {
+      "id": "node_0001",
+      "type": "meterNode",
+      "position": {
+        "x": 318.2017825975279,
+        "y": 198.76582583003477
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0001",
+        "label": "Gas meter 1129",
+        "unit": "m³",
+        "energyType": "gas",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1129"
+      }
+    },
+    {
+      "id": "node_0002",
+      "type": "meterNode",
+      "position": {
+        "x": 298.68542398292175,
+        "y": 370.75373612125026
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0002",
+        "label": "Gas meter 1130",
+        "unit": "m³",
+        "energyType": "gas",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1130"
+      }
+    },
+    {
+      "id": "node_0003",
+      "type": "meterNode",
+      "position": {
+        "x": 730.9636108859653,
+        "y": 258.4190982158812
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0003",
+        "label": "Utility aggregate 001",
+        "unit": "m³",
+        "energyType": null,
+        "linkedDiagram": null,
+        "kind": "sum",
+        "sumMode": "incoming",
+        "showLoss": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_0001",
+      "source": "node_0001",
+      "target": "node_0003",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0002",
+      "source": "node_0002",
+      "target": "node_0003",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    }
+  ]
+}

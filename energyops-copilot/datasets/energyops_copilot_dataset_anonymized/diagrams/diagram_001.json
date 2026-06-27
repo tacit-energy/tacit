@@ -1,0 +1,158 @@
+{
+  "id": "diagram_001",
+  "name": "Energy topology 001",
+  "type": "energy_topology",
+  "nodes": [
+    {
+      "id": "node_0001",
+      "type": "meterNode",
+      "position": {
+        "x": 223.41547128713023,
+        "y": 96
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0001",
+        "label": "Chilled water meter 072",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0072"
+      }
+    },
+    {
+      "id": "node_0002",
+      "type": "meterNode",
+      "position": {
+        "x": 693.0483460903281,
+        "y": 237.39382407774997
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0002",
+        "label": "Chilled water meter 739",
+        "unit": "m³",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0739"
+      }
+    },
+    {
+      "id": "node_0003",
+      "type": "meterNode",
+      "position": {
+        "x": 228.82713424415147,
+        "y": 315.05025299143097
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0003",
+        "label": "Chilled water meter 259",
+        "unit": "m³",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0259"
+      }
+    },
+    {
+      "id": "node_0004",
+      "type": "meterNode",
+      "position": {
+        "x": 134.51294117647046,
+        "y": 569.9011764705882
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0004",
+        "label": "Electricity meter 2522",
+        "unit": "kWh",
+        "energyType": "electricity",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_2522"
+      }
+    },
+    {
+      "id": "node_0005",
+      "type": "meterNode",
+      "position": {
+        "x": 722.0234111124478,
+        "y": 584.3628973667406
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0005",
+        "label": "Electricity meter 202",
+        "unit": "kWh",
+        "energyType": "electricity",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0202"
+      }
+    },
+    {
+      "id": "node_0006",
+      "type": "meterNode",
+      "position": {
+        "x": 410.1203395054804,
+        "y": 806.4580620778829
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0006",
+        "label": "Water meter 602",
+        "unit": "m³",
+        "energyType": "water",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0602"
+      }
+    },
+    {
+      "id": "node_0007",
+      "type": "meterNode",
+      "position": {
+        "x": -59.564796721030916,
+        "y": 203.46047361074068
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0007",
+        "label": "Heating meter 001",
+        "unit": "kWh",
+        "energyType": "heating",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0001"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_0001",
+      "source": "node_0003",
+      "target": "node_0002",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0002",
+      "source": "node_0001",
+      "target": "node_0002",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    }
+  ]
+}

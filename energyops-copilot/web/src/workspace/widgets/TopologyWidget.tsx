@@ -130,6 +130,7 @@ export function TopologyWidget({ spec }: { spec: TopologySpec }) {
           nodes={nodes}
           edges={edges}
           fitView
+          maxZoom={Infinity}
           proOptions={{ hideAttribution: true }}
           nodesDraggable={false}
           nodesConnectable={false}

@@ -1,0 +1,26 @@
+{
+  "id": "diagram_009",
+  "name": "Energy topology 009",
+  "type": "energy_topology",
+  "nodes": [
+    {
+      "id": "node_0001",
+      "type": "meterNode",
+      "position": {
+        "x": 114.10023843485014,
+        "y": 336.3342907161872
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0001",
+        "label": "Electricity meter 013",
+        "unit": "kWh",
+        "energyType": "electricity",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0013"
+      }
+    }
+  ],
+  "edges": []
+}

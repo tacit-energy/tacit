@@ -1,0 +1,9 @@
+# Energy topology 006 (diagram_006)
+
+Gas meter 2641 -> Utility aggregate 001
+Gas meter 2735 -> Utility aggregate 001
+Utility aggregate 001 -> Gas meter 2528
+Utility aggregate 001 -> Gas meter 2529
+Gas meter 2528 -> Utility aggregate 002
+Gas meter 2529 -> Utility aggregate 002
+Utility aggregate 002 -> Gas meter 343

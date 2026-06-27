@@ -77,6 +77,19 @@ function deriveName(prompt?: string): string {
   return t.length > 60 ? `${t.slice(0, 57)}…` : t;
 }
 
+function withAnalysisRange(prompt: string, range?: { from?: string; to?: string }): string {
+  const from = range?.from?.trim();
+  const to = range?.to?.trim();
+  if (!from && !to) return prompt;
+
+  const bounds = [
+    from ? `start at ${from} 00:00:00` : undefined,
+    to ? `end at ${to} 23:59:59` : undefined
+  ].filter(Boolean);
+
+  return `Time range constraint: ${bounds.join(' and ')}. Limit anomaly scans, data-quality scans, SQL filters, and charts to this range unless the operator explicitly asks otherwise.\n\n${prompt}`;
+}
+
 // ---------------------------------------------------------------------------
 // Datasets + sessions
 // ---------------------------------------------------------------------------
@@ -110,10 +123,18 @@ app.post('/datasets/:id/sessions', async c => {
     return c.json({ error: 'unknown dataset' }, 404);
   }
   const body = await c.req
-    .json<{ prompt?: string; name?: string }>()
-    .catch(() => ({}) as { prompt?: string; name?: string });
+    .json<{ prompt?: string; name?: string; range?: { from?: string; to?: string } }>()
+    .catch(
+      () =>
+        ({}) as {
+          prompt?: string;
+          name?: string;
+          range?: { from?: string; to?: string };
+        }
+    );
   const session = createSession(datasetId, body.name?.trim() || deriveName(body.prompt));
-  session.send(body.prompt?.trim() ? body.prompt : DEFAULT_ANALYSIS_PROMPT);
+  const initialPrompt = body.prompt?.trim() ? body.prompt : DEFAULT_ANALYSIS_PROMPT;
+  session.send(withAnalysisRange(initialPrompt, body.range));
   return c.json({ id: session.id });
 });
 

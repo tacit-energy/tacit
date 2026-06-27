@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   ArrowLeft,
+  CalendarRange,
   GitFork,
   MessageSquarePlus,
   Play,
@@ -37,10 +38,28 @@ export function DatasetPage({
   const [topologies, setTopologies] = useState<DiagramInfo[]>([]);
   const [tables, setTables] = useState<TableInfo[]>([]);
   const [prompt, setPrompt] = useState('');
+  const [rangeFrom, setRangeFrom] = useState('');
+  const [rangeTo, setRangeTo] = useState('');
   const [starting, setStarting] = useState(false);
 
   useEffect(() => {
-    getDatasets().then(ds => setDataset(ds.find(d => d.id === datasetId) ?? null));
+    getDatasets().then(ds => {
+      const nextDataset = ds.find(d => d.id === datasetId) ?? null;
+      setDataset(nextDataset);
+      if (nextDataset?.startDate) {
+        setRangeFrom(nextDataset.startDate);
+        if (nextDataset.days && nextDataset.days > 0) {
+          const end = new Date(`${nextDataset.startDate}T00:00:00`);
+          end.setDate(end.getDate() + nextDataset.days - 1);
+          setRangeTo(end.toISOString().slice(0, 10));
+        } else {
+          setRangeTo('');
+        }
+      } else {
+        setRangeFrom('');
+        setRangeTo('');
+      }
+    });
     getSessions(datasetId).then(setSessions).catch(() => {});
     getTopologies(datasetId).then(setTopologies).catch(() => {});
     getTables(datasetId).then(setTables).catch(() => {});
@@ -49,7 +68,10 @@ export function DatasetPage({
   const start = async () => {
     setStarting(true);
     try {
-      const id = await startSession(datasetId, prompt.trim() || undefined);
+      const id = await startSession(datasetId, prompt.trim() || undefined, {
+        from: rangeFrom || undefined,
+        to: rangeTo || undefined
+      });
       onOpenSession(id);
     } finally {
       setStarting(false);
@@ -109,6 +131,32 @@ export function DatasetPage({
                   placeholder="e.g. Something feels off this week — help me understand it."
                   className="mt-3"
                 />
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <label className="flex flex-col gap-1 text-[12px] font-medium text-[var(--muted-foreground)]">
+                    <span className="flex items-center gap-1.5">
+                      <CalendarRange size={14} /> From
+                    </span>
+                    <input
+                      type="date"
+                      value={rangeFrom}
+                      max={rangeTo || undefined}
+                      onChange={e => setRangeFrom(e.target.value)}
+                      className="h-9 rounded-md border border-[var(--input)] bg-[var(--background)] px-3 text-[13px] text-[var(--foreground)] outline-none focus:border-[var(--ring)]"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1 text-[12px] font-medium text-[var(--muted-foreground)]">
+                    <span className="flex items-center gap-1.5">
+                      <CalendarRange size={14} /> To
+                    </span>
+                    <input
+                      type="date"
+                      value={rangeTo}
+                      min={rangeFrom || undefined}
+                      onChange={e => setRangeTo(e.target.value)}
+                      className="h-9 rounded-md border border-[var(--input)] bg-[var(--background)] px-3 text-[13px] text-[var(--foreground)] outline-none focus:border-[var(--ring)]"
+                    />
+                  </label>
+                </div>
                 <div className="mt-3 flex justify-end">
                   <Button variant="primary" onClick={start} disabled={starting}>
                     <Play size={15} /> {starting ? 'Starting…' : 'Start analysis'}

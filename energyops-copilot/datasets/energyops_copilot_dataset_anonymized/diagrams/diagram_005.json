@@ -1,0 +1,419 @@
+{
+  "id": "diagram_005",
+  "name": "Energy topology 005",
+  "type": "energy_topology",
+  "nodes": [
+    {
+      "id": "node_0001",
+      "type": "meterNode",
+      "position": {
+        "x": 7005.1132054049585,
+        "y": 2527.5517609137423
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0001",
+        "label": "Heating meter 015",
+        "unit": "kWh",
+        "energyType": "heating",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0015"
+      }
+    },
+    {
+      "id": "node_0002",
+      "type": "meterNode",
+      "position": {
+        "x": 7006.549078348704,
+        "y": 2657.4982623227816
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0002",
+        "label": "Heating meter 057",
+        "unit": "kWh",
+        "energyType": "heating",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0057"
+      }
+    },
+    {
+      "id": "node_0003",
+      "type": "meterNode",
+      "position": {
+        "x": 7503.77886286781,
+        "y": 2677.8864593899707
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0003",
+        "label": "Utility aggregate 001",
+        "unit": "kWh",
+        "energyType": null,
+        "linkedDiagram": null,
+        "kind": "sum",
+        "sumMode": "incoming",
+        "showLoss": false
+      }
+    },
+    {
+      "id": "node_0004",
+      "type": "meterNode",
+      "position": {
+        "x": 6367.9205382617965,
+        "y": 2869.8127871375764
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0004",
+        "label": "Utility aggregate 002",
+        "unit": "kWh",
+        "energyType": null,
+        "linkedDiagram": null,
+        "kind": "sum",
+        "sumMode": "outgoing",
+        "showLoss": false
+      }
+    },
+    {
+      "id": "node_0005",
+      "type": "meterNode",
+      "position": {
+        "x": 7038.125042353723,
+        "y": 3053.130710398294
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0005",
+        "label": "Heating meter 2289",
+        "unit": "kWh",
+        "energyType": "heating",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_2289"
+      }
+    },
+    {
+      "id": "node_0006",
+      "type": "meterNode",
+      "position": {
+        "x": 7039.425237661677,
+        "y": 3181.850045885757
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0006",
+        "label": "Heating meter 012",
+        "unit": "kWh",
+        "energyType": "heating",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0012"
+      }
+    },
+    {
+      "id": "node_0007",
+      "type": "meterNode",
+      "position": {
+        "x": 7036.824847045768,
+        "y": 3319.670748528899
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0007",
+        "label": "Heating meter 1087",
+        "unit": "kWh",
+        "energyType": "heating",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1087"
+      }
+    },
+    {
+      "id": "node_0008",
+      "type": "meterNode",
+      "position": {
+        "x": 7797.439102198957,
+        "y": 2471.94340774278
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0008",
+        "label": "Heating meter 814",
+        "unit": "kWh",
+        "energyType": "heating",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0814"
+      }
+    },
+    {
+      "id": "node_0009",
+      "type": "meterNode",
+      "position": {
+        "x": 7798.739297506912,
+        "y": 2574.6588370711593
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0009",
+        "label": "Heating meter 808",
+        "unit": "kWh",
+        "energyType": "heating",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0808"
+      }
+    },
+    {
+      "id": "node_0010",
+      "type": "meterNode",
+      "position": {
+        "x": 7801.339688122819,
+        "y": 2678.674461707493
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0010",
+        "label": "Heating meter 803",
+        "unit": "kWh",
+        "energyType": "heating",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0803"
+      }
+    },
+    {
+      "id": "node_0011",
+      "type": "meterNode",
+      "position": {
+        "x": 7797.439102198959,
+        "y": 2798.2924300392765
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0011",
+        "label": "Heating meter 820",
+        "unit": "kWh",
+        "energyType": "heating",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0820"
+      }
+    },
+    {
+      "id": "node_0012",
+      "type": "meterNode",
+      "position": {
+        "x": 7798.73929750691,
+        "y": 2903.6082499835643
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0012",
+        "label": "Heating meter 892",
+        "unit": "kWh",
+        "energyType": "heating",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0892"
+      }
+    },
+    {
+      "id": "node_0013",
+      "type": "meterNode",
+      "position": {
+        "x": 7800.039492814865,
+        "y": 3016.7252417755767
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0013",
+        "label": "Heating meter 889",
+        "unit": "kWh",
+        "energyType": "heating",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0889"
+      }
+    },
+    {
+      "id": "node_0014",
+      "type": "meterNode",
+      "position": {
+        "x": 7396.978947349072,
+        "y": 3053.1307103982936
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0014",
+        "label": "Heating meter 1066",
+        "unit": "kWh",
+        "energyType": "heating",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1066"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_0001",
+      "source": "node_0001",
+      "target": "node_0003",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0002",
+      "source": "node_0004",
+      "target": "node_0001",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0003",
+      "source": "node_0002",
+      "target": "node_0004",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0004",
+      "source": "node_0004",
+      "target": "node_0005",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0005",
+      "source": "node_0004",
+      "target": "node_0006",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0006",
+      "source": "node_0007",
+      "target": "node_0004",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0007",
+      "source": "node_0003",
+      "target": "node_0008",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0008",
+      "source": "node_0003",
+      "target": "node_0009",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0009",
+      "source": "node_0003",
+      "target": "node_0010",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0010",
+      "source": "node_0003",
+      "target": "node_0011",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0011",
+      "source": "node_0003",
+      "target": "node_0012",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0012",
+      "source": "node_0003",
+      "target": "node_0013",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0013",
+      "source": "node_0005",
+      "target": "node_0014",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+# Energy topology 005 (diagram_005)
+
+Heating meter 015 -> Utility aggregate 001
+Utility aggregate 002 -> Heating meter 015
+Heating meter 057 -> Utility aggregate 002
+Utility aggregate 002 -> Heating meter 2289
+Utility aggregate 002 -> Heating meter 012
+Heating meter 1087 -> Utility aggregate 002
+Utility aggregate 001 -> Heating meter 814
+Utility aggregate 001 -> Heating meter 808
+Utility aggregate 001 -> Heating meter 803
+Utility aggregate 001 -> Heating meter 820
+Utility aggregate 001 -> Heating meter 892
+Utility aggregate 001 -> Heating meter 889
+Heating meter 2289 -> Heating meter 1066

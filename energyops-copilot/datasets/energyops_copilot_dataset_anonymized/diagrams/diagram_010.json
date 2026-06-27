@@ -1,0 +1,904 @@
+{
+  "id": "diagram_010",
+  "name": "Energy topology 010",
+  "type": "energy_topology",
+  "nodes": [
+    {
+      "id": "node_0001",
+      "type": "meterNode",
+      "position": {
+        "x": -4940.761232438462,
+        "y": 5262.310263394073
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0001",
+        "label": "Chilled water meter 065",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0065"
+      }
+    },
+    {
+      "id": "node_0002",
+      "type": "meterNode",
+      "position": {
+        "x": -4940.850766837796,
+        "y": 5408.561314397512
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0002",
+        "label": "Chilled water meter 004",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0004"
+      }
+    },
+    {
+      "id": "node_0003",
+      "type": "meterNode",
+      "position": {
+        "x": -4939.0423145274135,
+        "y": 5555.026692493304
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0003",
+        "label": "Chilled water meter 078",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0078"
+      }
+    },
+    {
+      "id": "node_0004",
+      "type": "meterNode",
+      "position": {
+        "x": -4938.21175101625,
+        "y": 5708.407744986795
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0004",
+        "label": "Chilled water meter 4319",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_4319"
+      }
+    },
+    {
+      "id": "node_0005",
+      "type": "meterNode",
+      "position": {
+        "x": -4941.681330348958,
+        "y": 5820.9075365140425
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0005",
+        "label": "Chilled water meter 112",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0112"
+      }
+    },
+    {
+      "id": "node_0006",
+      "type": "meterNode",
+      "position": {
+        "x": -4942.341084304345,
+        "y": 5969.352176475993
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0006",
+        "label": "Chilled water meter 760",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0760"
+      }
+    },
+    {
+      "id": "node_0007",
+      "type": "meterNode",
+      "position": {
+        "x": -4943.000838259731,
+        "y": 6090.746904267098
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0007",
+        "label": "Chilled water meter 086",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0086"
+      }
+    },
+    {
+      "id": "node_0008",
+      "type": "meterNode",
+      "position": {
+        "x": -4944.320346170503,
+        "y": 6237.21228236289
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0008",
+        "label": "Chilled water meter 2493",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_2493"
+      }
+    },
+    {
+      "id": "node_0009",
+      "type": "meterNode",
+      "position": {
+        "x": -4945.639854081277,
+        "y": 6382.3581525479085
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0009",
+        "label": "Chilled water meter 1260",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1260"
+      }
+    },
+    {
+      "id": "node_0010",
+      "type": "meterNode",
+      "position": {
+        "x": -4946.299608036662,
+        "y": 6503.752880339015
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0010",
+        "label": "Chilled water meter 901",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0901"
+      }
+    },
+    {
+      "id": "node_0011",
+      "type": "meterNode",
+      "position": {
+        "x": -4946.959361992049,
+        "y": 6623.432247846116
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0011",
+        "label": "Chilled water meter 006",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0006"
+      }
+    },
+    {
+      "id": "node_0012",
+      "type": "meterNode",
+      "position": {
+        "x": -4949.512973035708,
+        "y": 6769.1524672086325
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0012",
+        "label": "Chilled water meter 083",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0083"
+      }
+    },
+    {
+      "id": "node_0013",
+      "type": "meterNode",
+      "position": {
+        "x": -4949.983896659361,
+        "y": 6940.323196771532
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0013",
+        "label": "Chilled water meter 082",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0082"
+      }
+    },
+    {
+      "id": "node_0014",
+      "type": "meterNode",
+      "position": {
+        "x": -4950.258131768981,
+        "y": 7211.009120513286
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0014",
+        "label": "Chilled water meter 028",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0028"
+      }
+    },
+    {
+      "id": "node_0015",
+      "type": "meterNode",
+      "position": {
+        "x": -4950.258131768981,
+        "y": 7358.134252564463
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0015",
+        "label": "Chilled water meter 119",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0119"
+      }
+    },
+    {
+      "id": "node_0016",
+      "type": "meterNode",
+      "position": {
+        "x": -4951.577639679754,
+        "y": 7503.939876704868
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0016",
+        "label": "Chilled water meter 072",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0072"
+      }
+    },
+    {
+      "id": "node_0017",
+      "type": "meterNode",
+      "position": {
+        "x": -4879.411277435903,
+        "y": 7655.482448143454
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0017",
+        "label": "Chilled water meter 077",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0077"
+      }
+    },
+    {
+      "id": "node_0018",
+      "type": "meterNode",
+      "position": {
+        "x": -5195.225772662899,
+        "y": 7707.00495809452
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0018",
+        "label": "Chilled water meter 351",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0351"
+      }
+    },
+    {
+      "id": "node_0019",
+      "type": "meterNode",
+      "position": {
+        "x": -4903.969228235711,
+        "y": 7810.973734196899
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0019",
+        "label": "Chilled water meter 350",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0350"
+      }
+    },
+    {
+      "id": "node_0020",
+      "type": "meterNode",
+      "position": {
+        "x": -4908.823745584796,
+        "y": 7965.663536267522
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0020",
+        "label": "Chilled water meter 4622",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_4622"
+      }
+    },
+    {
+      "id": "node_0021",
+      "type": "meterNode",
+      "position": {
+        "x": -5150.1073738697205,
+        "y": 8088.4636900641635
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0021",
+        "label": "Chilled water meter 051",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0051"
+      }
+    },
+    {
+      "id": "node_0022",
+      "type": "meterNode",
+      "position": {
+        "x": -4953.368804995975,
+        "y": 8238.597353546189
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0022",
+        "label": "Chilled water meter 049",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0049"
+      }
+    },
+    {
+      "id": "node_0023",
+      "type": "meterNode",
+      "position": {
+        "x": -4954.642860001439,
+        "y": 8386.103496586438
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0023",
+        "label": "Chilled water meter 024",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0024"
+      }
+    },
+    {
+      "id": "node_0024",
+      "type": "meterNode",
+      "position": {
+        "x": -4958.3900766632705,
+        "y": 8511.51109033085
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0024",
+        "label": "Chilled water meter 019",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0019"
+      }
+    },
+    {
+      "id": "node_0025",
+      "type": "meterNode",
+      "position": {
+        "x": -4958.3900766632705,
+        "y": 8634.22532603273
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0025",
+        "label": "Chilled water meter 3945",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_3945"
+      }
+    },
+    {
+      "id": "node_0026",
+      "type": "meterNode",
+      "position": {
+        "x": -4957.070568752497,
+        "y": 8746.383498448426
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0026",
+        "label": "Chilled water meter 080",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0080"
+      }
+    },
+    {
+      "id": "node_0027",
+      "type": "meterNode",
+      "position": {
+        "x": -4955.751060841724,
+        "y": 8894.168384455004
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0027",
+        "label": "Chilled water meter 009",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0009"
+      }
+    },
+    {
+      "id": "node_0028",
+      "type": "meterNode",
+      "position": {
+        "x": -4955.751060841725,
+        "y": 9016.882620156885
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0028",
+        "label": "Chilled water meter 017",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0017"
+      }
+    },
+    {
+      "id": "node_0029",
+      "type": "meterNode",
+      "position": {
+        "x": -4955.751060841724,
+        "y": 9164.667506163449
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0029",
+        "label": "Chilled water meter 070",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0070"
+      }
+    },
+    {
+      "id": "node_0030",
+      "type": "meterNode",
+      "position": {
+        "x": -4955.751060841725,
+        "y": 9289.22905294042
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0030",
+        "label": "Chilled water meter 109",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0109"
+      }
+    },
+    {
+      "id": "node_0031",
+      "type": "meterNode",
+      "position": {
+        "x": -4954.4315529309515,
+        "y": 9417.262796553074
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0031",
+        "label": "Chilled water meter 105",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0105"
+      }
+    },
+    {
+      "id": "node_0032",
+      "type": "meterNode",
+      "position": {
+        "x": -4954.682096383884,
+        "y": 9551.789324368807
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0032",
+        "label": "Chilled water meter 081",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0081"
+      }
+    },
+    {
+      "id": "node_0033",
+      "type": "meterNode",
+      "position": {
+        "x": -4952.001604294656,
+        "y": 9679.870114173862
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0033",
+        "label": "Chilled water meter 4314",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_4314"
+      }
+    },
+    {
+      "id": "node_0034",
+      "type": "meterNode",
+      "position": {
+        "x": -4953.070568752498,
+        "y": 9795.576925587362
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0034",
+        "label": "Chilled water meter 117",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0117"
+      }
+    },
+    {
+      "id": "node_0035",
+      "type": "meterNode",
+      "position": {
+        "x": -4951.709584574043,
+        "y": 9948.338509014533
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0035",
+        "label": "Chilled water meter 111",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0111"
+      }
+    },
+    {
+      "id": "node_0036",
+      "type": "meterNode",
+      "position": {
+        "x": -4949.070568752498,
+        "y": 10099.426031125544
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0036",
+        "label": "Chilled water meter 079",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0079"
+      }
+    },
+    {
+      "id": "node_0037",
+      "type": "meterNode",
+      "position": {
+        "x": -4942.3900766632705,
+        "y": 10257.1525690581
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0037",
+        "label": "Chilled water meter 058",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0058"
+      }
+    },
+    {
+      "id": "node_0038",
+      "type": "meterNode",
+      "position": {
+        "x": -4943.709584574043,
+        "y": 10408.937455064664
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0038",
+        "label": "Chilled water meter 088",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0088"
+      }
+    },
+    {
+      "id": "node_0039",
+      "type": "meterNode",
+      "position": {
+        "x": -4949.070568752497,
+        "y": 10559.983500907994
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0039",
+        "label": "Chilled water meter 084",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0084"
+      }
+    },
+    {
+      "id": "node_0040",
+      "type": "meterNode",
+      "position": {
+        "x": -4943.751060841724,
+        "y": 10710.757349915624
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0040",
+        "label": "Chilled water meter 4316",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_4316"
+      }
+    },
+    {
+      "id": "node_0041",
+      "type": "meterNode",
+      "position": {
+        "x": -4944.305336191368,
+        "y": 10836.35638042758
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0041",
+        "label": "Chilled water meter 4309",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_4309"
+      }
+    },
+    {
+      "id": "node_0042",
+      "type": "meterNode",
+      "position": {
+        "x": -4939.746019298123,
+        "y": 10956.308449137867
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0042",
+        "label": "Chilled water meter 1733",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1733"
+      }
+    },
+    {
+      "id": "node_0043",
+      "type": "meterNode",
+      "position": {
+        "x": -4939.746019298124,
+        "y": 11107.251443128489
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0043",
+        "label": "Chilled water meter 1734",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1734"
+      }
+    },
+    {
+      "id": "node_0044",
+      "type": "meterNode",
+      "position": {
+        "x": -4938.777452431144,
+        "y": 11258.194437119113
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0044",
+        "label": "Chilled water meter 1735",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1735"
+      }
+    },
+    {
+      "id": "node_0045",
+      "type": "meterNode",
+      "position": {
+        "x": -4934.777452431144,
+        "y": 11408.590281410206
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0045",
+        "label": "Chilled water meter 1736",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1736"
+      }
+    },
+    {
+      "id": "node_0046",
+      "type": "meterNode",
+      "position": {
+        "x": -4929.808885564165,
+        "y": 11569.433648241535
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0046",
+        "label": "Chilled water meter 1738",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1738"
+      }
+    },
+    {
+      "id": "node_0047",
+      "type": "meterNode",
+      "position": {
+        "x": -4929.261735864634,
+        "y": 11752.376642232157
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0047",
+        "label": "Chilled water meter 1740",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1740"
+      }
+    },
+    {
+      "id": "node_0048",
+      "type": "meterNode",
+      "position": {
+        "x": -4935.398675238447,
+        "y": 5083.469598206173
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0048",
+        "label": "Chilled water meter 1290",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1290"
+      }
+    },
+    {
+      "id": "node_0049",
+      "type": "meterNode",
+      "position": {
+        "x": -4294.543516914242,
+        "y": 5479.034272234681
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0049",
+        "label": "Utility aggregate 001",
+        "unit": "kWh",
+        "energyType": null,
+        "linkedDiagram": null,
+        "kind": "sum",
+        "sumMode": "incoming",
+        "showLoss": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_0001",
+      "source": "node_0048",
+      "target": "node_0049",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    }
+  ]
+}

@@ -1,0 +1,258 @@
+{
+  "id": "diagram_004",
+  "name": "Energy topology 004",
+  "type": "energy_topology",
+  "nodes": [
+    {
+      "id": "node_0001",
+      "type": "meterNode",
+      "position": {
+        "x": 6879.918995468851,
+        "y": 1587.9300173831296
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0001",
+        "label": "Heating meter 814",
+        "unit": "kWh",
+        "energyType": "heating",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0814"
+      }
+    },
+    {
+      "id": "node_0002",
+      "type": "meterNode",
+      "position": {
+        "x": 6878.938306385861,
+        "y": 1719.7250534873767
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0002",
+        "label": "Heating meter 808",
+        "unit": "kWh",
+        "energyType": "heating",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0808"
+      }
+    },
+    {
+      "id": "node_0003",
+      "type": "meterNode",
+      "position": {
+        "x": 6878.152963704788,
+        "y": 1852.9611257173617
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0003",
+        "label": "Heating meter 820",
+        "unit": "kWh",
+        "energyType": "heating",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0820"
+      }
+    },
+    {
+      "id": "node_0004",
+      "type": "meterNode",
+      "position": {
+        "x": 6873.8432029346195,
+        "y": 1982.1423872583607
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0004",
+        "label": "Heating meter 1066",
+        "unit": "kWh",
+        "energyType": "heating",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1066"
+      }
+    },
+    {
+      "id": "node_0005",
+      "type": "meterNode",
+      "position": {
+        "x": 7520.152573493904,
+        "y": 1597.1991842471064
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0005",
+        "label": "Utility aggregate 001",
+        "unit": "kWh",
+        "energyType": null,
+        "linkedDiagram": null,
+        "kind": "sum",
+        "sumMode": "incoming",
+        "showLoss": false
+      }
+    },
+    {
+      "id": "node_0006",
+      "type": "meterNode",
+      "position": {
+        "x": 7512.299432714011,
+        "y": 1859.8906102219728
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0006",
+        "label": "Utility aggregate 002",
+        "unit": "kWh",
+        "energyType": null,
+        "linkedDiagram": null,
+        "kind": "sum",
+        "sumMode": "incoming",
+        "showLoss": false
+      }
+    },
+    {
+      "id": "node_0007",
+      "type": "meterNode",
+      "position": {
+        "x": 7507.381209683971,
+        "y": 2140.0801258090514
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0007",
+        "label": "Utility aggregate 003",
+        "unit": "kWh",
+        "energyType": null,
+        "linkedDiagram": null,
+        "kind": "sum",
+        "sumMode": "incoming",
+        "showLoss": false
+      }
+    },
+    {
+      "id": "node_0008",
+      "type": "meterNode",
+      "position": {
+        "x": 6875.172153952092,
+        "y": 2113.6904793085587
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0008",
+        "label": "Heating meter 1610",
+        "unit": "kWh",
+        "energyType": "heating",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1610"
+      }
+    },
+    {
+      "id": "node_0009",
+      "type": "meterNode",
+      "position": {
+        "x": 6875.62660525925,
+        "y": 2248.8587864135525
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0009",
+        "label": "Heating meter 1615",
+        "unit": "kWh",
+        "energyType": "heating",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1615"
+      }
+    },
+    {
+      "id": "node_0010",
+      "type": "meterNode",
+      "position": {
+        "x": 6870.62660525925,
+        "y": 2378.8587864135525
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0010",
+        "label": "Heating meter 1609",
+        "unit": "kWh",
+        "energyType": "heating",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1609"
+      }
+    },
+    {
+      "id": "node_0011",
+      "type": "meterNode",
+      "position": {
+        "x": 6868.62660525925,
+        "y": 2506.8587864135525
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0011",
+        "label": "Heating meter 1605",
+        "unit": "kWh",
+        "energyType": "heating",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1605"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_0001",
+      "source": "node_0001",
+      "target": "node_0005",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0002",
+      "source": "node_0002",
+      "target": "node_0006",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0003",
+      "source": "node_0003",
+      "target": "node_0007",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0004",
+      "source": "node_0004",
+      "target": "node_0006",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    }
+  ]
+}

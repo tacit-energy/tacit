@@ -1,0 +1,106 @@
+{
+  "id": "diagram_012",
+  "name": "Energy topology 012",
+  "type": "energy_topology",
+  "nodes": [
+    {
+      "id": "node_0001",
+      "type": "meterNode",
+      "position": {
+        "x": 219.44507381552117,
+        "y": 248.03131665118735
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0001",
+        "label": "Chilled water meter 072",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0072"
+      }
+    },
+    {
+      "id": "node_0002",
+      "type": "meterNode",
+      "position": {
+        "x": 270.02415788516186,
+        "y": 442.1138485463201
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0002",
+        "label": "Chilled water meter 739",
+        "unit": "m³",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0739"
+      }
+    },
+    {
+      "id": "node_0003",
+      "type": "meterNode",
+      "position": {
+        "x": 221.64908601436377,
+        "y": 633.654381559874
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0003",
+        "label": "Chilled water meter 762",
+        "unit": "m³",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0762"
+      }
+    },
+    {
+      "id": "node_0004",
+      "type": "meterNode",
+      "position": {
+        "x": 816.5748424888716,
+        "y": 558.3396495325559
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0004",
+        "label": "Utility aggregate 001",
+        "unit": "m³",
+        "energyType": null,
+        "linkedDiagram": null,
+        "kind": "sum",
+        "sumMode": "incoming",
+        "showLoss": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_0001",
+      "source": "node_0002",
+      "target": "node_0004",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0002",
+      "source": "node_0003",
+      "target": "node_0004",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    }
+  ]
+}

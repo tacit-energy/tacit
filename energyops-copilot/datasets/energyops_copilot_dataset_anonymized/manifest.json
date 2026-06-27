@@ -1,0 +1,45 @@
+{
+  "created_at_utc": "2026-06-27T12:51:20Z",
+  "source": "anonymized_live_export",
+  "diagram_ids": [
+    "diagram_001",
+    "diagram_002",
+    "diagram_003",
+    "diagram_004",
+    "diagram_005",
+    "diagram_006",
+    "diagram_007",
+    "diagram_008",
+    "diagram_009",
+    "diagram_010",
+    "diagram_011",
+    "diagram_012"
+  ],
+  "time_window": {
+    "start": "2026-01-01 00:00:00",
+    "end": "2026-01-29 00:00:00"
+  },
+  "counts": {
+    "diagrams": 12,
+    "source_sensor_count": 4675,
+    "selected_sensors": 4675,
+    "sensor_attributes": 52769,
+    "sensor_external_refs": 4561,
+    "hourly_sensor_rows": 1042726,
+    "document_records": 0,
+    "downloaded_documents": 0,
+    "reference_assets": 0
+  },
+  "selection_policy": {
+    "mode": "full_dataset",
+    "description": "Full source sensor export. Source meter codes and customer-specific keywords removed."
+  },
+  "files": {
+    "diagrams": "diagrams/",
+    "sensors": "sensors.csv",
+    "sensor_attributes": "sensor_attributes.csv",
+    "sensor_external_refs": "sensor_external_refs.csv",
+    "sensor_data_hourly": "sensor_data_hourly.csv",
+    "location_mapping_summary": "location_mapping_summary.csv"
+  }
+}

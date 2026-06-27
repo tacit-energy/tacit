@@ -1,0 +1,255 @@
+{
+  "id": "diagram_006",
+  "name": "Energy topology 006",
+  "type": "energy_topology",
+  "nodes": [
+    {
+      "id": "node_0001",
+      "type": "meterNode",
+      "position": {
+        "x": 7270.321563975903,
+        "y": 2146.0004646548387
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0001",
+        "label": "Gas meter 2528",
+        "unit": "kWh",
+        "energyType": "gas",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_2528"
+      }
+    },
+    {
+      "id": "node_0002",
+      "type": "meterNode",
+      "position": {
+        "x": 7268.370355595276,
+        "y": 2278.6826345374498
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0002",
+        "label": "Gas meter 2529",
+        "unit": "kWh",
+        "energyType": "gas",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_2529"
+      }
+    },
+    {
+      "id": "node_0003",
+      "type": "meterNode",
+      "position": {
+        "x": 8087.877875458461,
+        "y": 1765.5148304326462
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0003",
+        "label": "Gas meter 1129",
+        "unit": "m³",
+        "energyType": "gas",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1129"
+      }
+    },
+    {
+      "id": "node_0004",
+      "type": "meterNode",
+      "position": {
+        "x": 8085.926667077834,
+        "y": 1878.6849165089902
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0004",
+        "label": "Gas meter 1130",
+        "unit": "m³",
+        "energyType": "gas",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_1130"
+      }
+    },
+    {
+      "id": "node_0005",
+      "type": "meterNode",
+      "position": {
+        "x": 8080.073041935954,
+        "y": 2124.537172467946
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0005",
+        "label": "Gas meter 343",
+        "unit": "kWh",
+        "energyType": "gas",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_0343"
+      }
+    },
+    {
+      "id": "node_0006",
+      "type": "meterNode",
+      "position": {
+        "x": 6710.324758736059,
+        "y": 2136.2444227517058
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0006",
+        "label": "Gas meter 2641",
+        "unit": "m³",
+        "energyType": "gas",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_2641"
+      }
+    },
+    {
+      "id": "node_0007",
+      "type": "meterNode",
+      "position": {
+        "x": 6706.422341974804,
+        "y": 2276.731426156823
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0007",
+        "label": "Gas meter 2735",
+        "unit": "m³",
+        "energyType": "gas",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "sensor_2735"
+      }
+    },
+    {
+      "id": "node_0008",
+      "type": "meterNode",
+      "position": {
+        "x": 6973.981220675347,
+        "y": 2239.90219682463
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0008",
+        "label": "Utility aggregate 001",
+        "energyType": null,
+        "linkedDiagram": null,
+        "kind": "sum",
+        "sumMode": "incoming",
+        "showLoss": false
+      }
+    },
+    {
+      "id": "node_0009",
+      "type": "meterNode",
+      "position": {
+        "x": 7602.270319237125,
+        "y": 2232.0973633021235
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node_0009",
+        "label": "Utility aggregate 002",
+        "energyType": null,
+        "linkedDiagram": null,
+        "kind": "sum",
+        "sumMode": "incoming",
+        "showLoss": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_0001",
+      "source": "node_0006",
+      "target": "node_0008",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0002",
+      "source": "node_0007",
+      "target": "node_0008",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0003",
+      "source": "node_0008",
+      "target": "node_0001",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0004",
+      "source": "node_0008",
+      "target": "node_0002",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0005",
+      "source": "node_0001",
+      "target": "node_0009",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0006",
+      "source": "node_0002",
+      "target": "node_0009",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    },
+    {
+      "id": "edge_0007",
+      "source": "node_0009",
+      "target": "node_0005",
+      "sourceHandle": null,
+      "targetHandle": null,
+      "type": "smoothstep",
+      "animated": true,
+      "interactionWidth": 28,
+      "selected": false,
+      "data": {}
+    }
+  ]
+}
