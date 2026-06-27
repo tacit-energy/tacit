@@ -269,6 +269,39 @@ because the agent *finds* it with generic tools. The same flow must hold when we
 - **P5 — Scale.** Point DuckDB at the ~2,000-sensor anonymized dataset; declare `subsystem-analyst`
   subagent; subsystem selection; verify bounded responses keep main context clean. *Done = step 8 lands.*
 
+## Workspace pillar — multi-dataset, resumable sessions (in progress)
+
+Reshapes the app from a single ephemeral chat into a workspace product.
+
+**Decisions:** sessions are **resumable** (SDK `resume: sessionId`; the SDK auto-persists
+transcripts to `~/.claude/projects/<encoded-cwd>/<id>.jsonl`, so reopen-after-restart works
+when cwd is stable). Datasets are **auto-discovered** from a `datasets/` folder (each subfolder
+with `sensors.csv` = a dataset). Build order: **dataset home + switching first**, then sessions.
+
+**Hierarchy:** Home (datasets grid + import-by-folder) → Dataset (tabs: Sessions · Topologies ·
+Data) → Session (chat + workspace). Selecting a dataset shows a centered **"Start analysis"**
+launcher: an optional prompt field + button (blank = general analysis) that creates a session.
+
+**Entities (SQLite):** `sessions` (id, dataset_id, name, sdk_session_id, timestamps), `widgets`
+per session; `dataset_id` added to annotations/notes/decisions. Datasets are discovered, not stored.
+
+**Core refactor — SessionManager:** replace the one global `query()` + global tools + global
+DuckDB with per-session agents. `createSession(datasetId, prompt?)` builds dataset-bound MCP tools,
+starts `query()`, captures the SDK session id, gives the session its own SSE stream;
+`resumeSession(id)` re-attaches with `resume:` and re-supplies that dataset's tools. Routes become
+`/datasets`, `/datasets/:id/sessions`, `/sessions/:id/events|message`. Data/widget/annotation tools
+become a per-session factory bound to the dataset + a session-local widget bus.
+
+**Status:** ✅ dataset registry + `GET /datasets` + `datasets/cooling-sample`. ✅ **SessionManager** —
+per-session agents (`Session` class: own streaming `query()`, own `Bus`, own permissions, dataset-bound
+tool factory), resumable via SDK `resume` (sdk_session_id persisted). Per-dataset DuckDB/topology/scan;
+annotations dataset-scoped; `sessions` table. Routes: `/datasets/:id/sessions`,
+`/sessions/:id/{events,message,permission,interrupt,annotation(s)}`; legacy `/events|/message|…` bridged
+to a default session so the current frontend keeps working. Verified end-to-end in-process. ✅ **Frontend
+routing** — App view-router (home/dataset/session/settings); HomePage (datasets grid), DatasetPage (tabs:
+Sessions + "Start analysis" launcher, Topologies, Data), SessionPage (chat+workspace via `useAgentStream(sessionId)`
+on `/sessions/:id/*`); `WidgetFrame` annotations session-scoped; `GET /datasets/:id/{topologies,tables}` endpoints.
+
 ## Open items / decisions deferred
 - Exact subagent model (`opus` for the sweep vs `inherit`) — tune in P5.
 - Semantic (embedding) similarity for `find_similar_decisions` — only if keyword/SQL retrieval feels weak.

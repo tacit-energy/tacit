@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react';
-import { ChatPanel } from '@/chat/ChatPanel';
-import { Workspace } from '@/workspace/Workspace';
+import { HomePage } from '@/pages/HomePage';
+import { DatasetPage } from '@/pages/DatasetPage';
+import { SessionPage } from '@/pages/SessionPage';
 import { SettingsPage } from '@/settings/SettingsPage';
-import { useAgentStream } from '@/lib/agent-store';
 import { DEFAULT_THEME, isThemeId, type ThemeId } from '@/lib/themes';
 
-type Page = 'workspace' | 'settings';
+type View =
+  | { name: 'home' }
+  | { name: 'dataset'; datasetId: string }
+  | { name: 'session'; sessionId: string; datasetId: string };
 
 function App() {
-  const { state, send, answerPermission, interrupt } = useAgentStream();
-  const [page, setPage] = useState<Page>('workspace');
+  const [view, setView] = useState<View>({ name: 'home' });
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [theme, setTheme] = useState<ThemeId>(() => {
     const stored = window.localStorage.getItem('energyops-theme');
     return isThemeId(stored) ? stored : DEFAULT_THEME;
@@ -20,35 +23,43 @@ function App() {
     window.localStorage.setItem('energyops-theme', theme);
   }, [theme]);
 
-  return (
-    <div className="grid h-dvh min-h-0 min-w-0 grid-cols-[minmax(380px,460px)_1fr] grid-rows-[minmax(0,1fr)] overflow-hidden bg-[var(--background)] text-[var(--foreground)]">
-      <ChatPanel
-        state={state}
-        send={send}
-        answerPermission={answerPermission}
-        interrupt={interrupt}
+  let content;
+  if (settingsOpen) {
+    content = (
+      <SettingsPage
+        theme={theme}
+        onThemeChange={setTheme}
+        onBack={() => setSettingsOpen(false)}
       />
-      {page === 'settings' ? (
-        <SettingsPage
-          theme={theme}
-          onThemeChange={setTheme}
-          onBack={() => setPage('workspace')}
-        />
-      ) : (
-        <Workspace
-          widgets={state.widgets}
-          onOpenSettings={() => setPage('settings')}
-          onInsightAction={(action, _id, title) =>
-            send(
-              action === 'accept'
-                ? `I accept the insight "${title}". Please note this decision and the current system context.`
-                : `I'm dismissing the insight "${title}" — it isn't actionable right now.`
-            )
-          }
-        />
-      )}
-    </div>
-  );
+    );
+  } else if (view.name === 'home') {
+    content = (
+      <HomePage
+        onOpenDataset={id => setView({ name: 'dataset', datasetId: id })}
+        onOpenSettings={() => setSettingsOpen(true)}
+      />
+    );
+  } else if (view.name === 'dataset') {
+    content = (
+      <DatasetPage
+        datasetId={view.datasetId}
+        onBack={() => setView({ name: 'home' })}
+        onOpenSession={id =>
+          setView({ name: 'session', sessionId: id, datasetId: view.datasetId })
+        }
+      />
+    );
+  } else {
+    content = (
+      <SessionPage
+        sessionId={view.sessionId}
+        onBack={() => setView({ name: 'dataset', datasetId: view.datasetId })}
+        onOpenSettings={() => setSettingsOpen(true)}
+      />
+    );
+  }
+
+  return <div className="h-dvh min-h-0 overflow-hidden">{content}</div>;
 }
 
 export default App;

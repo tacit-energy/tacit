@@ -1,0 +1,15 @@
+# Cooling Trace Demo
+
+Topology edges:
+- Central chilled water production -> North branch chilled water supply
+- Central chilled water production -> South branch chilled water supply
+- North branch chilled water supply -> Critical zone cooling load
+- North branch chilled water supply -> Lab zone cooling load
+- South branch chilled water supply -> General zone cooling load
+- Critical zone cooling load -> North branch return temperature
+- Lab zone cooling load -> North branch return temperature
+- General zone cooling load -> South branch return temperature
+- North pump power -> North branch chilled water supply
+- Outdoor air temperature -> Expected cooling demand
+- Expected cooling demand -> Central chilled water production
+- North branch chilled water supply -> North branch balance

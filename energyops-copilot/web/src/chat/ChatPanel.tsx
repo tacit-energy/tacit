@@ -1,5 +1,6 @@
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import {
+  ArrowLeft,
   Brain,
   ChevronRight,
   FileInput,
@@ -19,6 +20,7 @@ interface Props {
   send: (text: string) => void;
   answerPermission: (id: string, answer: PermissionAnswer) => void;
   interrupt: () => void;
+  onBack?: () => void;
 }
 
 const pretty = (v: unknown) => {
@@ -492,13 +494,13 @@ function Item({
   switch (item.kind) {
     case 'user':
       return (
-        <div className="max-w-[680px] self-end whitespace-pre-wrap rounded-xl bg-[var(--primary)] px-3.5 py-2.5 text-[14px] text-[var(--primary-foreground)]">
+        <div className="max-w-[680px] self-end whitespace-pre-wrap rounded-[var(--message-radius)] bg-[var(--primary)] px-3.5 py-2.5 text-[14px] text-[var(--primary-foreground)]">
           {item.text}
         </div>
       );
     case 'assistant':
       return (
-        <div className="max-w-[680px] self-start rounded-xl bg-[var(--secondary)] px-3.5 py-2.5 text-[14px] text-[var(--secondary-foreground)]">
+        <div className="max-w-[680px] self-start rounded-[var(--message-radius)] bg-[var(--secondary)] px-3.5 py-2.5 text-[14px] text-[var(--secondary-foreground)]">
           <MarkdownContent text={item.text} />
         </div>
       );
@@ -532,7 +534,13 @@ function Item({
   }
 }
 
-export function ChatPanel({ state, send, answerPermission, interrupt }: Props) {
+export function ChatPanel({
+  state,
+  send,
+  answerPermission,
+  interrupt,
+  onBack
+}: Props) {
   const [input, setInput] = useState('');
   const feedRef = useRef<HTMLDivElement>(null);
   const shouldStickToBottomRef = useRef(true);
@@ -557,6 +565,11 @@ export function ChatPanel({ state, send, answerPermission, interrupt }: Props) {
   return (
     <div className="flex h-full min-h-0 min-w-0 flex-col border-r border-[var(--border)] bg-[var(--panel)]">
       <header className="flex items-center gap-2 border-b border-[var(--border)] px-4 py-2.5">
+        {onBack && (
+          <Button variant="ghost" size="icon" onClick={onBack} aria-label="Back">
+            <ArrowLeft />
+          </Button>
+        )}
         <h1 className="text-[15px] font-semibold text-[var(--foreground)]">
           EnergyOps Copilot
         </h1>
@@ -589,7 +602,7 @@ export function ChatPanel({ state, send, answerPermission, interrupt }: Props) {
           <Item key={item.id} item={item} answerPermission={answerPermission} />
         ))}
         {state.streaming && (
-          <div className="max-w-[680px] self-start rounded-xl bg-[var(--secondary)] px-3.5 py-2.5 text-[14px] text-[var(--muted-foreground)] opacity-80">
+          <div className="max-w-[680px] self-start rounded-[var(--message-radius)] bg-[var(--secondary)] px-3.5 py-2.5 text-[14px] text-[var(--muted-foreground)] opacity-80">
             <MarkdownContent text={state.streaming} />
           </div>
         )}

@@ -1,5 +1,5 @@
-// Generic, schema-sniffing anomaly + data-quality scans. Scenario-blind: works
-// on any dataset following the sensor-timeseries shape, with OR without an
+// Generic, schema-sniffing anomaly + data-quality scans, per dataset. Works on
+// any dataset following the sensor-timeseries shape, with OR without an
 // expected_value column (falls back to per-sensor statistical baselines).
 
 import { getDuck, type Duck } from './duck.js';
@@ -18,7 +18,7 @@ const NUMERIC = /INT|DOUBLE|DECIMAL|FLOAT|REAL|HUGEINT|BIGINT/i;
 const sanitizeTs = (s: string) => s.replace('T', ' ').replace('Z', '').trim();
 const q = (s: string) => `"${s.replace(/"/g, '""')}"`;
 
-let schemaPromise: Promise<TsSchema | null> | null = null;
+const schemaCache = new Map<string, Promise<TsSchema | null>>();
 
 async function columns(duck: Duck, table: string) {
   const d = await duck.raw(`DESCRIBE ${q(table)}`, 1000);
@@ -28,8 +28,8 @@ async function columns(duck: Duck, table: string) {
   }));
 }
 
-async function sniff(): Promise<TsSchema | null> {
-  const duck = await getDuck();
+async function sniff(datasetId: string): Promise<TsSchema | null> {
+  const duck = await getDuck(datasetId);
   let best: TsSchema | null = null;
   let bestRows = -1;
 
@@ -39,7 +39,7 @@ async function sniff(): Promise<TsSchema | null> {
     const idCol =
       cols.find(c => c.name.toLowerCase() === 'sensor_id') ??
       cols.find(c => /(^|_)id$/i.test(c.name) && NUMERIC.test(c.type));
-    if (!timeCol || !idCol) continue; // not a timeseries table
+    if (!timeCol || !idCol) continue;
 
     const valueCol =
       cols.find(c => c.name.toLowerCase() === 'value') ??
@@ -56,7 +56,6 @@ async function sniff(): Promise<TsSchema | null> {
     if (n <= bestRows) continue;
     bestRows = n;
 
-    // Optional catalog table (id + name) for human labels.
     let catalog: TsSchema['catalog'];
     for (const t of duck.tables()) {
       if (t === table) continue;
@@ -82,16 +81,20 @@ async function sniff(): Promise<TsSchema | null> {
   return best;
 }
 
-export function getTsSchema(): Promise<TsSchema | null> {
-  if (!schemaPromise) schemaPromise = sniff();
-  return schemaPromise;
+function getTsSchema(datasetId: string): Promise<TsSchema | null> {
+  let p = schemaCache.get(datasetId);
+  if (!p) {
+    p = sniff(datasetId);
+    schemaCache.set(datasetId, p);
+  }
+  return p;
 }
 
 function timeFilter(s: TsSchema, from?: string, to?: string): string {
   const parts: string[] = [];
   if (from) parts.push(`${q(s.timeCol)} >= TIMESTAMP '${sanitizeTs(from)}'`);
   if (to) parts.push(`${q(s.timeCol)} <= TIMESTAMP '${sanitizeTs(to)}'`);
-  return parts.length ? `WHERE ${parts.join(' AND ')}` : '';
+  return parts.length ? parts.join(' AND ') : '';
 }
 
 function scopeFilter(s: TsSchema, sensorIds?: number[]): string {
@@ -100,7 +103,7 @@ function scopeFilter(s: TsSchema, sensorIds?: number[]): string {
 }
 
 function whereClause(...clauses: string[]): string {
-  const cs = clauses.flatMap(c => (c ? [c.replace(/^WHERE /, '')] : []));
+  const cs = clauses.filter(Boolean);
   return cs.length ? `WHERE ${cs.join(' AND ')}` : '';
 }
 
@@ -114,18 +117,24 @@ export interface AnomalyHit {
   method: string;
 }
 
-export async function scanAnomalies(opts: {
-  from?: string;
-  to?: string;
-  sensorIds?: number[];
-  method?: 'auto' | 'expected' | 'baseline';
-  limit?: number;
-}): Promise<{ method: string; schema: Partial<TsSchema>; results: AnomalyHit[] }> {
-  const s = await getTsSchema();
+export async function scanAnomalies(
+  datasetId: string,
+  opts: {
+    from?: string;
+    to?: string;
+    sensorIds?: number[];
+    method?: 'auto' | 'expected' | 'baseline';
+    limit?: number;
+  }
+): Promise<{ method: string; schema: Partial<TsSchema>; results: AnomalyHit[] }> {
+  const s = await getTsSchema(datasetId);
   if (!s) return { method: 'none', schema: {}, results: [] };
-  const duck = await getDuck();
+  const duck = await getDuck(datasetId);
   const limit = Math.min(opts.limit ?? 10, 50);
-  const where = whereClause(timeFilter(s, opts.from, opts.to), scopeFilter(s, opts.sensorIds));
+  const where = whereClause(
+    timeFilter(s, opts.from, opts.to),
+    scopeFilter(s, opts.sensorIds)
+  );
 
   const useDeviation =
     (opts.method === 'auto' || opts.method === undefined) && s.deviationCol;
@@ -146,7 +155,6 @@ export async function scanAnomalies(opts: {
     unit = 'pct_vs_expected';
     method = `pct-vs-expected (${s.expectedCol})`;
   } else {
-    // Per-sensor z-score baseline — works with no expected column at all.
     const inner = `
       WITH base AS (
         SELECT ${q(s.idCol)} AS sid, ${q(s.timeCol)} AS ts, ${q(s.valueCol)} AS v
@@ -226,19 +234,20 @@ export interface QualityIssue {
   detail: string;
 }
 
-export async function scanDataQuality(opts: {
-  from?: string;
-  to?: string;
-  sensorIds?: number[];
-}): Promise<{ checked: number; issues: QualityIssue[] }> {
-  const s = await getTsSchema();
+export async function scanDataQuality(
+  datasetId: string,
+  opts: { from?: string; to?: string; sensorIds?: number[] }
+): Promise<{ checked: number; issues: QualityIssue[] }> {
+  const s = await getTsSchema(datasetId);
   if (!s) return { checked: 0, issues: [] };
-  const duck = await getDuck();
-  const where = whereClause(timeFilter(s, opts.from, opts.to), scopeFilter(s, opts.sensorIds));
+  const duck = await getDuck(datasetId);
+  const where = whereClause(
+    timeFilter(s, opts.from, opts.to),
+    scopeFilter(s, opts.sensorIds)
+  );
   const names = await sensorNames(duck, s);
   const issues: QualityIssue[] = [];
 
-  // Flatline / stale: a sensor whose value never changes over the window.
   const flat = await duck.raw(
     `SELECT ${q(s.idCol)} AS sid, count(*) AS n, stddev_pop(${q(s.valueCol)}) AS sd
      FROM ${q(s.table)} ${where}
@@ -255,7 +264,6 @@ export async function scanDataQuality(opts: {
     });
   }
 
-  // Gaps: largest inter-sample gap is far above the sensor's typical cadence.
   const gaps = await duck.raw(
     `WITH d AS (
        SELECT ${q(s.idCol)} AS sid, ${q(s.timeCol)} AS ts,

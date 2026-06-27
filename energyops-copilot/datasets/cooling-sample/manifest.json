@@ -1,0 +1,32 @@
+{
+  "created_at_utc": "2026-06-27T09:21:02.559692+00:00",
+  "source": "synthetic_sample",
+  "scenario": "north_branch_spike",
+  "start_date": "2026-06-08",
+  "days": 21,
+  "hero_day": "2026-06-24",
+  "hero_window": [
+    "05:00",
+    "08:00"
+  ],
+  "root_cause_sensor": "Critical zone cooling load",
+  "primary_affected_sensor": "North branch chilled water supply",
+  "comparison_branch": "South branch chilled water supply",
+  "narrative": "Early-morning excess cooling demand appears on the north branch, driven mainly by the critical zone. The south branch remains close to the expected profile.",
+  "seed": 20260608,
+  "counts": {
+    "diagrams": 1,
+    "sensors": 12,
+    "hourly_sensor_rows": 6048,
+    "sensor_attributes": 24,
+    "sensor_external_refs": 12
+  },
+  "files": {
+    "readme": "README.md",
+    "diagrams": "diagrams/",
+    "sensors": "sensors.csv",
+    "sensor_attributes": "sensor_attributes.csv",
+    "sensor_external_refs": "sensor_external_refs.csv",
+    "sensor_data_hourly": "sensor_data_hourly.csv"
+  }
+}

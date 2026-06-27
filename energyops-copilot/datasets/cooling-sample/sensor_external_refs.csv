@@ -1,0 +1,13 @@
+sensor_id,source,external_id,external_key,label
+900101,hackathon-sample,SAMPLE-900101,cooling_total,Central chilled water production
+900102,hackathon-sample,SAMPLE-900102,north_flow,North branch chilled water supply
+900103,hackathon-sample,SAMPLE-900103,south_flow,South branch chilled water supply
+900104,hackathon-sample,SAMPLE-900104,critical_zone_cooling,Critical zone cooling load
+900105,hackathon-sample,SAMPLE-900105,lab_zone_cooling,Lab zone cooling load
+900106,hackathon-sample,SAMPLE-900106,general_zone_cooling,General zone cooling load
+900107,hackathon-sample,SAMPLE-900107,north_return,North branch return temperature
+900108,hackathon-sample,SAMPLE-900108,south_return,South branch return temperature
+900109,hackathon-sample,SAMPLE-900109,north_pump_power,North pump power
+900110,hackathon-sample,SAMPLE-900110,outside_temp,Outdoor air temperature
+900111,hackathon-sample,SAMPLE-900111,cooling_target,Expected cooling demand
+900112,hackathon-sample,SAMPLE-900112,north_balance,North branch balance

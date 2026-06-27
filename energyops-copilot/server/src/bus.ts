@@ -1,23 +1,25 @@
-// Tiny event bus. Every server event is stored (so a reconnecting browser can
-// replay the session) and pushed live to all connected SSE subscribers.
+// Per-session event bus. Each session has its own Bus: events are stored (so a
+// reconnecting browser can replay the session) and pushed live to subscribers.
 
 import type { ServerEvent } from './types.js';
 
 type Listener = (event: ServerEvent) => void;
 
-const history: ServerEvent[] = [];
-const listeners = new Set<Listener>();
+export class Bus {
+  private history: ServerEvent[] = [];
+  private listeners = new Set<Listener>();
 
-export function broadcast(event: ServerEvent): void {
-  history.push(event);
-  for (const listener of listeners) listener(event);
-}
+  broadcast = (event: ServerEvent): void => {
+    this.history.push(event);
+    for (const listener of this.listeners) listener(event);
+  };
 
-export function subscribe(listener: Listener): () => void {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
-}
+  subscribe(listener: Listener): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
 
-export function getHistory(): readonly ServerEvent[] {
-  return history;
+  getHistory(): readonly ServerEvent[] {
+    return this.history;
+  }
 }

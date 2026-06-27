@@ -212,10 +212,13 @@ function reduceEvent(state: AgentState, event: ServerEvent): AgentState {
 type Action =
   | { type: 'event'; event: ServerEvent }
   | { type: 'user'; text: string }
-  | { type: 'status'; text: string };
+  | { type: 'status'; text: string }
+  | { type: 'reset' };
 
 function reducer(state: AgentState, action: Action): AgentState {
   switch (action.type) {
+    case 'reset':
+      return initialState;
     case 'event':
       return reduceEvent(state, action.event);
     case 'user':
@@ -237,11 +240,12 @@ export interface PermissionAnswer {
   updatedInput?: Record<string, unknown>;
 }
 
-export function useAgentStream() {
+export function useAgentStream(sessionId: string) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
-    const es = new EventSource('/events');
+    dispatch({ type: 'reset' });
+    const es = new EventSource(`/sessions/${sessionId}/events`);
     es.onmessage = e => {
       if (!e.data) return;
       dispatch({ type: 'event', event: JSON.parse(e.data) as ServerEvent });
@@ -249,31 +253,34 @@ export function useAgentStream() {
     es.onerror = () =>
       dispatch({ type: 'status', text: 'disconnected — is the server running?' });
     return () => es.close();
-  }, []);
+  }, [sessionId]);
 
-  const send = useCallback(async (text: string) => {
-    dispatch({ type: 'user', text });
-    await fetch('/message', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text })
-    });
-  }, []);
+  const send = useCallback(
+    async (text: string) => {
+      dispatch({ type: 'user', text });
+      await fetch(`/sessions/${sessionId}/message`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+    },
+    [sessionId]
+  );
 
   const answerPermission = useCallback(
     async (id: string, answer: PermissionAnswer) => {
-      await fetch('/permission', {
+      await fetch(`/sessions/${sessionId}/permission`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, ...answer })
       });
     },
-    []
+    [sessionId]
   );
 
   const interrupt = useCallback(() => {
-    void fetch('/interrupt', { method: 'POST' });
-  }, []);
+    void fetch(`/sessions/${sessionId}/interrupt`, { method: 'POST' });
+  }, [sessionId]);
 
   return { state, send, answerPermission, interrupt };
 }

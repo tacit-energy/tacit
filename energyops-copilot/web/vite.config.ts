@@ -18,9 +18,13 @@ export default defineConfig({
   server: {
     proxy: {
       '/events': { target: SERVER, changeOrigin: true },
+      '/sessions': { target: SERVER, changeOrigin: true },
+      '/datasets': SERVER,
       '/message': SERVER,
       '/permission': SERVER,
       '/interrupt': SERVER,
+      '/annotation': SERVER,
+      '/annotations': SERVER,
       '/health': SERVER
     }
   }

@@ -36,7 +36,7 @@ function StateSummaryWidget({ spec }: { spec: StateSummarySpec }) {
         {spec.items.map((it, i) => (
           <div
             key={i}
-            className="rounded-lg border border-[var(--border)] bg-[var(--background)] p-3"
+            className="rounded-[calc(var(--radius)*0.8)] border border-[var(--border)] bg-[var(--background)] p-3 [border-style:var(--border-style)]"
           >
             <div className="text-[11px] uppercase tracking-wide text-[var(--muted-foreground)]">
               {it.label}
@@ -85,15 +85,17 @@ function WidgetView({
 
 export function Workspace({
   widgets,
+  sessionId,
   onOpenSettings,
   onInsightAction
 }: {
   widgets: Widget[];
+  sessionId: string;
   onOpenSettings: () => void;
   onInsightAction?: InsightAction;
 }) {
   return (
-    <div className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-[var(--background)]">
+    <div className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-[image:var(--workspace-background)]">
       <header className="flex items-center gap-2 border-b border-[var(--border)] px-4 py-2.5">
         <LayoutDashboard size={15} className="text-[var(--muted-foreground)]" />
         <span className="text-[14px] font-medium text-[var(--foreground)]">
@@ -121,7 +123,7 @@ export function Workspace({
       ) : (
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain p-4">
           {widgets.map(w => (
-            <WidgetFrame key={w.id} widgetId={w.id}>
+            <WidgetFrame key={w.id} widgetId={w.id} sessionId={sessionId}>
               <WidgetView widget={w} onInsightAction={onInsightAction} />
             </WidgetFrame>
           ))}

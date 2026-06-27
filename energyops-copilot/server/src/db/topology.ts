@@ -1,10 +1,9 @@
-// Loads topology diagrams that ship with the dataset (diagrams/*.json) and
-// offers simple graph traversal. Dataset-agnostic: whatever diagrams exist are
-// loaded; the agent picks one by id.
+// Topology diagrams per dataset (diagrams/*.json). Loaded lazily and cached by
+// dataset id. Dataset-agnostic: whatever diagrams exist are loaded.
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
-import { DATA_DIR } from './duck.js';
+import { datasetDir } from './datasets.js';
 
 export interface TopoNode {
   id: string;
@@ -28,14 +27,19 @@ export interface Diagram {
   edges: TopoEdge[];
 }
 
-const diagrams = new Map<string, Diagram>();
-let loaded = false;
+const cache = new Map<string, Map<string, Diagram>>();
 
-function load(): void {
-  if (loaded) return;
-  loaded = true;
-  const dir = path.join(DATA_DIR, 'diagrams');
-  if (!existsSync(dir)) return;
+function load(datasetId: string): Map<string, Diagram> {
+  let diagrams = cache.get(datasetId);
+  if (diagrams) return diagrams;
+  diagrams = new Map<string, Diagram>();
+  cache.set(datasetId, diagrams);
+
+  const root = datasetDir(datasetId);
+  if (!root) return diagrams;
+  const dir = path.join(root, 'diagrams');
+  if (!existsSync(dir)) return diagrams;
+
   for (const file of readdirSync(dir).filter(f => f.endsWith('.json'))) {
     try {
       const raw = JSON.parse(readFileSync(path.join(dir, file), 'utf8'));
@@ -70,30 +74,33 @@ function load(): void {
       // skip unparseable diagram files
     }
   }
+  return diagrams;
 }
 
-export function listDiagrams(): { id: string; name: string; nodes: number }[] {
-  load();
-  return [...diagrams.values()].map(d => ({
+export function listDiagrams(
+  datasetId: string
+): { id: string; name: string; nodes: number }[] {
+  return [...load(datasetId).values()].map(d => ({
     id: d.id,
     name: d.name,
     nodes: d.nodes.length
   }));
 }
 
-export function getDiagram(id?: string): Diagram | undefined {
-  load();
+export function getDiagram(datasetId: string, id?: string): Diagram | undefined {
+  const diagrams = load(datasetId);
   if (id) return diagrams.get(id);
   return diagrams.values().next().value; // default to the first
 }
 
 export function neighbors(
+  datasetId: string,
   diagramId: string | undefined,
   nodeId: string,
   depth = 1,
   direction: 'up' | 'down' | 'both' = 'both'
 ): { nodes: TopoNode[]; edges: TopoEdge[] } {
-  const diagram = getDiagram(diagramId);
+  const diagram = getDiagram(datasetId, diagramId);
   if (!diagram) return { nodes: [], edges: [] };
 
   const byId = new Map(diagram.nodes.map(n => [n.id, n]));

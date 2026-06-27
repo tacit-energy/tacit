@@ -7,9 +7,11 @@ import { Button, Card, Textarea } from '@/components/ui';
 // readable by the agent via get_annotations.
 export function WidgetFrame({
   widgetId,
+  sessionId,
   children
 }: {
   widgetId: string;
+  sessionId: string;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -20,7 +22,9 @@ export function WidgetFrame({
 
   useEffect(() => {
     let active = true;
-    fetch(`/annotations?kind=widget&id=${encodeURIComponent(widgetId)}`)
+    fetch(
+      `/sessions/${sessionId}/annotations?kind=widget&id=${encodeURIComponent(widgetId)}`
+    )
       .then(r => (r.ok ? r.json() : []))
       .then((rows: { text: string }[]) => {
         if (active && rows[0]?.text) {
@@ -32,7 +36,7 @@ export function WidgetFrame({
     return () => {
       active = false;
     };
-  }, [widgetId]);
+  }, [widgetId, sessionId]);
 
   // close popover on outside click
   useEffect(() => {
@@ -49,7 +53,7 @@ export function WidgetFrame({
   const save = async () => {
     setBusy(true);
     try {
-      await fetch('/annotation', {
+      await fetch(`/sessions/${sessionId}/annotation`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ kind: 'widget', id: widgetId, text })

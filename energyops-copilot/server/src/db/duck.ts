@@ -1,17 +1,11 @@
-// DuckDB layer. Auto-discovers every CSV in the dataset directory and exposes
-// each as a queryable view (dataset-agnostic: whatever files exist become
-// tables). Runs the agent's read-only SQL with a hard row cap.
+// DuckDB layer, per dataset. Each dataset gets its own in-memory instance with a
+// view per CSV (dataset-agnostic: whatever files exist become tables). Instances
+// are cached by dataset id. Agent-facing query() is read-only + row-capped.
 
 import { readdirSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { DuckDBInstance, type DuckDBConnection } from '@duckdb/node-api';
-
-const SERVER_ROOT = fileURLToPath(new URL('../../', import.meta.url));
-
-export const DATA_DIR = process.env.DATA_DIR
-  ? path.resolve(SERVER_ROOT, process.env.DATA_DIR)
-  : path.resolve(SERVER_ROOT, '../../energyops_copilot_sample_dataset');
+import { datasetDir } from './datasets.js';
 
 const toPosix = (p: string) => p.split(path.sep).join('/');
 const viewName = (file: string) =>
@@ -33,8 +27,6 @@ export interface Duck {
   dataDir: string;
 }
 
-// DuckDB returns temporal / bigint values as wrapper objects. Flatten them to
-// plain JSON-friendly values so the agent and the UI see strings/numbers.
 function normalizeValue(v: unknown): unknown {
   if (typeof v === 'bigint') return Number(v);
   if (v && typeof v === 'object') {
@@ -57,27 +49,29 @@ const READ_ONLY = /^\s*(select|with)\b/i;
 const FORBIDDEN =
   /\b(insert|update|delete|drop|create|alter|attach|detach|copy|pragma|install|load|export|set|call|truncate)\b/i;
 
-let duckPromise: Promise<Duck> | null = null;
+const cache = new Map<string, Promise<Duck>>();
 
-async function init(): Promise<Duck> {
+async function init(datasetId: string): Promise<Duck> {
+  const dir = datasetDir(datasetId);
+  if (!dir) throw new Error(`Unknown dataset: ${datasetId}`);
+
   const instance = await DuckDBInstance.create(':memory:');
   const conn: DuckDBConnection = await instance.connect();
 
-  const csvFiles = readdirSync(DATA_DIR).filter(f => f.endsWith('.csv'));
+  const csvFiles = readdirSync(dir).filter(f => f.endsWith('.csv'));
   const tableNames: string[] = [];
   for (const file of csvFiles) {
     const name = viewName(file);
-    const abs = toPosix(path.join(DATA_DIR, file));
+    const abs = toPosix(path.join(dir, file));
     await conn.run(
       `CREATE VIEW ${name} AS SELECT * FROM read_csv_auto('${abs}', sample_size=-1)`
     );
     tableNames.push(name);
   }
   console.log(
-    `DuckDB ready — ${tableNames.length} tables from ${path.basename(DATA_DIR)}: ${tableNames.join(', ')}`
+    `DuckDB[${datasetId}] ready — ${tableNames.length} tables: ${tableNames.join(', ')}`
   );
 
-  // Trusted execution path: no validation, used for our own DESCRIBE/metadata.
   async function raw(sql: string, maxRows = 1000): Promise<QueryResult> {
     const wrapped = `SELECT * FROM (${sql.trim().replace(/;\s*$/, '')}) AS _q LIMIT ${maxRows + 1}`;
     const reader = await conn.runAndReadAll(wrapped);
@@ -94,7 +88,6 @@ async function init(): Promise<Duck> {
     };
   }
 
-  // Agent-facing path: validate it's a single read-only statement, then run.
   async function query(sql: string, maxRows = 1000): Promise<QueryResult> {
     const trimmed = sql.trim().replace(/;\s*$/, '');
     if (!READ_ONLY.test(trimmed)) {
@@ -109,10 +102,14 @@ async function init(): Promise<Duck> {
     return raw(trimmed, maxRows);
   }
 
-  return { query, raw, tables: () => [...tableNames], dataDir: DATA_DIR };
+  return { query, raw, tables: () => [...tableNames], dataDir: dir };
 }
 
-export function getDuck(): Promise<Duck> {
-  if (!duckPromise) duckPromise = init();
-  return duckPromise;
+export function getDuck(datasetId: string): Promise<Duck> {
+  let p = cache.get(datasetId);
+  if (!p) {
+    p = init(datasetId);
+    cache.set(datasetId, p);
+  }
+  return p;
 }

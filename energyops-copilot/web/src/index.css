@@ -28,6 +28,15 @@
   --chart-5: #a78bfa;
   --panel: #18181b66;
   --panel-strong: #18181b;
+  --radius: 0.5rem;
+  --font-ui: -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.24);
+  --border-style: solid;
+  --workspace-background: var(--background);
+  --surface-filter: none;
+  --message-radius: calc(var(--radius) * 1.35);
+  --control-height: 2.25rem;
 }
 
 [data-theme='grid'] {
@@ -107,6 +116,312 @@
   --panel-strong: #ffffff;
 }
 
+[data-theme='aurora'] {
+  --background: #06111f;
+  --foreground: #e6fffb;
+  --card: #0d1f35d9;
+  --card-foreground: #e6fffb;
+  --popover: #0d1f35;
+  --popover-foreground: #e6fffb;
+  --primary: #22d3ee;
+  --primary-foreground: #042027;
+  --secondary: #17304a;
+  --secondary-foreground: #d8fff8;
+  --muted: #17304a;
+  --muted-foreground: #9bd3cf;
+  --accent: #34d399;
+  --accent-foreground: #03170f;
+  --destructive: #fb7185;
+  --destructive-foreground: #ffffff;
+  --border: #25506c;
+  --input: #25506c;
+  --ring: #22d3ee;
+  --chart-1: #22d3ee;
+  --chart-2: #34d399;
+  --chart-3: #f472b6;
+  --chart-4: #a78bfa;
+  --chart-5: #facc15;
+  --panel: #0d1f3599;
+  --panel-strong: #0d1f35;
+}
+
+[data-theme='voltage'] {
+  --background: #0b0f14;
+  --foreground: #f8fafc;
+  --card: #171c22d9;
+  --card-foreground: #f8fafc;
+  --popover: #171c22;
+  --popover-foreground: #f8fafc;
+  --primary: #facc15;
+  --primary-foreground: #171000;
+  --secondary: #252b33;
+  --secondary-foreground: #f8fafc;
+  --muted: #252b33;
+  --muted-foreground: #aeb7c2;
+  --accent: #facc15;
+  --accent-foreground: #171000;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #3b424c;
+  --input: #3b424c;
+  --ring: #facc15;
+  --chart-1: #facc15;
+  --chart-2: #2563eb;
+  --chart-3: #22c55e;
+  --chart-4: #f97316;
+  --chart-5: #e879f9;
+  --panel: #171c2299;
+  --panel-strong: #171c22;
+}
+
+[data-theme='scada'] {
+  --background: #030705;
+  --foreground: #d8ffe5;
+  --card: #07120dcc;
+  --card-foreground: #d8ffe5;
+  --popover: #07120d;
+  --popover-foreground: #d8ffe5;
+  --primary: #39ff88;
+  --primary-foreground: #001006;
+  --secondary: #10261a;
+  --secondary-foreground: #d8ffe5;
+  --muted: #10261a;
+  --muted-foreground: #87b894;
+  --accent: #39ff88;
+  --accent-foreground: #001006;
+  --destructive: #ff4d6d;
+  --destructive-foreground: #ffffff;
+  --border: #21482f;
+  --input: #21482f;
+  --ring: #39ff88;
+  --chart-1: #39ff88;
+  --chart-2: #80ffdb;
+  --chart-3: #faff00;
+  --chart-4: #00b4d8;
+  --chart-5: #ff4d6d;
+  --panel: #07120d99;
+  --panel-strong: #07120d;
+}
+
+[data-theme='blueprint'] {
+  --background: #071a33;
+  --foreground: #e0f2fe;
+  --card: #0b2545d9;
+  --card-foreground: #e0f2fe;
+  --popover: #0b2545;
+  --popover-foreground: #e0f2fe;
+  --primary: #60a5fa;
+  --primary-foreground: #061426;
+  --secondary: #12345f;
+  --secondary-foreground: #e0f2fe;
+  --muted: #12345f;
+  --muted-foreground: #9cc7ef;
+  --accent: #93c5fd;
+  --accent-foreground: #061426;
+  --destructive: #fb7185;
+  --destructive-foreground: #ffffff;
+  --border: #2d5f99;
+  --input: #2d5f99;
+  --ring: #60a5fa;
+  --chart-1: #60a5fa;
+  --chart-2: #93c5fd;
+  --chart-3: #38bdf8;
+  --chart-4: #fbbf24;
+  --chart-5: #c084fc;
+  --panel: #0b254599;
+  --panel-strong: #0b2545;
+}
+
+[data-theme='mauve-glass'] {
+  --background: #120f18;
+  --foreground: #f8f0ff;
+  --card: #2b203bcc;
+  --card-foreground: #f8f0ff;
+  --popover: #2b203b;
+  --popover-foreground: #f8f0ff;
+  --primary: #c084fc;
+  --primary-foreground: #1b1028;
+  --secondary: #392b4d;
+  --secondary-foreground: #f8f0ff;
+  --muted: #392b4d;
+  --muted-foreground: #c9b7d9;
+  --accent: #f0abfc;
+  --accent-foreground: #201026;
+  --destructive: #fb7185;
+  --destructive-foreground: #ffffff;
+  --border: #6b4c8a;
+  --input: #6b4c8a;
+  --ring: #f0abfc;
+  --chart-1: #c084fc;
+  --chart-2: #f0abfc;
+  --chart-3: #38bdf8;
+  --chart-4: #34d399;
+  --chart-5: #fbbf24;
+  --panel: #2b203b80;
+  --panel-strong: #2b203b;
+  --radius: 1rem;
+  --font-ui: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  --shadow-card: 0 18px 55px rgb(0 0 0 / 0.32);
+  --workspace-background:
+    radial-gradient(circle at 18% 12%, rgb(192 132 252 / 0.16), transparent 28rem),
+    radial-gradient(circle at 86% 18%, rgb(240 171 252 / 0.12), transparent 26rem),
+    var(--background);
+  --surface-filter: blur(14px);
+  --message-radius: 1.25rem;
+}
+
+[data-theme='olive-command'] {
+  --background: #11140c;
+  --foreground: #f2f7df;
+  --card: #202812e6;
+  --card-foreground: #f2f7df;
+  --popover: #202812;
+  --popover-foreground: #f2f7df;
+  --primary: #a3e635;
+  --primary-foreground: #162000;
+  --secondary: #2e371c;
+  --secondary-foreground: #f2f7df;
+  --muted: #2e371c;
+  --muted-foreground: #b8c497;
+  --accent: #bef264;
+  --accent-foreground: #172006;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #52652d;
+  --input: #52652d;
+  --ring: #a3e635;
+  --chart-1: #a3e635;
+  --chart-2: #22c55e;
+  --chart-3: #eab308;
+  --chart-4: #38bdf8;
+  --chart-5: #fb7185;
+  --panel: #20281299;
+  --panel-strong: #202812;
+  --radius: 0.25rem;
+  --font-ui: "Arial Narrow", "Segoe UI", system-ui, sans-serif;
+  --shadow-card: none;
+  --border-style: solid;
+  --workspace-background:
+    linear-gradient(rgb(163 230 53 / 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(163 230 53 / 0.045) 1px, transparent 1px),
+    var(--background);
+  --message-radius: 0.35rem;
+  --control-height: 2rem;
+}
+
+[data-theme='taupe-paper'] {
+  color-scheme: light;
+  --background: #f4efe6;
+  --foreground: #2b2520;
+  --card: #fffaf0f2;
+  --card-foreground: #2b2520;
+  --popover: #fffaf0;
+  --popover-foreground: #2b2520;
+  --primary: #7c4a2d;
+  --primary-foreground: #fffaf0;
+  --secondary: #e8dccb;
+  --secondary-foreground: #2b2520;
+  --muted: #e8dccb;
+  --muted-foreground: #74685f;
+  --accent: #9a6a45;
+  --accent-foreground: #fffaf0;
+  --destructive: #b91c1c;
+  --destructive-foreground: #ffffff;
+  --border: #c8b9a6;
+  --input: #c8b9a6;
+  --ring: #7c4a2d;
+  --chart-1: #7c4a2d;
+  --chart-2: #2563eb;
+  --chart-3: #047857;
+  --chart-4: #b45309;
+  --chart-5: #9333ea;
+  --panel: #fffaf0cc;
+  --panel-strong: #fffaf0;
+  --radius: 0.125rem;
+  --font-ui: Georgia, "Times New Roman", serif;
+  --shadow-card: 0 1px 0 rgb(43 37 32 / 0.12);
+  --border-style: double;
+  --workspace-background:
+    linear-gradient(90deg, rgb(124 74 45 / 0.035) 1px, transparent 1px),
+    linear-gradient(rgb(124 74 45 / 0.035) 1px, transparent 1px),
+    var(--background);
+  --message-radius: 0.2rem;
+}
+
+[data-theme='mist-minimal'] {
+  color-scheme: light;
+  --background: #eef5f7;
+  --foreground: #102027;
+  --card: #ffffff;
+  --card-foreground: #102027;
+  --popover: #ffffff;
+  --popover-foreground: #102027;
+  --primary: #0f766e;
+  --primary-foreground: #ffffff;
+  --secondary: #dcebef;
+  --secondary-foreground: #102027;
+  --muted: #dcebef;
+  --muted-foreground: #5d737a;
+  --accent: #0891b2;
+  --accent-foreground: #ffffff;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #bfd3da;
+  --input: #bfd3da;
+  --ring: #0891b2;
+  --chart-1: #0f766e;
+  --chart-2: #0891b2;
+  --chart-3: #4f46e5;
+  --chart-4: #ca8a04;
+  --chart-5: #be185d;
+  --panel: #ffffffcc;
+  --panel-strong: #ffffff;
+  --radius: 1.25rem;
+  --font-ui: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  --shadow-card: 0 10px 28px rgb(15 118 110 / 0.1);
+  --workspace-background:
+    radial-gradient(circle at 0% 0%, rgb(8 145 178 / 0.14), transparent 24rem),
+    var(--background);
+  --message-radius: 1.5rem;
+}
+
+[data-theme='stone-terminal'] {
+  --background: #0d0d0c;
+  --foreground: #e8e6df;
+  --card: #171715;
+  --card-foreground: #e8e6df;
+  --popover: #171715;
+  --popover-foreground: #e8e6df;
+  --primary: #e7e5e4;
+  --primary-foreground: #0d0d0c;
+  --secondary: #292823;
+  --secondary-foreground: #e8e6df;
+  --muted: #292823;
+  --muted-foreground: #aaa69a;
+  --accent: #f97316;
+  --accent-foreground: #11100e;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #57534e;
+  --input: #57534e;
+  --ring: #e7e5e4;
+  --chart-1: #e7e5e4;
+  --chart-2: #f97316;
+  --chart-3: #22c55e;
+  --chart-4: #38bdf8;
+  --chart-5: #c084fc;
+  --panel: #171715cc;
+  --panel-strong: #171715;
+  --radius: 0rem;
+  --font-ui: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  --shadow-card: none;
+  --workspace-background:
+    repeating-linear-gradient(0deg, rgb(255 255 255 / 0.035) 0 1px, transparent 1px 4px),
+    var(--background);
+  --message-radius: 0rem;
+  --control-height: 2rem;
+}
+
 html,
 body,
 #root {
@@ -115,10 +430,15 @@ body,
 
 body {
   margin: 0;
-  font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-ui);
   background: var(--background);
   color: var(--foreground);
   overflow: hidden;
+}
+
+code,
+pre {
+  font-family: var(--font-mono);
 }
 
 /* thin scrollbars for the chat + workspace columns */
