@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agent SDK Chat</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+  :root {
+    --bg: #1a1a1e; --panel: #242429; --border: #3a3a42; --text: #e8e8ea;
+    --muted: #9a9aa5; --accent: #d97757; --user-bg: #2d3a4a; --ok: #4caf7d; --bad: #e05f5f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.5 -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex; flex-direction: column; height: 100vh;
+  }
+  header {
+    padding: 10px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  header h1 { font-size: 15px; margin: 0; font-weight: 600; }
+  #status { font-size: 12px; color: var(--muted); }
+  #status.working { color: var(--accent); }
+  #feed { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .msg { max-width: 760px; padding: 10px 14px; border-radius: 10px; white-space: pre-wrap; word-break: break-word; }
+  .msg.user { background: var(--user-bg); align-self: flex-end; }
+  .msg.assistant { background: var(--panel); align-self: flex-start; }
+  .msg.streaming { opacity: 0.7; }
+  .card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 14px; max-width: 760px; align-self: flex-start; font-size: 13px;
+  }
+  .card .title { font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .card pre {
+    margin: 8px 0 0; padding: 8px; background: var(--bg); border-radius: 6px;
+    overflow-x: auto; font-size: 12px; max-height: 200px; overflow-y: auto;
+  }
+  .card .result-label { color: var(--muted); margin-top: 8px; font-size: 12px; }
+  .badge { font-size: 11px; padding: 1px 7px; border-radius: 8px; background: var(--border); color: var(--muted); }
+  .badge.allow { background: #234232; color: var(--ok); }
+  .badge.deny { background: #462828; color: var(--bad); }
+  .perm { border-color: var(--accent); }
+  .perm .buttons { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  button {
+    border: 1px solid var(--border); background: var(--panel); color: var(--text);
+    padding: 6px 14px; border-radius: 7px; cursor: pointer; font-size: 13px;
+  }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button.danger:hover { border-color: var(--bad); color: var(--bad); }
+  button.option { display: block; width: 100%; text-align: left; margin-top: 6px; }
+  button.option .desc { color: var(--muted); font-size: 12px; display: block; }
+  .meta { font-size: 12px; color: var(--muted); align-self: center; }
+  footer { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+  #input {
+    flex: 1; background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; padding: 10px 12px; font: inherit; resize: none;
+  }
+  #input:focus { outline: none; border-color: var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Agent SDK Chat</h1>
+  <span id="status">connecting…</span>
+  <span style="flex:1"></span>
+  <button id="interrupt" class="danger" title="Interrupt the agent">Stop</button>
+</header>
+<div id="feed"></div>
+<footer>
+  <textarea id="input" rows="2" placeholder="Message the agent… (Enter to send, Shift+Enter for newline)"></textarea>
+  <button id="send" class="primary">Send</button>
+</footer>
+
+<script>
+const feed = document.getElementById("feed");
+const statusEl = document.getElementById("status");
+const input = document.getElementById("input");
+
+let streamingEl = null;   // live partial-text bubble
+let streamingText = "";
+const toolCards = {};     // tool_use_id -> card element
+
+function el(tag, cls, text) {
+  const node = document.createElement(tag);
+  if (cls) node.className = cls;
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+function append(node) {
+  feed.appendChild(node);
+  feed.scrollTop = feed.scrollHeight;
+}
+function setStatus(text, working) {
+  statusEl.textContent = text;
+  statusEl.className = working ? "working" : "";
+}
+function pretty(obj) {
+  const s = JSON.stringify(obj, null, 2);
+  return s.length > 2000 ? s.slice(0, 2000) + "\n…" : s;
+}
+
+// ---- rendering SDK messages ----------------------------------------------
+
+function clearStreaming() {
+  if (streamingEl) { streamingEl.remove(); streamingEl = null; streamingText = ""; }
+}
+
+function renderAssistant(message) {
+  clearStreaming();
+  for (const block of message.message.content) {
+    if (block.type === "text" && block.text.trim()) {
+      append(el("div", "msg assistant", block.text));
+    } else if (block.type === "thinking" && block.thinking) {
+      const card = el("div", "card");
+      card.appendChild(el("div", "title", "💭 Thinking"));
+      card.appendChild(el("pre", "", block.thinking.slice(0, 600)));
+      append(card);
+    } else if (block.type === "tool_use") {
+      const card = el("div", "card");
+      const title = el("div", "title");
+      title.appendChild(el("span", "", "🔧 " + block.name));
+      title.appendChild(el("span", "badge", "running"));
+      card.appendChild(title);
+      card.appendChild(el("pre", "", pretty(block.input)));
+      toolCards[block.id] = card;
+      append(card);
+    }
+  }
+}
+
+function renderToolResults(message) {
+  const content = message.message && message.message.content;
+  if (!Array.isArray(content)) return;
+  for (const block of content) {
+    if (block.type !== "tool_result") continue;
+    const card = toolCards[block.tool_use_id];
+    if (!card) continue;
+    const badge = card.querySelector(".badge");
+    if (badge) { badge.textContent = block.is_error ? "error" : "done"; badge.className = "badge " + (block.is_error ? "deny" : "allow"); }
+    let text = "";
+    if (typeof block.content === "string") text = block.content;
+    else if (Array.isArray(block.content)) text = block.content.filter(c => c.type === "text").map(c => c.text).join("\n");
+    if (text) {
+      card.appendChild(el("div", "result-label", "Result"));
+      card.appendChild(el("pre", "", text.length > 1500 ? text.slice(0, 1500) + "\n…" : text));
+    }
+  }
+}
+
+function renderPartial(message) {
+  const event = message.event;
+  if (event.type === "content_block_delta" && event.delta && event.delta.type === "text_delta") {
+    if (!streamingEl) {
+      streamingEl = el("div", "msg assistant streaming", "");
+      append(streamingEl);
+    }
+    streamingText += event.delta.text;
+    streamingEl.textContent = streamingText;
+    feed.scrollTop = feed.scrollHeight;
+  }
+}
+
+function renderSdk(message) {
+  switch (message.type) {
+    case "system":
+      if (message.subtype === "init") {
+        append(el("div", "meta", "session " + message.session_id + " · model " + message.model));
+        setStatus("ready", false);
+      }
+      break;
+    case "stream_event":
+      setStatus("working…", true);
+      renderPartial(message);
+      break;
+    case "assistant":
+      renderAssistant(message);
+      break;
+    case "user":
+      renderToolResults(message);
+      break;
+    case "result":
+      clearStreaming();
+      setStatus("ready · " + (message.duration_ms / 1000).toFixed(1) + "s · $" + (message.total_cost_usd || 0).toFixed(4), false);
+      if (message.subtype !== "success") append(el("div", "meta", "⚠ " + message.subtype));
+      break;
+  }
+}
+
+// ---- permission requests ---------------------------------------------------
+
+async function answerPermission(id, body, card) {
+  await fetch("/permission", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(Object.assign({ id }, body)),
+  });
+  card.querySelector(".buttons").remove();
+}
+
+function renderAskUserQuestion(req) {
+  const card = el("div", "card perm");
+  card.appendChild(el("div", "title", "❓ The agent has a question"));
+  const answers = {};
+  const questions = req.input.questions || [];
+
+  for (const q of questions) {
+    card.appendChild(el("div", "result-label", q.header ? q.header + " — " + q.question : q.question));
+    const group = el("div", "buttons");
+    group.style.flexDirection = "column";
+    for (const opt of q.options) {
+      const btn = el("button", "option");
+      btn.appendChild(el("span", "", opt.label));
+      btn.appendChild(el("span", "desc", opt.description || ""));
+      btn.onclick = () => {
+        answers[q.question] = opt.label;
+        group.querySelectorAll("button").forEach(b => (b.style.borderColor = ""));
+        btn.style.borderColor = "var(--ok)";
+        if (Object.keys(answers).length === questions.length) submit.disabled = false;
+      };
+      group.appendChild(btn);
+    }
+    card.appendChild(group);
+  }
+
+  const buttons = el("div", "buttons");
+  const submit = el("button", "primary", "Answer");
+  submit.disabled = true;
+  submit.onclick = () => answerPermission(req.id, {
+    behavior: "allow",
+    updatedInput: { questions: req.input.questions, answers },
+  }, card);
+  buttons.appendChild(submit);
+  card.appendChild(buttons);
+  append(card);
+}
+
+function renderPermission(req) {
+  if (req.toolName === "AskUserQuestion") return renderAskUserQuestion(req);
+
+  const card = el("div", "card perm");
+  const title = el("div", "title");
+  title.appendChild(el("span", "", "🔐 Permission: " + req.toolName));
+  title.appendChild(el("span", "badge", "waiting"));
+  card.appendChild(title);
+  card.appendChild(el("pre", "", pretty(req.input)));
+
+  const buttons = el("div", "buttons");
+  const allow = el("button", "primary", "Allow");
+  allow.onclick = () => answerPermission(req.id, { behavior: "allow" }, card);
+  buttons.appendChild(allow);
+
+  if (req.suggestions && req.suggestions.length) {
+    const always = el("button", "", "Always allow");
+    always.onclick = () => answerPermission(req.id, { behavior: "allow", always: true }, card);
+    buttons.appendChild(always);
+  }
+
+  const deny = el("button", "danger", "Deny");
+  deny.onclick = () => {
+    const message = prompt("Tell the agent why (optional):") || undefined;
+    answerPermission(req.id, { behavior: "deny", message }, card);
+  };
+  buttons.appendChild(deny);
+  card.appendChild(buttons);
+  card.dataset.permId = req.id;
+  append(card);
+}
+
+function resolvePermissionCard(evt) {
+  const card = feed.querySelector('[data-perm-id="' + evt.id + '"]');
+  if (!card) return;
+  const badge = card.querySelector(".badge");
+  if (badge) { badge.textContent = evt.behavior === "allow" ? "allowed" : "denied"; badge.className = "badge " + (evt.behavior === "allow" ? "allow" : "deny"); }
+  const buttons = card.querySelector(".buttons");
+  if (buttons) buttons.remove();
+}
+
+// ---- widgets (rendered components from custom tools) -----------------------
+
+function renderWidget(evt) {
+  const card = el("div", "card");
+  if (evt.widget === "image") {
+    card.appendChild(el("div", "title", "🖼 " + evt.title));
+    const img = document.createElement("img");
+    img.src = evt.src;
+    img.style.cssText = "max-width:100%;border-radius:6px;margin-top:8px";
+    card.appendChild(img);
+    append(card);
+    return;
+  }
+  if (evt.widget === "chart") {
+    const spec = evt.spec;
+    card.appendChild(el("div", "title", "📊 " + spec.title));
+    const holder = el("div");
+    holder.style.cssText = "width:700px;max-width:100%;height:320px;margin-top:8px";
+    card.appendChild(holder);
+    append(card);
+    const chart = echarts.init(holder, "dark");
+    chart.setOption({
+      backgroundColor: "transparent",
+      tooltip: { trigger: "axis" },
+      legend: spec.series.length > 1 ? { top: 0 } : undefined,
+      grid: { left: 50, right: 20, top: spec.series.length > 1 ? 35 : 15, bottom: 30 },
+      xAxis: { type: "category", data: spec.x },
+      yAxis: { type: "value" },
+      series: spec.series.map((s) => ({
+        name: s.name,
+        type: spec.chart_type,
+        data: s.data,
+        smooth: spec.chart_type === "line",
+        showSymbol: spec.x.length <= 50,
+      })),
+    });
+    new ResizeObserver(() => chart.resize()).observe(holder);
+  }
+}
+
+// ---- wiring ----------------------------------------------------------------
+
+const events = new EventSource("/events");
+events.onopen = () => setStatus("ready", false);
+events.onerror = () => setStatus("disconnected — is the server running?", false);
+events.onmessage = (e) => {
+  const evt = JSON.parse(e.data);
+  if (evt.kind === "sdk") renderSdk(evt.message);
+  else if (evt.kind === "permission_request") renderPermission(evt);
+  else if (evt.kind === "permission_resolved") resolvePermissionCard(evt);
+  else if (evt.kind === "widget") renderWidget(evt);
+  else if (evt.kind === "error") append(el("div", "meta", "⚠ " + evt.error));
+};
+
+async function send() {
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = "";
+  append(el("div", "msg user", text));
+  setStatus("working…", true);
+  await fetch("/message", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+  });
+}
+
+document.getElementById("send").onclick = send;
+document.getElementById("interrupt").onclick = () => fetch("/interrupt", { method: "POST" });
+input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+});
+</script>
+</body>
+</html>

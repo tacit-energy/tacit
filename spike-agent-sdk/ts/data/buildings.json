@@ -1,0 +1,38 @@
+{
+  "description": "Sample building energy/heating monitoring dataset. Daily readings for the last 30 days (ending 2026-06-27).",
+  "units": {
+    "outdoor_temp_c": "°C",
+    "flow_temp_c": "°C",
+    "return_temp_c": "°C",
+    "energy_kwh": "kWh/day"
+  },
+  "buildings": [
+    {
+      "id": "hauptstrasse-12",
+      "name": "Hauptstrasse 12",
+      "type": "residential",
+      "units": 12,
+      "heating": "gas-boiler",
+      "readings": "readings/hauptstrasse-12.csv",
+      "notes": "notes/hauptstrasse-12.md"
+    },
+    {
+      "id": "seestrasse-8",
+      "name": "Seestrasse 8",
+      "type": "office",
+      "units": 1,
+      "heating": "heat-pump",
+      "readings": "readings/seestrasse-8.csv",
+      "notes": "notes/seestrasse-8.md"
+    },
+    {
+      "id": "bahnhofplatz-3",
+      "name": "Bahnhofplatz 3",
+      "type": "mixed-use",
+      "units": 7,
+      "heating": "district-heating",
+      "readings": "readings/bahnhofplatz-3.csv",
+      "notes": "notes/bahnhofplatz-3.md"
+    }
+  ]
+}
