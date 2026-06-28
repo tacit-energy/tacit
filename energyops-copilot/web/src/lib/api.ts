@@ -25,6 +25,9 @@ export interface SessionRow {
   include_previous_knowledge?: number;
   created_at: string;
   updated_at: string;
+  insight_count?: number;
+  decision_count?: number;
+  annotation_count?: number;
 }
 
 export interface SessionSnapshot {
@@ -102,6 +105,7 @@ export async function cacheDataset(datasetId: string): Promise<{
   dataset: string;
   tables: number;
   rows: number;
+  sparklines?: number;
 }> {
   const res = await fetch(`/datasets/${datasetId}/cache`, { method: 'POST' });
   if (!res.ok) throw new Error(`cache dataset -> ${res.status}`);
@@ -110,6 +114,7 @@ export async function cacheDataset(datasetId: string): Promise<{
     dataset: string;
     tables: number;
     rows: number;
+    sparklines?: number;
   }>;
 }
 

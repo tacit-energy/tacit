@@ -1,0 +1,606 @@
+{
+  "id": "cooling_trace",
+  "name": "UKHD Demo - Kälte Trace",
+  "type": "energy_topology",
+  "nodes": [
+    {
+      "id": "node-gas_gt",
+      "type": "meterNode",
+      "position": {
+        "x": 40,
+        "y": 260
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node-gas_gt",
+        "label": "Gas-GT",
+        "unit": "kWh",
+        "energyType": "gas",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "900101",
+        "role": "source",
+        "branch": "kwkk",
+        "description": "Gas input for the gas turbine path."
+      }
+    },
+    {
+      "id": "node-heat_total",
+      "type": "meterNode",
+      "position": {
+        "x": 300,
+        "y": 260
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node-heat_total",
+        "label": "Wärmeerzeugung Gesamt",
+        "unit": "kWh",
+        "energyType": "heating",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "900102",
+        "role": "conversion",
+        "branch": "kwkk",
+        "description": "Total heat generation."
+      }
+    },
+    {
+      "id": "node-heat_to_akm",
+      "type": "meterNode",
+      "position": {
+        "x": 560,
+        "y": 260
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node-heat_to_akm",
+        "label": "Wärmeausspeisung an AKM",
+        "unit": "kWh",
+        "energyType": "heating",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "900103",
+        "role": "conversion",
+        "branch": "akm",
+        "description": "Heat supplied to absorption chillers."
+      }
+    },
+    {
+      "id": "node-cool_akm_1",
+      "type": "meterNode",
+      "position": {
+        "x": 840,
+        "y": 160
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node-cool_akm_1",
+        "label": "Kälte AKM 1",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "900104",
+        "role": "production",
+        "branch": "akm",
+        "description": "Cooling production from absorption chiller 1."
+      }
+    },
+    {
+      "id": "node-cool_akm_2",
+      "type": "meterNode",
+      "position": {
+        "x": 840,
+        "y": 360
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node-cool_akm_2",
+        "label": "Kälte AKM 2",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "900105",
+        "role": "production",
+        "branch": "akm",
+        "description": "Cooling production from absorption chiller 2."
+      }
+    },
+    {
+      "id": "node-cool_turbo_total",
+      "type": "meterNode",
+      "position": {
+        "x": 1120,
+        "y": 30
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node-cool_turbo_total",
+        "label": "Kälte Turbo Gesamt",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "900106",
+        "role": "production",
+        "branch": "turbo",
+        "description": "Cooling production from turbo chillers."
+      }
+    },
+    {
+      "id": "node-cool_total",
+      "type": "meterNode",
+      "position": {
+        "x": 1400,
+        "y": 160
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node-cool_total",
+        "label": "Kälteproduktion Gesamt",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "900107",
+        "role": "aggregate",
+        "branch": "cooling_supply",
+        "description": "Total cooling production."
+      }
+    },
+    {
+      "id": "node-cool_dispatch",
+      "type": "meterNode",
+      "position": {
+        "x": 1680,
+        "y": 160
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node-cool_dispatch",
+        "label": "Gesamt Kälteausspeisung",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "900108",
+        "role": "aggregate",
+        "branch": "cooling_supply",
+        "description": "Total cooling dispatched to branches."
+      }
+    },
+    {
+      "id": "node-cool_inf",
+      "type": "meterNode",
+      "position": {
+        "x": 1960,
+        "y": 20
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node-cool_inf",
+        "label": "Kälte Netz INF",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "900109",
+        "role": "consumer_branch",
+        "branch": "inf",
+        "description": "Cooling supplied to the INF network."
+      }
+    },
+    {
+      "id": "node-nf_kopfklinik",
+      "type": "meterNode",
+      "position": {
+        "x": 2240,
+        "y": -120
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node-nf_kopfklinik",
+        "label": "Kopfklinik (INF 400)",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "900110",
+        "role": "consumer_detail",
+        "branch": "inf",
+        "description": "INF cooling consumer."
+      }
+    },
+    {
+      "id": "node-nf_zim",
+      "type": "meterNode",
+      "position": {
+        "x": 2240,
+        "y": -40
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node-nf_zim",
+        "label": "Zentrum Innere Medizin (INF 410)",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "900111",
+        "role": "consumer_detail",
+        "branch": "inf",
+        "description": "INF cooling consumer."
+      }
+    },
+    {
+      "id": "node-nf_chirurgie",
+      "type": "meterNode",
+      "position": {
+        "x": 2240,
+        "y": 40
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node-nf_chirurgie",
+        "label": "Chirurgische Klinik (INF 420)",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "900112",
+        "role": "consumer_detail",
+        "branch": "inf",
+        "description": "INF cooling consumer with the demo anomaly."
+      }
+    },
+    {
+      "id": "node-nf_kinderklinik",
+      "type": "meterNode",
+      "position": {
+        "x": 2240,
+        "y": 120
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node-nf_kinderklinik",
+        "label": "Kinderklinik (INF 430)",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "900113",
+        "role": "consumer_detail",
+        "branch": "inf",
+        "description": "INF cooling consumer."
+      }
+    },
+    {
+      "id": "node-nf_frauenklinik",
+      "type": "meterNode",
+      "position": {
+        "x": 2240,
+        "y": 200
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node-nf_frauenklinik",
+        "label": "Frauenklinik (INF 440)",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "900114",
+        "role": "consumer_detail",
+        "branch": "inf",
+        "description": "INF cooling consumer."
+      }
+    },
+    {
+      "id": "node-cool_tp",
+      "type": "meterNode",
+      "position": {
+        "x": 1960,
+        "y": 160
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node-cool_tp",
+        "label": "Kälte Technologiepark",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "900115",
+        "role": "consumer_branch",
+        "branch": "technology_park",
+        "description": "Cooling supplied to the technology park branch."
+      }
+    },
+    {
+      "id": "node-cool_gt_air",
+      "type": "meterNode",
+      "position": {
+        "x": 1960,
+        "y": 300
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node-cool_gt_air",
+        "label": "Kälte Gasturbine",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "900116",
+        "role": "consumer_branch",
+        "branch": "gas_turbine",
+        "description": "Cooling supplied to gas turbine auxiliaries."
+      }
+    },
+    {
+      "id": "node-cool_ost",
+      "type": "meterNode",
+      "position": {
+        "x": 1960,
+        "y": 440
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node-cool_ost",
+        "label": "Kälte Ostspange",
+        "unit": "kWh",
+        "energyType": "cold",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "900117",
+        "role": "consumer_branch",
+        "branch": "east_branch",
+        "description": "Cooling supplied to the east branch."
+      }
+    },
+    {
+      "id": "node-power_chiller_center",
+      "type": "meterNode",
+      "position": {
+        "x": 840,
+        "y": 30
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node-power_chiller_center",
+        "label": "Strombezug Kältezentrale",
+        "unit": "kWh",
+        "energyType": "electricity",
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "900118",
+        "role": "support",
+        "branch": "cooling_center",
+        "description": "Electrical consumption of the cooling center."
+      }
+    },
+    {
+      "id": "node-outside_temp",
+      "type": "meterNode",
+      "position": {
+        "x": 1120,
+        "y": 520
+      },
+      "selected": false,
+      "data": {
+        "nodeId": "node-outside_temp",
+        "label": "Außentemperatur Referenz",
+        "unit": "°C",
+        "energyType": null,
+        "linkedDiagram": null,
+        "kind": "meter",
+        "meterId": "900119",
+        "role": "reference",
+        "branch": "weather",
+        "description": "Outdoor air temperature reference."
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-1",
+      "source": "node-gas_gt",
+      "target": "node-heat_total",
+      "type": "smoothstep",
+      "animated": true,
+      "data": {
+        "source_label": "Gas-GT",
+        "target_label": "Wärmeerzeugung Gesamt"
+      }
+    },
+    {
+      "id": "edge-2",
+      "source": "node-heat_total",
+      "target": "node-heat_to_akm",
+      "type": "smoothstep",
+      "animated": true,
+      "data": {
+        "source_label": "Wärmeerzeugung Gesamt",
+        "target_label": "Wärmeausspeisung an AKM"
+      }
+    },
+    {
+      "id": "edge-3",
+      "source": "node-heat_to_akm",
+      "target": "node-cool_akm_1",
+      "type": "smoothstep",
+      "animated": true,
+      "data": {
+        "source_label": "Wärmeausspeisung an AKM",
+        "target_label": "Kälte AKM 1"
+      }
+    },
+    {
+      "id": "edge-4",
+      "source": "node-heat_to_akm",
+      "target": "node-cool_akm_2",
+      "type": "smoothstep",
+      "animated": true,
+      "data": {
+        "source_label": "Wärmeausspeisung an AKM",
+        "target_label": "Kälte AKM 2"
+      }
+    },
+    {
+      "id": "edge-5",
+      "source": "node-cool_akm_1",
+      "target": "node-cool_total",
+      "type": "smoothstep",
+      "animated": true,
+      "data": {
+        "source_label": "Kälte AKM 1",
+        "target_label": "Kälteproduktion Gesamt"
+      }
+    },
+    {
+      "id": "edge-6",
+      "source": "node-cool_akm_2",
+      "target": "node-cool_total",
+      "type": "smoothstep",
+      "animated": true,
+      "data": {
+        "source_label": "Kälte AKM 2",
+        "target_label": "Kälteproduktion Gesamt"
+      }
+    },
+    {
+      "id": "edge-7",
+      "source": "node-cool_turbo_total",
+      "target": "node-cool_total",
+      "type": "smoothstep",
+      "animated": true,
+      "data": {
+        "source_label": "Kälte Turbo Gesamt",
+        "target_label": "Kälteproduktion Gesamt"
+      }
+    },
+    {
+      "id": "edge-8",
+      "source": "node-cool_total",
+      "target": "node-cool_dispatch",
+      "type": "smoothstep",
+      "animated": true,
+      "data": {
+        "source_label": "Kälteproduktion Gesamt",
+        "target_label": "Gesamt Kälteausspeisung"
+      }
+    },
+    {
+      "id": "edge-9",
+      "source": "node-cool_dispatch",
+      "target": "node-cool_inf",
+      "type": "smoothstep",
+      "animated": true,
+      "data": {
+        "source_label": "Gesamt Kälteausspeisung",
+        "target_label": "Kälte Netz INF"
+      }
+    },
+    {
+      "id": "edge-10",
+      "source": "node-cool_inf",
+      "target": "node-nf_kopfklinik",
+      "type": "smoothstep",
+      "animated": true,
+      "data": {
+        "source_label": "Kälte Netz INF",
+        "target_label": "Kopfklinik (INF 400)"
+      }
+    },
+    {
+      "id": "edge-11",
+      "source": "node-cool_inf",
+      "target": "node-nf_zim",
+      "type": "smoothstep",
+      "animated": true,
+      "data": {
+        "source_label": "Kälte Netz INF",
+        "target_label": "Zentrum Innere Medizin (INF 410)"
+      }
+    },
+    {
+      "id": "edge-12",
+      "source": "node-cool_inf",
+      "target": "node-nf_chirurgie",
+      "type": "smoothstep",
+      "animated": true,
+      "data": {
+        "source_label": "Kälte Netz INF",
+        "target_label": "Chirurgische Klinik (INF 420)"
+      }
+    },
+    {
+      "id": "edge-13",
+      "source": "node-cool_inf",
+      "target": "node-nf_kinderklinik",
+      "type": "smoothstep",
+      "animated": true,
+      "data": {
+        "source_label": "Kälte Netz INF",
+        "target_label": "Kinderklinik (INF 430)"
+      }
+    },
+    {
+      "id": "edge-14",
+      "source": "node-cool_inf",
+      "target": "node-nf_frauenklinik",
+      "type": "smoothstep",
+      "animated": true,
+      "data": {
+        "source_label": "Kälte Netz INF",
+        "target_label": "Frauenklinik (INF 440)"
+      }
+    },
+    {
+      "id": "edge-15",
+      "source": "node-cool_dispatch",
+      "target": "node-cool_tp",
+      "type": "smoothstep",
+      "animated": true,
+      "data": {
+        "source_label": "Gesamt Kälteausspeisung",
+        "target_label": "Kälte Technologiepark"
+      }
+    },
+    {
+      "id": "edge-16",
+      "source": "node-cool_dispatch",
+      "target": "node-cool_gt_air",
+      "type": "smoothstep",
+      "animated": true,
+      "data": {
+        "source_label": "Gesamt Kälteausspeisung",
+        "target_label": "Kälte Gasturbine"
+      }
+    },
+    {
+      "id": "edge-17",
+      "source": "node-cool_dispatch",
+      "target": "node-cool_ost",
+      "type": "smoothstep",
+      "animated": true,
+      "data": {
+        "source_label": "Gesamt Kälteausspeisung",
+        "target_label": "Kälte Ostspange"
+      }
+    },
+    {
+      "id": "edge-18",
+      "source": "node-power_chiller_center",
+      "target": "node-cool_turbo_total",
+      "type": "smoothstep",
+      "animated": true,
+      "data": {
+        "source_label": "Strombezug Kältezentrale",
+        "target_label": "Kälte Turbo Gesamt"
+      }
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "created_at_utc": "2026-06-28T09:05:39.926442+00:00",
+  "source": "synthetic_sample",
+  "scenario": "campus_cooling_branch_spike",
+  "start_date": "2026-06-08",
+  "days": 45,
+  "hero_day": "2026-07-18",
+  "hero_window": [
+    "05:00",
+    "08:00"
+  ],
+  "root_cause_sensor": "Chirurgische Klinik (INF 420)",
+  "primary_affected_sensor": "Kälte Netz INF",
+  "comparison_branch": "Kälte Technologiepark",
+  "narrative": "Frühmorgendlicher Mehrverbrauch im INF-Netz. Im Detail zeigt sich die Abweichung vor allem in der Chirurgischen Klinik.",
+  "seed": 20260608,
+  "counts": {
+    "diagrams": 1,
+    "source_sensor_count": 19,
+    "selected_sensors": 19,
+    "hourly_sensor_rows": 20520,
+    "sensor_attributes": 190,
+    "sensor_external_refs": 19,
+    "document_records": 0,
+    "downloaded_documents": 0,
+    "reference_assets": 0
+  },
+  "time_window": {
+    "start": "2026-06-08T00:00:00",
+    "end": "2026-07-23T00:00:00"
+  },
+  "selection_policy": {
+    "mode": "synthetic_full_sample",
+    "description": "Generated fake data; not anonymized."
+  },
+  "files": {
+    "readme": "README.md",
+    "diagrams": "diagrams/",
+    "sensors": "sensors.csv",
+    "sensor_attributes": "sensor_attributes.csv",
+    "sensor_external_refs": "sensor_external_refs.csv",
+    "sensor_data_hourly": "sensor_data_hourly.csv"
+  },
+  "time_series_columns": {
+    "value": "Measured value. Cumulative sensors contain cumulative kWh counters.",
+    "expected_value": "Synthetic no-spike counterfactual in the same shape as value. For cumulative sensors this is also cumulative; compare hourly deltas.",
+    "deviation_pct": "Percent deviation between actual and expected period values. For cumulative sensors this is based on hourly deltas.",
+    "scenario_event": "Marks the injected demo event window."
+  }
+}

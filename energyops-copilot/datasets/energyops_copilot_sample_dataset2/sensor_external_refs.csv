@@ -1,0 +1,20 @@
+sensor_id,source,external_id,external_key,label,source_import_id,created_at,updated_at
+900101,hackathon-sample,SAMPLE-900101,gas_gt,Gas-GT,sample_import_001,2026-06-08T00:00:00+00:00,2026-06-08T00:00:00+00:00
+900102,hackathon-sample,SAMPLE-900102,heat_total,Wärmeerzeugung Gesamt,sample_import_001,2026-06-08T00:00:00+00:00,2026-06-08T00:00:00+00:00
+900103,hackathon-sample,SAMPLE-900103,heat_to_akm,Wärmeausspeisung an AKM,sample_import_001,2026-06-08T00:00:00+00:00,2026-06-08T00:00:00+00:00
+900104,hackathon-sample,SAMPLE-900104,cool_akm_1,Kälte AKM 1,sample_import_001,2026-06-08T00:00:00+00:00,2026-06-08T00:00:00+00:00
+900105,hackathon-sample,SAMPLE-900105,cool_akm_2,Kälte AKM 2,sample_import_001,2026-06-08T00:00:00+00:00,2026-06-08T00:00:00+00:00
+900106,hackathon-sample,SAMPLE-900106,cool_turbo_total,Kälte Turbo Gesamt,sample_import_001,2026-06-08T00:00:00+00:00,2026-06-08T00:00:00+00:00
+900107,hackathon-sample,SAMPLE-900107,cool_total,Kälteproduktion Gesamt,sample_import_001,2026-06-08T00:00:00+00:00,2026-06-08T00:00:00+00:00
+900108,hackathon-sample,SAMPLE-900108,cool_dispatch,Gesamt Kälteausspeisung,sample_import_001,2026-06-08T00:00:00+00:00,2026-06-08T00:00:00+00:00
+900109,hackathon-sample,SAMPLE-900109,cool_inf,Kälte Netz INF,sample_import_001,2026-06-08T00:00:00+00:00,2026-06-08T00:00:00+00:00
+900110,hackathon-sample,SAMPLE-900110,nf_kopfklinik,Kopfklinik (INF 400),sample_import_001,2026-06-08T00:00:00+00:00,2026-06-08T00:00:00+00:00
+900111,hackathon-sample,SAMPLE-900111,nf_zim,Zentrum Innere Medizin (INF 410),sample_import_001,2026-06-08T00:00:00+00:00,2026-06-08T00:00:00+00:00
+900112,hackathon-sample,SAMPLE-900112,nf_chirurgie,Chirurgische Klinik (INF 420),sample_import_001,2026-06-08T00:00:00+00:00,2026-06-08T00:00:00+00:00
+900113,hackathon-sample,SAMPLE-900113,nf_kinderklinik,Kinderklinik (INF 430),sample_import_001,2026-06-08T00:00:00+00:00,2026-06-08T00:00:00+00:00
+900114,hackathon-sample,SAMPLE-900114,nf_frauenklinik,Frauenklinik (INF 440),sample_import_001,2026-06-08T00:00:00+00:00,2026-06-08T00:00:00+00:00
+900115,hackathon-sample,SAMPLE-900115,cool_tp,Kälte Technologiepark,sample_import_001,2026-06-08T00:00:00+00:00,2026-06-08T00:00:00+00:00
+900116,hackathon-sample,SAMPLE-900116,cool_gt_air,Kälte Gasturbine,sample_import_001,2026-06-08T00:00:00+00:00,2026-06-08T00:00:00+00:00
+900117,hackathon-sample,SAMPLE-900117,cool_ost,Kälte Ostspange,sample_import_001,2026-06-08T00:00:00+00:00,2026-06-08T00:00:00+00:00
+900118,hackathon-sample,SAMPLE-900118,power_chiller_center,Strombezug Kältezentrale,sample_import_001,2026-06-08T00:00:00+00:00,2026-06-08T00:00:00+00:00
+900119,hackathon-sample,SAMPLE-900119,outside_temp,Außentemperatur Referenz,sample_import_001,2026-06-08T00:00:00+00:00,2026-06-08T00:00:00+00:00

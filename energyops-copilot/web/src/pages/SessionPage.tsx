@@ -192,6 +192,8 @@ export function SessionPage({
           onBack={onBack}
           onNodeChartOpenChange={setNodeChartOpen}
           onExplainInsight={explainInsight}
+          onAskWidgetQuestion={explainInsight}
+          agentBusy={state.working}
           onOpenSettings={onOpenSettings}
           chatInset={chatOpen ? chatDrawerWidth : 0}
         />
@@ -226,6 +228,7 @@ export function SessionPage({
               answerPermission={answerPermission}
               onClose={() => setChatOpen(false)}
               autoFocusInput
+              disabled={state.working}
             />
           </motion.div>
         )}

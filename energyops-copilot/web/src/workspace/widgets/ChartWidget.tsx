@@ -18,7 +18,7 @@ import {
 import type { ChartSpec, ChartType } from '@shared/types';
 import { Button, Card, Textarea } from '@/components/ui';
 import { postAnnotation, postDecision } from '@/lib/api';
-import { formatChartTick, formatChartTooltip } from '@/lib/format';
+import { formatChartTick, formatChartTooltip, formatChartValue } from '@/lib/format';
 
 const COLORS = [
   'var(--chart-1)',
@@ -107,12 +107,13 @@ function axisDomain(
 function seriesElement(
   s: ChartSpec['series'][number],
   i: number,
-  fallback: ChartType
+  fallback: ChartType,
+  isAnimationActive: boolean
 ) {
   const kind = s.kind ?? fallback;
   const color = COLORS[i % COLORS.length];
   const yAxisId = s.axis ?? 'left';
-  const common = { dataKey: s.name, name: s.name, yAxisId };
+  const common = { dataKey: s.name, name: s.name, yAxisId, isAnimationActive };
   switch (kind) {
     case 'bar':
       return <Bar key={s.name} {...common} fill={color} radius={[3, 3, 0, 0]} />;
@@ -400,6 +401,7 @@ export function ChartWidget({
             width={48}
             domain={leftDomain ?? ['auto', 'auto']}
             allowDataOverflow={false}
+            tickFormatter={value => formatChartValue(value, 2)}
           />
           {hasRight && (
             <YAxis
@@ -409,6 +411,7 @@ export function ChartWidget({
               width={48}
               domain={rightDomain ?? ['auto', 'auto']}
               allowDataOverflow={false}
+              tickFormatter={value => formatChartValue(value, 2)}
             />
           )}
           <Tooltip
@@ -419,6 +422,7 @@ export function ChartWidget({
               fontSize: 12
             }}
             labelFormatter={label => formatChartTooltip(String(label))}
+            formatter={(value, name) => [formatChartValue(value, 3), name]}
           />
           <Legend wrapperStyle={{ fontSize: 12 }} />
           {spec.markBands?.map((b, i) => (
@@ -481,7 +485,7 @@ export function ChartWidget({
               }}
             />
           ))}
-          {spec.series.map((s, i) => seriesElement(s, i, fallback))}
+          {spec.series.map((s, i) => seriesElement(s, i, fallback, !selectionTarget))}
         </ComposedChart>
       </ResponsiveContainer>
     </div>

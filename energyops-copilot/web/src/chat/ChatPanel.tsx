@@ -12,6 +12,7 @@ import {
   X
 } from 'lucide-react';
 import { Badge, Button, Card, Textarea } from '@/components/ui';
+import { TacitBrand } from '@/components/TacitBrand';
 import type {
   AgentState,
   FeedItem,
@@ -26,6 +27,7 @@ interface Props {
   onBack?: () => void;
   onClose?: () => void;
   autoFocusInput?: boolean;
+  disabled?: boolean;
 }
 
 const pretty = (v: unknown) => {
@@ -605,7 +607,8 @@ export function ChatPanel({
   answerPermission,
   onBack,
   onClose,
-  autoFocusInput = false
+  autoFocusInput = false,
+  disabled = false
 }: Props) {
   const [input, setInput] = useState('');
   const feedRef = useRef<HTMLDivElement>(null);
@@ -629,6 +632,7 @@ export function ChatPanel({
   }, [autoFocusInput]);
 
   const submit = () => {
+    if (disabled) return;
     const text = input.trim();
     if (!text) return;
     shouldStickToBottomRef.current = true;
@@ -645,8 +649,8 @@ export function ChatPanel({
             Dataset
           </Button>
         )}
-        <h1 className="text-[15px] font-semibold text-[var(--foreground)]">
-          EnergyOps Copilot
+        <h1 className="text-[var(--foreground)]">
+          <TacitBrand />
         </h1>
         <span
           className={
@@ -698,11 +702,21 @@ export function ChatPanel({
               submit();
             }
           }}
+          disabled={disabled}
           rows={2}
-          placeholder="Ask about the system... (Enter to send, Shift+Enter for newline)"
+          placeholder={
+            disabled
+              ? 'The copilot is working...'
+              : 'Ask about the system... (Enter to send, Shift+Enter for newline)'
+          }
           className="flex-1 resize-none"
         />
-        <Button variant="primary" onClick={submit} className="self-stretch px-4">
+        <Button
+          variant="primary"
+          onClick={submit}
+          disabled={disabled || !input.trim()}
+          className="self-stretch px-4"
+        >
           Send <ChevronRight size={16} />
         </Button>
       </footer>

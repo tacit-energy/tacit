@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Database, FolderPlus, Settings } from 'lucide-react';
 import { Button, Card } from '@/components/ui';
+import { TacitBrand } from '@/components/TacitBrand';
 import { getDatasets, type DatasetInfo } from '@/lib/api';
 import { datasetPath } from '@/lib/routes';
 
@@ -22,7 +23,7 @@ export function HomePage({
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-[image:var(--workspace-background)] text-[var(--foreground)]">
       <header className="flex items-center gap-2 border-b border-[var(--border)] px-5 py-3">
-        <span className="text-[15px] font-semibold">EnergyOps Copilot</span>
+        <TacitBrand />
         <span className="flex-1" />
         <Button variant="ghost" size="icon" onClick={onOpenSettings} aria-label="Settings">
           <Settings />

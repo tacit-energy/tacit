@@ -26,6 +26,11 @@ export interface TopologySpec {
     status?: NodeStatus;
     value?: number;
     unit?: string;
+    sparkline?: {
+      metric: 'daily_delta' | 'daily_average';
+      unit?: string;
+      points: { date: string; value: number | null }[];
+    };
     annotation?: string; // operator-added description, shown + editable on the node
     position?: { x: number; y: number }; // curated layout; web auto-lays-out if absent
   }[];

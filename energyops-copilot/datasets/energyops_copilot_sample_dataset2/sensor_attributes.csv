@@ -1,0 +1,191 @@
+sensor_id,namespace,key,label,data_type,value_text,value_number,value_date,value_bool,raw_value,validation_status,validation_message,source_import_id,updated_at
+900101,sample_metadata,role,Role,text,source,,,,source,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900101,sample_metadata,branch,Branch,text,kwkk,,,,kwkk,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900101,sample_metadata,description,Description,text,Gas input for the gas turbine path.,,,,Gas input for the gas turbine path.,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900101,sample_metadata,unit_raw,Unit,text,kWh,,,,kWh,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900101,sample_metadata,medium,Medium,text,gas,,,,gas,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900101,sample_metadata,location_group,Location group,text,kwkk_demo_area,,,,kwkk_demo_area,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900101,sample_metadata,location_role,Location role,text,source,,,,source,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900101,sample_metadata,source_tag_id,Source tag ID,text,SAMPLE-900101,,,,SAMPLE-900101,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900101,sample_metadata,source_tag_name,Source tag name,text,Gas-GT,,,,Gas-GT,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900101,sample_metadata,scaling_factor,Scaling factor,number,,1.0,,,1.0,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900102,sample_metadata,role,Role,text,conversion,,,,conversion,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900102,sample_metadata,branch,Branch,text,kwkk,,,,kwkk,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900102,sample_metadata,description,Description,text,Total heat generation.,,,,Total heat generation.,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900102,sample_metadata,unit_raw,Unit,text,kWh,,,,kWh,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900102,sample_metadata,medium,Medium,text,heating,,,,heating,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900102,sample_metadata,location_group,Location group,text,kwkk_demo_area,,,,kwkk_demo_area,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900102,sample_metadata,location_role,Location role,text,conversion,,,,conversion,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900102,sample_metadata,source_tag_id,Source tag ID,text,SAMPLE-900102,,,,SAMPLE-900102,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900102,sample_metadata,source_tag_name,Source tag name,text,Wärmeerzeugung Gesamt,,,,Wärmeerzeugung Gesamt,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900102,sample_metadata,scaling_factor,Scaling factor,number,,1.0,,,1.0,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900103,sample_metadata,role,Role,text,conversion,,,,conversion,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900103,sample_metadata,branch,Branch,text,akm,,,,akm,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900103,sample_metadata,description,Description,text,Heat supplied to absorption chillers.,,,,Heat supplied to absorption chillers.,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900103,sample_metadata,unit_raw,Unit,text,kWh,,,,kWh,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900103,sample_metadata,medium,Medium,text,heating,,,,heating,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900103,sample_metadata,location_group,Location group,text,akm_demo_area,,,,akm_demo_area,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900103,sample_metadata,location_role,Location role,text,conversion,,,,conversion,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900103,sample_metadata,source_tag_id,Source tag ID,text,SAMPLE-900103,,,,SAMPLE-900103,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900103,sample_metadata,source_tag_name,Source tag name,text,Wärmeausspeisung an AKM,,,,Wärmeausspeisung an AKM,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900103,sample_metadata,scaling_factor,Scaling factor,number,,1.0,,,1.0,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900104,sample_metadata,role,Role,text,production,,,,production,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900104,sample_metadata,branch,Branch,text,akm,,,,akm,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900104,sample_metadata,description,Description,text,Cooling production from absorption chiller 1.,,,,Cooling production from absorption chiller 1.,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900104,sample_metadata,unit_raw,Unit,text,kWh,,,,kWh,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900104,sample_metadata,medium,Medium,text,cold,,,,cold,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900104,sample_metadata,location_group,Location group,text,akm_demo_area,,,,akm_demo_area,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900104,sample_metadata,location_role,Location role,text,production,,,,production,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900104,sample_metadata,source_tag_id,Source tag ID,text,SAMPLE-900104,,,,SAMPLE-900104,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900104,sample_metadata,source_tag_name,Source tag name,text,Kälte AKM 1,,,,Kälte AKM 1,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900104,sample_metadata,scaling_factor,Scaling factor,number,,1.0,,,1.0,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900105,sample_metadata,role,Role,text,production,,,,production,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900105,sample_metadata,branch,Branch,text,akm,,,,akm,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900105,sample_metadata,description,Description,text,Cooling production from absorption chiller 2.,,,,Cooling production from absorption chiller 2.,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900105,sample_metadata,unit_raw,Unit,text,kWh,,,,kWh,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900105,sample_metadata,medium,Medium,text,cold,,,,cold,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900105,sample_metadata,location_group,Location group,text,akm_demo_area,,,,akm_demo_area,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900105,sample_metadata,location_role,Location role,text,production,,,,production,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900105,sample_metadata,source_tag_id,Source tag ID,text,SAMPLE-900105,,,,SAMPLE-900105,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900105,sample_metadata,source_tag_name,Source tag name,text,Kälte AKM 2,,,,Kälte AKM 2,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900105,sample_metadata,scaling_factor,Scaling factor,number,,1.0,,,1.0,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900106,sample_metadata,role,Role,text,production,,,,production,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900106,sample_metadata,branch,Branch,text,turbo,,,,turbo,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900106,sample_metadata,description,Description,text,Cooling production from turbo chillers.,,,,Cooling production from turbo chillers.,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900106,sample_metadata,unit_raw,Unit,text,kWh,,,,kWh,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900106,sample_metadata,medium,Medium,text,cold,,,,cold,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900106,sample_metadata,location_group,Location group,text,turbo_demo_area,,,,turbo_demo_area,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900106,sample_metadata,location_role,Location role,text,production,,,,production,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900106,sample_metadata,source_tag_id,Source tag ID,text,SAMPLE-900106,,,,SAMPLE-900106,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900106,sample_metadata,source_tag_name,Source tag name,text,Kälte Turbo Gesamt,,,,Kälte Turbo Gesamt,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900106,sample_metadata,scaling_factor,Scaling factor,number,,1.0,,,1.0,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900107,sample_metadata,role,Role,text,aggregate,,,,aggregate,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900107,sample_metadata,branch,Branch,text,cooling_supply,,,,cooling_supply,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900107,sample_metadata,description,Description,text,Total cooling production.,,,,Total cooling production.,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900107,sample_metadata,unit_raw,Unit,text,kWh,,,,kWh,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900107,sample_metadata,medium,Medium,text,cold,,,,cold,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900107,sample_metadata,location_group,Location group,text,cooling_supply_demo_area,,,,cooling_supply_demo_area,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900107,sample_metadata,location_role,Location role,text,aggregate,,,,aggregate,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900107,sample_metadata,source_tag_id,Source tag ID,text,SAMPLE-900107,,,,SAMPLE-900107,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900107,sample_metadata,source_tag_name,Source tag name,text,Kälteproduktion Gesamt,,,,Kälteproduktion Gesamt,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900107,sample_metadata,scaling_factor,Scaling factor,number,,1.0,,,1.0,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900108,sample_metadata,role,Role,text,aggregate,,,,aggregate,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900108,sample_metadata,branch,Branch,text,cooling_supply,,,,cooling_supply,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900108,sample_metadata,description,Description,text,Total cooling dispatched to branches.,,,,Total cooling dispatched to branches.,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900108,sample_metadata,unit_raw,Unit,text,kWh,,,,kWh,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900108,sample_metadata,medium,Medium,text,cold,,,,cold,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900108,sample_metadata,location_group,Location group,text,cooling_supply_demo_area,,,,cooling_supply_demo_area,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900108,sample_metadata,location_role,Location role,text,aggregate,,,,aggregate,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900108,sample_metadata,source_tag_id,Source tag ID,text,SAMPLE-900108,,,,SAMPLE-900108,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900108,sample_metadata,source_tag_name,Source tag name,text,Gesamt Kälteausspeisung,,,,Gesamt Kälteausspeisung,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900108,sample_metadata,scaling_factor,Scaling factor,number,,1.0,,,1.0,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900109,sample_metadata,role,Role,text,consumer_branch,,,,consumer_branch,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900109,sample_metadata,branch,Branch,text,inf,,,,inf,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900109,sample_metadata,description,Description,text,Cooling supplied to the INF network.,,,,Cooling supplied to the INF network.,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900109,sample_metadata,unit_raw,Unit,text,kWh,,,,kWh,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900109,sample_metadata,medium,Medium,text,cold,,,,cold,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900109,sample_metadata,location_group,Location group,text,inf_demo_area,,,,inf_demo_area,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900109,sample_metadata,location_role,Location role,text,consumer_branch,,,,consumer_branch,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900109,sample_metadata,source_tag_id,Source tag ID,text,SAMPLE-900109,,,,SAMPLE-900109,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900109,sample_metadata,source_tag_name,Source tag name,text,Kälte Netz INF,,,,Kälte Netz INF,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900109,sample_metadata,scaling_factor,Scaling factor,number,,1.0,,,1.0,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900110,sample_metadata,role,Role,text,consumer_detail,,,,consumer_detail,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900110,sample_metadata,branch,Branch,text,inf,,,,inf,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900110,sample_metadata,description,Description,text,INF cooling consumer.,,,,INF cooling consumer.,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900110,sample_metadata,unit_raw,Unit,text,kWh,,,,kWh,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900110,sample_metadata,medium,Medium,text,cold,,,,cold,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900110,sample_metadata,location_group,Location group,text,inf_demo_area,,,,inf_demo_area,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900110,sample_metadata,location_role,Location role,text,consumer_detail,,,,consumer_detail,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900110,sample_metadata,source_tag_id,Source tag ID,text,SAMPLE-900110,,,,SAMPLE-900110,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900110,sample_metadata,source_tag_name,Source tag name,text,Kopfklinik (INF 400),,,,Kopfklinik (INF 400),valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900110,sample_metadata,scaling_factor,Scaling factor,number,,1.0,,,1.0,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900111,sample_metadata,role,Role,text,consumer_detail,,,,consumer_detail,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900111,sample_metadata,branch,Branch,text,inf,,,,inf,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900111,sample_metadata,description,Description,text,INF cooling consumer.,,,,INF cooling consumer.,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900111,sample_metadata,unit_raw,Unit,text,kWh,,,,kWh,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900111,sample_metadata,medium,Medium,text,cold,,,,cold,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900111,sample_metadata,location_group,Location group,text,inf_demo_area,,,,inf_demo_area,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900111,sample_metadata,location_role,Location role,text,consumer_detail,,,,consumer_detail,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900111,sample_metadata,source_tag_id,Source tag ID,text,SAMPLE-900111,,,,SAMPLE-900111,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900111,sample_metadata,source_tag_name,Source tag name,text,Zentrum Innere Medizin (INF 410),,,,Zentrum Innere Medizin (INF 410),valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900111,sample_metadata,scaling_factor,Scaling factor,number,,1.0,,,1.0,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900112,sample_metadata,role,Role,text,consumer_detail,,,,consumer_detail,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900112,sample_metadata,branch,Branch,text,inf,,,,inf,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900112,sample_metadata,description,Description,text,INF cooling consumer with the demo anomaly.,,,,INF cooling consumer with the demo anomaly.,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900112,sample_metadata,unit_raw,Unit,text,kWh,,,,kWh,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900112,sample_metadata,medium,Medium,text,cold,,,,cold,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900112,sample_metadata,location_group,Location group,text,inf_demo_area,,,,inf_demo_area,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900112,sample_metadata,location_role,Location role,text,consumer_detail,,,,consumer_detail,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900112,sample_metadata,source_tag_id,Source tag ID,text,SAMPLE-900112,,,,SAMPLE-900112,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900112,sample_metadata,source_tag_name,Source tag name,text,Chirurgische Klinik (INF 420),,,,Chirurgische Klinik (INF 420),valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900112,sample_metadata,scaling_factor,Scaling factor,number,,1.0,,,1.0,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900113,sample_metadata,role,Role,text,consumer_detail,,,,consumer_detail,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900113,sample_metadata,branch,Branch,text,inf,,,,inf,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900113,sample_metadata,description,Description,text,INF cooling consumer.,,,,INF cooling consumer.,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900113,sample_metadata,unit_raw,Unit,text,kWh,,,,kWh,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900113,sample_metadata,medium,Medium,text,cold,,,,cold,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900113,sample_metadata,location_group,Location group,text,inf_demo_area,,,,inf_demo_area,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900113,sample_metadata,location_role,Location role,text,consumer_detail,,,,consumer_detail,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900113,sample_metadata,source_tag_id,Source tag ID,text,SAMPLE-900113,,,,SAMPLE-900113,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900113,sample_metadata,source_tag_name,Source tag name,text,Kinderklinik (INF 430),,,,Kinderklinik (INF 430),valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900113,sample_metadata,scaling_factor,Scaling factor,number,,1.0,,,1.0,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900114,sample_metadata,role,Role,text,consumer_detail,,,,consumer_detail,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900114,sample_metadata,branch,Branch,text,inf,,,,inf,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900114,sample_metadata,description,Description,text,INF cooling consumer.,,,,INF cooling consumer.,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900114,sample_metadata,unit_raw,Unit,text,kWh,,,,kWh,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900114,sample_metadata,medium,Medium,text,cold,,,,cold,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900114,sample_metadata,location_group,Location group,text,inf_demo_area,,,,inf_demo_area,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900114,sample_metadata,location_role,Location role,text,consumer_detail,,,,consumer_detail,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900114,sample_metadata,source_tag_id,Source tag ID,text,SAMPLE-900114,,,,SAMPLE-900114,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900114,sample_metadata,source_tag_name,Source tag name,text,Frauenklinik (INF 440),,,,Frauenklinik (INF 440),valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900114,sample_metadata,scaling_factor,Scaling factor,number,,1.0,,,1.0,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900115,sample_metadata,role,Role,text,consumer_branch,,,,consumer_branch,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900115,sample_metadata,branch,Branch,text,technology_park,,,,technology_park,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900115,sample_metadata,description,Description,text,Cooling supplied to the technology park branch.,,,,Cooling supplied to the technology park branch.,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900115,sample_metadata,unit_raw,Unit,text,kWh,,,,kWh,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900115,sample_metadata,medium,Medium,text,cold,,,,cold,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900115,sample_metadata,location_group,Location group,text,technology_park_demo_area,,,,technology_park_demo_area,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900115,sample_metadata,location_role,Location role,text,consumer_branch,,,,consumer_branch,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900115,sample_metadata,source_tag_id,Source tag ID,text,SAMPLE-900115,,,,SAMPLE-900115,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900115,sample_metadata,source_tag_name,Source tag name,text,Kälte Technologiepark,,,,Kälte Technologiepark,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900115,sample_metadata,scaling_factor,Scaling factor,number,,1.0,,,1.0,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900116,sample_metadata,role,Role,text,consumer_branch,,,,consumer_branch,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900116,sample_metadata,branch,Branch,text,gas_turbine,,,,gas_turbine,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900116,sample_metadata,description,Description,text,Cooling supplied to gas turbine auxiliaries.,,,,Cooling supplied to gas turbine auxiliaries.,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900116,sample_metadata,unit_raw,Unit,text,kWh,,,,kWh,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900116,sample_metadata,medium,Medium,text,cold,,,,cold,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900116,sample_metadata,location_group,Location group,text,gas_turbine_demo_area,,,,gas_turbine_demo_area,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900116,sample_metadata,location_role,Location role,text,consumer_branch,,,,consumer_branch,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900116,sample_metadata,source_tag_id,Source tag ID,text,SAMPLE-900116,,,,SAMPLE-900116,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900116,sample_metadata,source_tag_name,Source tag name,text,Kälte Gasturbine,,,,Kälte Gasturbine,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900116,sample_metadata,scaling_factor,Scaling factor,number,,1.0,,,1.0,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900117,sample_metadata,role,Role,text,consumer_branch,,,,consumer_branch,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900117,sample_metadata,branch,Branch,text,east_branch,,,,east_branch,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900117,sample_metadata,description,Description,text,Cooling supplied to the east branch.,,,,Cooling supplied to the east branch.,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900117,sample_metadata,unit_raw,Unit,text,kWh,,,,kWh,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900117,sample_metadata,medium,Medium,text,cold,,,,cold,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900117,sample_metadata,location_group,Location group,text,east_branch_demo_area,,,,east_branch_demo_area,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900117,sample_metadata,location_role,Location role,text,consumer_branch,,,,consumer_branch,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900117,sample_metadata,source_tag_id,Source tag ID,text,SAMPLE-900117,,,,SAMPLE-900117,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900117,sample_metadata,source_tag_name,Source tag name,text,Kälte Ostspange,,,,Kälte Ostspange,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900117,sample_metadata,scaling_factor,Scaling factor,number,,1.0,,,1.0,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900118,sample_metadata,role,Role,text,support,,,,support,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900118,sample_metadata,branch,Branch,text,cooling_center,,,,cooling_center,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900118,sample_metadata,description,Description,text,Electrical consumption of the cooling center.,,,,Electrical consumption of the cooling center.,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900118,sample_metadata,unit_raw,Unit,text,kWh,,,,kWh,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900118,sample_metadata,medium,Medium,text,electricity,,,,electricity,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900118,sample_metadata,location_group,Location group,text,cooling_center_demo_area,,,,cooling_center_demo_area,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900118,sample_metadata,location_role,Location role,text,support,,,,support,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900118,sample_metadata,source_tag_id,Source tag ID,text,SAMPLE-900118,,,,SAMPLE-900118,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900118,sample_metadata,source_tag_name,Source tag name,text,Strombezug Kältezentrale,,,,Strombezug Kältezentrale,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900118,sample_metadata,scaling_factor,Scaling factor,number,,1.0,,,1.0,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900119,sample_metadata,role,Role,text,reference,,,,reference,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900119,sample_metadata,branch,Branch,text,weather,,,,weather,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900119,sample_metadata,description,Description,text,Outdoor air temperature reference.,,,,Outdoor air temperature reference.,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900119,sample_metadata,unit_raw,Unit,text,°C,,,,°C,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900119,sample_metadata,medium,Medium,text,reference,,,,reference,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900119,sample_metadata,location_group,Location group,text,weather_demo_area,,,,weather_demo_area,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900119,sample_metadata,location_role,Location role,text,reference,,,,reference,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900119,sample_metadata,source_tag_id,Source tag ID,text,SAMPLE-900119,,,,SAMPLE-900119,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900119,sample_metadata,source_tag_name,Source tag name,text,Außentemperatur Referenz,,,,Außentemperatur Referenz,valid,,sample_import_001,2026-06-08T00:00:00+00:00
+900119,sample_metadata,scaling_factor,Scaling factor,number,,1.0,,,1.0,valid,,sample_import_001,2026-06-08T00:00:00+00:00

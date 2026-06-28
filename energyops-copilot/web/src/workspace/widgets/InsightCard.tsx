@@ -4,12 +4,13 @@ import {
   ChevronDown,
   ChevronRight,
   ChevronUp,
+  FileDown,
   History as HistoryIcon,
   Lightbulb,
   Pencil,
   X
 } from 'lucide-react';
-import type { InsightCardSpec, TopologySpec } from '@shared/types';
+import type { ChartSpec, InsightCardSpec, TopologySpec } from '@shared/types';
 import { Badge, Button, Card, Textarea } from '@/components/ui';
 import { ChartWidget } from './ChartWidget';
 import { DecisionDetailsModal } from './DecisionDetailsModal';
@@ -19,6 +20,7 @@ import {
   type Decision,
   type DecisionType
 } from '@/lib/api';
+import { downloadInsightHtmlReport } from '@/lib/insight-report-html';
 import { formatDateTime, formatNumber } from '@/lib/format';
 
 const SEVERITY: Record<
@@ -31,6 +33,61 @@ const SEVERITY: Record<
 };
 
 const stop = (e: React.MouseEvent) => e.stopPropagation();
+type TimeframeRange = NonNullable<ChartSpec['markBands']>[number];
+
+type TextPart =
+  | { type: 'text'; text: string }
+  | { type: 'timeframe'; text: string; range: TimeframeRange };
+
+function parseTimeframeText(text: string): TextPart[] {
+  const parts: TextPart[] = [];
+  const re = /<timeframe\s+from="([^"]+)"\s+to="([^"]+)">([\s\S]*?)<\/timeframe>/g;
+  let last = 0;
+  for (const match of text.matchAll(re)) {
+    const index = match.index ?? 0;
+    if (index > last) parts.push({ type: 'text', text: text.slice(last, index) });
+    parts.push({
+      type: 'timeframe',
+      text: match[3],
+      range: { from: match[1], to: match[2] }
+    });
+    last = index + match[0].length;
+  }
+  if (last < text.length) parts.push({ type: 'text', text: text.slice(last) });
+  return parts;
+}
+
+function TimeframeText({
+  text,
+  onTimeframeSelect
+}: {
+  text: string;
+  onTimeframeSelect?: (range: TimeframeRange) => void;
+}) {
+  const parts = parseTimeframeText(text);
+  return (
+    <>
+      {parts.map((part, i) =>
+        part.type === 'text' ? (
+          <span key={i}>{part.text}</span>
+        ) : (
+          <button
+            key={i}
+            type="button"
+            onClick={e => {
+              stop(e);
+              onTimeframeSelect?.(part.range);
+            }}
+            className="inline rounded-sm bg-[var(--primary)]/15 px-1 font-medium text-[var(--primary)] underline decoration-[var(--primary)]/40 underline-offset-2 hover:bg-[var(--primary)]/25"
+            title="Highlight this timeframe in related topology sparklines"
+          >
+            {part.text}
+          </button>
+        )
+      )}
+    </>
+  );
+}
 
 function DecisionButton({
   icon,
@@ -80,6 +137,8 @@ export function InsightCard({
   decided,
   onDecided,
   onExplain,
+  onTimeframeSelect,
+  explainDisabled = false,
   topologies
 }: {
   id: string;
@@ -90,6 +149,8 @@ export function InsightCard({
   decided?: Decision;
   onDecided?: () => void;
   onExplain?: (text: string) => void;
+  onTimeframeSelect?: (range: TimeframeRange) => void;
+  explainDisabled?: boolean;
   topologies?: TopologySpec[];
 }) {
   const sev = SEVERITY[spec.severity];
@@ -99,15 +160,35 @@ export function InsightCard({
   const [rationale, setRationale] = useState('');
   const [busy, setBusy] = useState(false);
   const [asked, setAsked] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
   const [activePrecedent, setActivePrecedent] = useState<Decision | null>(null);
   const [precedentClosing, setPrecedentClosing] = useState(false);
   const closeTimer = useRef<number | null>(null);
 
   const explain = () => {
+    if (explainDisabled) return;
     setAsked(true);
     onExplain?.(
       `Explain the insight "${spec.title}" in more depth: the most likely root cause, what to verify next, and whether anything similar has happened before.`
     );
+  };
+
+  const exportPdf = async (e: React.MouseEvent) => {
+    stop(e);
+    setExportError(null);
+    try {
+      downloadInsightHtmlReport({
+        insightCardId: id,
+        insight: spec,
+        relatedDecisions: precedent.map(d => ({
+          decision_type: d.decision_type,
+          rationale: d.rationale,
+          created_at: d.created_at
+        }))
+      });
+    } catch (err) {
+      setExportError(err instanceof Error ? err.message : 'Could not export report');
+    }
   };
 
   useEffect(() => {
@@ -178,6 +259,17 @@ export function InsightCard({
   const decisionLabel = (type: DecisionType) =>
     type === 'accept' ? 'accepted' : type === 'override' ? 'overrode' : 'dismissed';
 
+  const exportButton = (
+    <button
+      type="button"
+      onClick={exportPdf}
+      className="inline-flex items-center gap-1 text-[12px] text-[var(--accent)] hover:underline"
+    >
+      <FileDown size={13} />
+      Export HTML
+    </button>
+  );
+
   return (
     <>
     <Card
@@ -204,7 +296,7 @@ export function InsightCard({
           </div>
 
           <p className="text-[13px] leading-relaxed text-[var(--card-foreground)]">
-            {spec.summary}
+            <TimeframeText text={spec.summary} onTimeframeSelect={onTimeframeSelect} />
           </p>
 
           {spec.evidence && spec.evidence.length > 0 && (
@@ -214,7 +306,9 @@ export function InsightCard({
               </div>
               <ul className="mt-1 list-disc space-y-0.5 pl-4 text-[12px] text-[var(--muted-foreground)]">
                 {spec.evidence.map((e, i) => (
-                  <li key={i}>{e}</li>
+                  <li key={i}>
+                    <TimeframeText text={e} onTimeframeSelect={onTimeframeSelect} />
+                  </li>
                 ))}
               </ul>
             </div>
@@ -227,7 +321,9 @@ export function InsightCard({
               </div>
               <ul className="mt-1 list-disc space-y-0.5 pl-4 text-[12px] text-[var(--card-foreground)]">
                 {spec.recommendations.map((r, i) => (
-                  <li key={i}>{r}</li>
+                  <li key={i}>
+                    <TimeframeText text={r} onTimeframeSelect={onTimeframeSelect} />
+                  </li>
                 ))}
               </ul>
             </div>
@@ -316,12 +412,17 @@ export function InsightCard({
                   </span>
                 )}
                 <span className="flex-1" />
+                <div className="flex flex-wrap items-center gap-3">
                 <button
+                  type="button"
                   onClick={explain}
-                  className="text-[12px] text-[var(--accent)] hover:underline"
+                  disabled={explainDisabled}
+                  className="text-[12px] text-[var(--accent)] hover:underline disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:no-underline"
                 >
                   {asked ? 'Asked ↗' : 'Explain ↗'}
                 </button>
+                  {exportButton}
+                </div>
               </div>
             ) : pending ? (
               <div className="flex flex-col gap-2">
@@ -400,13 +501,23 @@ export function InsightCard({
                     onClick={() => setPending('dismiss')}
                   />
                 </div>
+                <div className="mt-2 flex flex-wrap items-center gap-3">
                 <button
+                  type="button"
                   onClick={explain}
-                  className="mt-2 text-[12px] text-[var(--accent)] hover:underline"
+                  disabled={explainDisabled}
+                  className="text-[12px] text-[var(--accent)] hover:underline disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:no-underline"
                 >
                   {asked ? 'Asked the copilot ↗' : 'Explain in more depth ↗'}
                 </button>
+                  {exportButton}
+                </div>
               </>
+            )}
+            {exportError && (
+              <div className="mt-2 text-[12px] text-[var(--destructive)]">
+                {exportError}
+              </div>
             )}
           </div>
         </div>

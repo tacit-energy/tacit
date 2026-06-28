@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { tool } from '@anthropic-ai/claude-agent-sdk';
 import { getDuck } from '../db/duck.js';
 import { getDiagram } from '../db/topology.js';
+import { enrichNodesWithSparklines } from '../db/topology-sparklines.js';
 import { annotationsBySensor } from '../db/memory.js';
 import { emitWidget, type ToolContext } from './context.js';
 import type {
@@ -58,6 +59,8 @@ const REPLACE_ID_DESC =
   'To UPDATE an existing widget in place (e.g. the user asks to change a chart/topology already shown), pass its id from a previous render result. Omit to create a new widget.';
 const DISPLAY_TIME_DESC =
   'Operator-facing date/time text must use German/European format: TT.MM.JJJJ, 24-hour time, Europe/Berlin zone names (MEZ/MESZ). Keep chart x values machine-readable ISO timestamps.';
+const CUMULATIVE_CHART_DESC =
+  'For cumulative meter sensors, do not chart raw counter levels. Compute period deltas in SQL with lag(value) partitioned by sensor_id; if expected_value exists, compute expected deltas and deviation from expected deltas.';
 
 const CHART_TYPE = z.enum(['line', 'area', 'bar', 'scatter']);
 const referenceLinesSchema = z
@@ -248,6 +251,7 @@ export function widgetTools(ctx: ToolContext) {
               : n
           );
         }
+        nodes = await enrichNodesWithSparklines(datasetId, nodes);
 
         const spec: TopologySpec = {
           title: input.title,
@@ -271,7 +275,7 @@ export function widgetTools(ctx: ToolContext) {
 
     tool(
       'render_chart',
-      `Render a time-series chart from data you already have. Build \`x\` (ISO timestamps) and one \`series\` per metric. Use role "expected"/"deviation" for those traces, markBands to shade a window. For a full raw series prefer render_chart_from_query. ${DISPLAY_TIME_DESC}`,
+      `Render a time-series chart from data you already have. Build \`x\` (ISO timestamps) and one \`series\` per metric. Use role "expected"/"deviation" for those traces, markBands to shade a window. ${CUMULATIVE_CHART_DESC} For a full raw series prefer render_chart_from_query. ${DISPLAY_TIME_DESC}`,
       {
         title: z.string(),
         x: z.array(z.string()),
@@ -313,7 +317,7 @@ export function widgetTools(ctx: ToolContext) {
 
     tool(
       'render_chart_from_query',
-      `Plot a time-series chart by running SQL SERVER-SIDE — the rows are NOT returned to you, so use THIS (not query_data + render_chart) to chart a full sensor series without pulling thousands of points into context. The query should return an x column (e.g. timestamp) plus one or more numeric value columns, ideally ORDER BY the x column. Data is downsampled to maxPoints for rendering. ${DISPLAY_TIME_DESC}`,
+      `Plot a time-series chart by running SQL SERVER-SIDE — the rows are NOT returned to you, so use THIS (not query_data + render_chart) to chart a full sensor series without pulling thousands of points into context. The query should return an x column (e.g. timestamp) plus one or more numeric value columns, ideally ORDER BY the x column. ${CUMULATIVE_CHART_DESC} Data is downsampled to maxPoints for rendering. ${DISPLAY_TIME_DESC}`,
       {
         title: z.string(),
         ...chartQueryFields,
@@ -470,7 +474,7 @@ export function widgetTools(ctx: ToolContext) {
 
     tool(
       'render_insight_card',
-      `Render the key operational insight as a reviewable card: a concise summary, evidence, and recommended actions. This is the payoff of an analysis. Set severity info/watch/act. Set relatedNodeIds to the topology node ids this insight concerns (links the card to the diagram and prior-decision recall). Embed the supporting chart via \`chart\` (a SQL query, built server-side) instead of a standalone chart. Set impact only when you can quantify the at-stake value from data. ${DISPLAY_TIME_DESC}`,
+      `Render the key operational insight as a reviewable card: a concise summary, evidence, and recommended actions. This is the payoff of an analysis. Set severity info/watch/act. Set relatedNodeIds to the topology node ids this insight concerns (links the card to the diagram and prior-decision recall). Embed the supporting chart via \`chart\` (a SQL query, built server-side) instead of a standalone chart. ${CUMULATIVE_CHART_DESC} Set impact only when you can quantify the at-stake value from data. ${DISPLAY_TIME_DESC}`,
       {
         title: z.string(),
         severity: z.enum(['info', 'watch', 'act']),

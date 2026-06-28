@@ -63,7 +63,10 @@ const FALLBACK_ENERGY_COLOR = {
 };
 
 const NODE_W = 180;
-const NODE_H = 66;
+const NODE_H = 92;
+const NODE_PAD = 6;
+const NODE_SPARK_W = NODE_W - NODE_PAD * 2 - 10;
+const NODE_SPARK_H = 42;
 const TOPOLOGY_MIN_ZOOM = 0.01;
 const TOPOLOGY_GLOW_RADIUS = 120;
 const STATUS_LABELS: Record<NodeStatus, string> = {
@@ -74,6 +77,8 @@ const STATUS_LABELS: Record<NodeStatus, string> = {
   inferred: 'Inferred',
   missing: 'Missing'
 };
+type SparklineHighlightRange = { from: string; to: string };
+type SparklineScale = { min: number; max: number };
 
 function energyColors(energyType?: string | null) {
   if (!energyType) return FALLBACK_ENERGY_COLOR;
@@ -107,10 +112,144 @@ function labelEnergyType(energyType: string) {
     .replace(/\b\w/g, letter => letter.toUpperCase());
 }
 
-function layout(spec: TopologySpec): Node[] {
+function sparklineBars(
+  points: NonNullable<TopologySpec['nodes'][number]['sparkline']>['points'],
+  width: number,
+  height: number,
+  scale?: SparklineScale,
+  highlightRanges?: SparklineHighlightRange[]
+) {
+  const values = points
+    .map((point, index) => ({ index, value: point.value }))
+    .filter((point): point is { index: number; value: number } =>
+      typeof point.value === 'number' && Number.isFinite(point.value)
+    );
+  if (values.length < 1) return [];
+  const min = Math.min(...values.map(point => point.value));
+  const max = Math.max(...values.map(point => point.value));
+  const scaleMin = scale?.min ?? min;
+  const scaleMax = scale?.max ?? max;
+  const hasNegative = scaleMin < 0;
+  const hasPositive = scaleMax > 0;
+  const positiveSpan = Math.max(hasPositive ? scaleMax : 0, 1);
+  const negativeSpan = Math.max(hasNegative ? Math.abs(scaleMin) : 0, 1);
+  const negativeBand = hasNegative ? Math.max(5, Math.min(height * 0.32, height * 0.22)) : 0;
+  const baselineY = hasNegative && hasPositive ? height - negativeBand : hasNegative ? 0 : height;
+  const count = Math.max(1, points.length);
+  const gap = count > 24 ? 0.5 : 1;
+  const barW = Math.max(1, (width - gap * (count - 1)) / count);
+  return values
+    .map(point => {
+      const valueY =
+        point.value < 0
+          ? baselineY + (Math.abs(point.value) / negativeSpan) * (height - baselineY)
+          : baselineY - (point.value / positiveSpan) * baselineY;
+      const barH = Math.max(1, Math.abs(baselineY - valueY));
+      return {
+        x: point.index * (barW + gap),
+        y: Math.min(valueY, baselineY),
+        width: barW,
+        height: barH,
+        highlighted: sparklinePointOverlapsRanges(points[point.index].date, highlightRanges)
+      };
+    });
+}
+
+function parseTime(value: string) {
+  const time = Date.parse(value);
+  return Number.isFinite(time) ? time : undefined;
+}
+
+function sparklinePointOverlapsRanges(date: string, ranges?: SparklineHighlightRange[]) {
+  if (!ranges?.length) return false;
+  const dayStart = parseTime(date);
+  if (dayStart === undefined) return false;
+  const dayEnd = dayStart + 24 * 60 * 60 * 1000;
+
+  return ranges.some(range => {
+    const from = parseTime(range.from);
+    const to = parseTime(range.to);
+    if (from === undefined || to === undefined) return false;
+    const start = Math.min(from, to);
+    const end = Math.max(from, to);
+    return start === end
+      ? start >= dayStart && start < dayEnd
+      : start < dayEnd && end >= dayStart;
+  });
+}
+
+function Sparkline({
+  sparkline,
+  color,
+  scale,
+  highlightRanges
+}: {
+  sparkline: NonNullable<TopologySpec['nodes'][number]['sparkline']>;
+  color: string;
+  scale?: SparklineScale;
+  highlightRanges?: SparklineHighlightRange[];
+}) {
+  const bars = sparklineBars(
+    sparkline.points,
+    NODE_SPARK_W,
+    NODE_SPARK_H,
+    scale,
+    highlightRanges
+  );
+  if (!bars.length) return null;
+  const hasHighlights = bars.some(bar => bar.highlighted);
+  return (
+    <svg
+      viewBox={`0 0 ${NODE_SPARK_W} ${NODE_SPARK_H}`}
+      width={NODE_SPARK_W}
+      height={NODE_SPARK_H}
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      style={{ display: 'block', overflow: 'hidden' }}
+    >
+      {bars.map((bar, index) => (
+        <rect
+          key={index}
+          x={bar.x.toFixed(1)}
+          y={bar.y.toFixed(1)}
+          width={bar.width.toFixed(1)}
+          height={bar.height.toFixed(1)}
+          rx="0.8"
+          fill={bar.highlighted ? 'var(--primary)' : color}
+          opacity={hasHighlights ? (bar.highlighted ? '1' : '0.28') : '0.82'}
+          stroke={bar.highlighted ? 'var(--primary-foreground)' : undefined}
+          strokeWidth={bar.highlighted ? '0.7' : undefined}
+        />
+      ))}
+    </svg>
+  );
+}
+
+function topologySparklineScale(spec: TopologySpec): SparklineScale | undefined {
+  const values = spec.nodes
+    .flatMap(node => node.sparkline?.points ?? [])
+    .map(point => point.value)
+    .filter((value): value is number => typeof value === 'number' && Number.isFinite(value));
+  if (!values.length) return undefined;
+  return { min: Math.min(...values), max: Math.max(...values) };
+}
+
+function layout(
+  spec: TopologySpec,
+  sparklineHighlightNodeIds?: Set<string>,
+  sparklineHighlightRanges?: SparklineHighlightRange[]
+): Node[] {
+  const sparklineScale = topologySparklineScale(spec);
   const hasPositions = spec.nodes.every(n => n.position);
   if (hasPositions) {
-    return spec.nodes.map(n => toNode(n));
+    return spec.nodes.map(n =>
+      toNode(
+        n,
+        undefined,
+        sparklineScale,
+        sparklineHighlightNodeIds?.has(n.id) ? sparklineHighlightRanges : undefined
+      )
+    );
   }
   const g = new dagre.graphlib.Graph();
   g.setGraph({ rankdir: 'LR', nodesep: 40, ranksep: 90 });
@@ -122,14 +261,18 @@ function layout(spec: TopologySpec): Node[] {
     const p = g.node(n.id);
     return toNode(
       n,
-      p ? { x: p.x - NODE_W / 2, y: p.y - NODE_H / 2 } : undefined
+      p ? { x: p.x - NODE_W / 2, y: p.y - NODE_H / 2 } : undefined,
+      sparklineScale,
+      sparklineHighlightNodeIds?.has(n.id) ? sparklineHighlightRanges : undefined
     );
   });
 }
 
 function toNode(
   n: TopologySpec['nodes'][number],
-  pos?: { x: number; y: number }
+  pos?: { x: number; y: number },
+  sparklineScale?: SparklineScale,
+  sparklineHighlightRanges?: SparklineHighlightRange[]
 ): Node {
   const highlighted = false;
   const status = n.status;
@@ -144,32 +287,75 @@ function toNode(
     position: pos ?? n.position ?? { x: 0, y: 0 },
     data: {
       label: (
-        <div title={n.annotation ?? undefined} style={{ lineHeight: 1.2 }}>
-          <div style={{ fontSize: 12, fontWeight: 600 }}>{n.label}</div>
-          {n.value !== undefined && (
-            <div style={{ fontSize: 11, opacity: 0.7 }}>
-              {n.value}
-              {n.unit ? ` ${n.unit}` : ''}
+        <div
+          title={n.annotation ?? undefined}
+          style={{
+            position: 'relative',
+            height: '100%',
+            lineHeight: 1.2,
+            textAlign: 'center'
+          }}
+        >
+          <div style={{ minWidth: 0, width: '100%', paddingBottom: n.sparkline ? NODE_SPARK_H + 3 : 0 }}>
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 600,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              {n.label}
             </div>
-          )}
-          {n.energyType && (
-            <div style={{ color: energy.text, fontSize: 10, fontWeight: 600, marginTop: 2 }}>
-              {n.energyType}
-            </div>
-          )}
-          {n.annotation && (
-            <div style={{ fontSize: 10, color: 'var(--accent)' }}>note</div>
-          )}
+            {n.value !== undefined && (
+              <div style={{ fontSize: 11, opacity: 0.7 }}>
+                {n.value}
+                {n.unit ? ` ${n.unit}` : ''}
+              </div>
+            )}
+            {n.energyType && (
+              <div style={{ color: energy.text, fontSize: 10, fontWeight: 600, marginTop: 2 }}>
+                {n.energyType}
+              </div>
+            )}
+            {n.annotation && (
+              <div style={{ fontSize: 10, color: 'var(--accent)' }}>note</div>
+            )}
+          </div>
+          <div
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              alignItems: 'flex-end',
+              justifyContent: 'center',
+              width: '100%',
+              height: NODE_SPARK_H
+            }}
+          >
+            {n.sparkline && (
+              <Sparkline
+                sparkline={n.sparkline}
+                color={energy.border}
+                scale={sparklineScale}
+                highlightRanges={sparklineHighlightRanges}
+              />
+            )}
+          </div>
         </div>
       )
     },
     style: {
       width: NODE_W,
+      height: NODE_H,
       background: energy.bg,
       color: 'var(--foreground)',
       border: `1px solid ${energy.border}`,
       borderRadius: 8,
-      padding: 6,
+      padding: `${NODE_PAD}px ${NODE_PAD}px 3px`,
       boxShadow: statusShadow
     },
     sourcePosition: 'right' as never,
@@ -203,6 +389,7 @@ export function TopologyWidget({
   spec,
   onNodeClick,
   selectionHighlight,
+  sparklineHighlightRanges,
   fill = false,
   scrollZoom = false,
   height = 360
@@ -210,6 +397,7 @@ export function TopologyWidget({
   spec: TopologySpec;
   onNodeClick?: (nodeId: string) => void;
   selectionHighlight?: string[];
+  sparklineHighlightRanges?: SparklineHighlightRange[];
   fill?: boolean;
   scrollZoom?: boolean;
   height?: number;
@@ -221,12 +409,13 @@ export function TopologyWidget({
   const { nodes, edges } = useMemo(() => {
     const highlight = new Set(spec.highlight ?? []);
     const selected = new Set(selectionHighlight ?? []);
+    const sparklineHighlightNodeIds = new Set([...highlight, ...selected]);
     const clickable = !!onNodeClick;
-    const ns = layout(spec).map(node => {
+    const ns = layout(spec, sparklineHighlightNodeIds, sparklineHighlightRanges).map(node => {
       const ring = selected.has(node.id)
-        ? '0 0 0 2px var(--primary)'
+        ? '0 0 0 3px var(--background), 0 0 0 6px var(--primary), 0 0 22px var(--primary)'
         : highlight.has(node.id)
-          ? '0 0 0 2px var(--accent)'
+          ? '0 0 0 3px var(--background), 0 0 0 6px var(--accent), 0 0 22px var(--accent)'
           : undefined;
       const baseShadow =
         typeof node.style?.boxShadow === 'string' ? node.style.boxShadow : undefined;
@@ -264,7 +453,7 @@ export function TopologyWidget({
       labelStyle: { fill: 'var(--muted-foreground)', fontSize: 10 }
     }));
     return { nodes: ns, edges: es };
-  }, [spec, selectionHighlight, onNodeClick]);
+  }, [spec, selectionHighlight, sparklineHighlightRanges, onNodeClick]);
   const fitKey = useMemo(
     () => `${spec.title}:${nodes.map(n => n.id).join(',')}:${edges.length}`,
     [spec.title, nodes, edges.length]

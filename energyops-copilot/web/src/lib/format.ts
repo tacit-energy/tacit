@@ -80,8 +80,23 @@ export function formatChartTooltip(value: string): string {
   return formatDateTime(value);
 }
 
-export function formatNumber(value: number): string {
-  return new Intl.NumberFormat(LOCALE).format(value);
+export function formatNumber(
+  value: number,
+  options?: Intl.NumberFormatOptions
+): string {
+  return new Intl.NumberFormat(LOCALE, options).format(value);
+}
+
+export function formatChartValue(
+  value: unknown,
+  maximumFractionDigits = 2
+): string {
+  const number = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(number)) return value == null ? '' : String(value);
+
+  return formatNumber(number, {
+    maximumFractionDigits
+  });
 }
 
 export function formatTableCell(value: unknown): string {

@@ -15,7 +15,7 @@ export function scanTools(ctx: ToolContext) {
   return [
     tool(
       'scan_anomalies',
-      'Rank where the dataset is behaving unusually, scenario-blind, across a time range. Method "auto" uses deviation-from-expected if the data has it, otherwise a per-sensor statistical baseline (z-score). Returns a ranked shortlist of (sensor, peak time, magnitude). Use this to find what to investigate, then drill in with query_data.',
+      'Rank where the dataset is behaving unusually, scenario-blind, across a time range. Method "auto" uses deviation-from-expected if the data has it, otherwise a per-sensor statistical baseline (z-score). For cumulative sensors, scoring uses period deltas rather than raw counter levels; with expected_value it compares actual delta vs expected delta. Returns a ranked shortlist of (sensor, peak time, magnitude). Use this to find what to investigate, then drill in with query_data.',
       {
         from: z.string().optional().describe('ISO start (default: full range)'),
         to: z.string().optional().describe('ISO end'),

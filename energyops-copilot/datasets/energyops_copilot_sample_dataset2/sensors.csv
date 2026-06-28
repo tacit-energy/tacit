@@ -1,0 +1,20 @@
+sensor_id,name,device_id,unit,irregular,cumulative,energy_type,source_type,protected,created_at
+900101,Gas-GT,9901,kWh,True,True,gas,synthetic_campus_energy,False,2026-06-08T00:00:00+00:00
+900102,Wärmeerzeugung Gesamt,9901,kWh,True,True,heating,synthetic_campus_energy,False,2026-06-08T00:00:00+00:00
+900103,Wärmeausspeisung an AKM,9901,kWh,True,True,heating,synthetic_campus_energy,False,2026-06-08T00:00:00+00:00
+900104,Kälte AKM 1,9901,kWh,True,True,cold,synthetic_campus_energy,False,2026-06-08T00:00:00+00:00
+900105,Kälte AKM 2,9901,kWh,True,True,cold,synthetic_campus_energy,False,2026-06-08T00:00:00+00:00
+900106,Kälte Turbo Gesamt,9901,kWh,True,True,cold,synthetic_campus_energy,False,2026-06-08T00:00:00+00:00
+900107,Kälteproduktion Gesamt,9901,kWh,True,True,cold,synthetic_campus_energy,False,2026-06-08T00:00:00+00:00
+900108,Gesamt Kälteausspeisung,9901,kWh,True,True,cold,synthetic_campus_energy,False,2026-06-08T00:00:00+00:00
+900109,Kälte Netz INF,9902,kWh,True,True,cold,synthetic_campus_energy,False,2026-06-08T00:00:00+00:00
+900110,Kopfklinik (INF 400),9902,kWh,True,True,cold,synthetic_campus_energy,False,2026-06-08T00:00:00+00:00
+900111,Zentrum Innere Medizin (INF 410),9902,kWh,True,True,cold,synthetic_campus_energy,False,2026-06-08T00:00:00+00:00
+900112,Chirurgische Klinik (INF 420),9902,kWh,True,True,cold,synthetic_campus_energy,False,2026-06-08T00:00:00+00:00
+900113,Kinderklinik (INF 430),9902,kWh,True,True,cold,synthetic_campus_energy,False,2026-06-08T00:00:00+00:00
+900114,Frauenklinik (INF 440),9902,kWh,True,True,cold,synthetic_campus_energy,False,2026-06-08T00:00:00+00:00
+900115,Kälte Technologiepark,9903,kWh,True,True,cold,synthetic_campus_energy,False,2026-06-08T00:00:00+00:00
+900116,Kälte Gasturbine,9903,kWh,True,True,cold,synthetic_campus_energy,False,2026-06-08T00:00:00+00:00
+900117,Kälte Ostspange,9903,kWh,True,True,cold,synthetic_campus_energy,False,2026-06-08T00:00:00+00:00
+900118,Strombezug Kältezentrale,9901,kWh,True,True,electricity,synthetic_campus_energy,False,2026-06-08T00:00:00+00:00
+900119,Außentemperatur Referenz,9903,°C,True,False,,synthetic_campus_energy,False,2026-06-08T00:00:00+00:00

@@ -103,6 +103,18 @@ function scopeFilter(s: TsSchema, sensorIds?: number[]): string {
   return `${q(s.idCol)} IN (${sensorIds.map(Number).filter(Number.isFinite).join(',')})`;
 }
 
+function idFilter(idExpr: string, sensorIds?: number[]): string {
+  if (!sensorIds?.length) return '';
+  return `${idExpr} IN (${sensorIds.map(Number).filter(Number.isFinite).join(',')})`;
+}
+
+function timeRangeFilter(timeExpr: string, from?: string, to?: string): string {
+  const parts: string[] = [];
+  if (from) parts.push(`${timeExpr} >= TIMESTAMP '${sanitizeTs(from)}'`);
+  if (to) parts.push(`${timeExpr} <= TIMESTAMP '${sanitizeTs(to)}'`);
+  return parts.length ? parts.join(' AND ') : '';
+}
+
 function whereClause(...clauses: string[]): string {
   const cs = clauses.filter(Boolean);
   return cs.length ? `WHERE ${cs.join(' AND ')}` : '';
@@ -116,6 +128,16 @@ export interface AnomalyHit {
   unit: 'deviation_pct' | 'pct_vs_expected' | 'zscore';
   value?: number;
   method: string;
+}
+
+async function cumulativeColumn(duck: Duck, s: TsSchema): Promise<string | undefined> {
+  if (!s.catalog) return undefined;
+  const cols = await columns(duck, s.catalog.table);
+  return cols.find(c => c.name.toLowerCase() === 'cumulative')?.name;
+}
+
+function truthySql(expr: string): string {
+  return `lower(CAST(${expr} AS VARCHAR)) IN ('true', '1', 'yes', 'y')`;
 }
 
 export async function scanAnomalies(
@@ -132,10 +154,54 @@ export async function scanAnomalies(
   if (!s) return { method: 'none', schema: {}, results: [] };
   const duck = await getDuck(datasetId);
   const limit = Math.min(opts.limit ?? 10, 50);
-  const where = whereClause(
-    timeFilter(s, opts.from, opts.to),
-    scopeFilter(s, opts.sensorIds)
-  );
+  const cumulativeCol = await cumulativeColumn(duck, s);
+  const catalogJoin =
+    s.catalog && cumulativeCol
+      ? `LEFT JOIN ${q(s.catalog.table)} c ON d.${q(s.idCol)} = c.${q(s.catalog.idCol)}`
+      : '';
+  const isCumulativeExpr =
+    s.catalog && cumulativeCol ? truthySql(`c.${q(cumulativeCol)}`) : 'false';
+  const scopedSourceWhere = whereClause(idFilter(`d.${q(s.idCol)}`, opts.sensorIds));
+  const scoredWhere = whereClause(timeRangeFilter('ts', opts.from, opts.to));
+  const effectiveCtes = `
+      WITH source AS (
+        SELECT d.${q(s.idCol)} AS sid,
+               d.${q(s.timeCol)} AS ts,
+               d.${q(s.valueCol)} AS raw_value
+               ${s.expectedCol ? `, d.${q(s.expectedCol)} AS raw_expected` : ''}
+               ${s.deviationCol ? `, d.${q(s.deviationCol)} AS raw_deviation` : ''}
+               , ${isCumulativeExpr} AS is_cumulative
+        FROM ${q(s.table)} d
+        ${catalogJoin}
+        ${scopedSourceWhere}
+      ), lagged AS (
+        SELECT sid, ts, raw_value
+               ${s.expectedCol ? ', raw_expected' : ''}
+               ${s.deviationCol ? ', raw_deviation' : ''},
+               is_cumulative,
+               lag(raw_value) OVER (PARTITION BY sid ORDER BY ts) AS prev_value
+               ${s.expectedCol ? ', lag(raw_expected) OVER (PARTITION BY sid ORDER BY ts) AS prev_expected' : ''}
+        FROM source
+      ), effective AS (
+        SELECT sid, ts,
+               CASE
+                 WHEN is_cumulative AND (prev_value IS NULL OR raw_value < prev_value) THEN NULL
+                 WHEN is_cumulative THEN raw_value - prev_value
+                 ELSE raw_value
+               END AS value
+               ${
+                 s.expectedCol
+                   ? `, CASE
+                        WHEN is_cumulative AND (prev_expected IS NULL OR raw_expected < prev_expected) THEN NULL
+                        WHEN is_cumulative THEN raw_expected - prev_expected
+                        ELSE raw_expected
+                      END AS expected`
+                   : ''
+               }
+               ${s.deviationCol ? ', raw_deviation AS deviation' : ''}
+               , is_cumulative
+        FROM lagged
+      )`;
 
   const useDeviation =
     (opts.method === 'auto' || opts.method === undefined) && s.deviationCol;
@@ -148,20 +214,26 @@ export async function scanAnomalies(
   let unit: AnomalyHit['unit'];
   let method: string;
   if (useDeviation) {
-    metric = `abs(${q(s.deviationCol!)})`;
+    metric = s.expectedCol
+      ? `CASE
+           WHEN is_cumulative THEN abs((value - expected) / nullif(expected, 0)) * 100
+           ELSE abs(deviation)
+         END`
+      : `CASE WHEN is_cumulative THEN NULL ELSE abs(deviation) END`;
     unit = 'deviation_pct';
-    method = `deviation-from-expected (${s.deviationCol})`;
+    method = s.expectedCol
+      ? `deviation-from-expected (${s.deviationCol}; cumulative sensors use delta vs expected delta)`
+      : `deviation-from-expected (${s.deviationCol}; cumulative sensors require expected_value)`;
   } else if (useExpected) {
-    metric = `abs((${q(s.valueCol)} - ${q(s.expectedCol!)}) / nullif(${q(s.expectedCol!)}, 0)) * 100`;
+    metric = `abs((value - expected) / nullif(expected, 0)) * 100`;
     unit = 'pct_vs_expected';
-    method = `pct-vs-expected (${s.expectedCol})`;
+    method = `pct-vs-expected (${s.expectedCol}; cumulative sensors use delta vs expected delta)`;
   } else {
     const inner = `
-      WITH base AS (
-        SELECT ${q(s.idCol)} AS sid, ${q(s.timeCol)} AS ts, ${q(s.valueCol)} AS v
-        FROM ${q(s.table)} ${where}
+      ${effectiveCtes}, base AS (
+        SELECT sid, ts, value AS v FROM effective ${scoredWhere}
       ), stats AS (
-        SELECT sid, avg(v) m, stddev_pop(v) sd FROM base GROUP BY sid
+        SELECT sid, avg(v) m, stddev_pop(v) sd FROM base WHERE v IS NOT NULL GROUP BY sid
       ), scored AS (
         SELECT b.sid, b.ts, b.v,
           CASE WHEN st.sd > 0 THEN abs((b.v - st.m) / st.sd) ELSE 0 END AS mag
@@ -177,10 +249,10 @@ export async function scanAnomalies(
   }
 
   const inner = `
-    WITH base AS (
-      SELECT ${q(s.idCol)} AS sid, ${q(s.timeCol)} AS ts, ${q(s.valueCol)} AS value,
+    ${effectiveCtes}, base AS (
+      SELECT sid, ts, value,
         ${metric} AS mag
-      FROM ${q(s.table)} ${where}
+      FROM effective ${scoredWhere}
     ), ranked AS (
       SELECT sid, ts, value, mag,
         row_number() OVER (PARTITION BY sid ORDER BY mag DESC NULLS LAST) rn

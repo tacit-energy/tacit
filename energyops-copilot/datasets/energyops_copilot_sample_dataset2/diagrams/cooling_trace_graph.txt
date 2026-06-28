@@ -1,0 +1,21 @@
+# UKHD Demo - Kälte Trace
+
+Topology edges:
+- Gas-GT -> Wärmeerzeugung Gesamt
+- Wärmeerzeugung Gesamt -> Wärmeausspeisung an AKM
+- Wärmeausspeisung an AKM -> Kälte AKM 1
+- Wärmeausspeisung an AKM -> Kälte AKM 2
+- Kälte AKM 1 -> Kälteproduktion Gesamt
+- Kälte AKM 2 -> Kälteproduktion Gesamt
+- Kälte Turbo Gesamt -> Kälteproduktion Gesamt
+- Kälteproduktion Gesamt -> Gesamt Kälteausspeisung
+- Gesamt Kälteausspeisung -> Kälte Netz INF
+- Kälte Netz INF -> Kopfklinik (INF 400)
+- Kälte Netz INF -> Zentrum Innere Medizin (INF 410)
+- Kälte Netz INF -> Chirurgische Klinik (INF 420)
+- Kälte Netz INF -> Kinderklinik (INF 430)
+- Kälte Netz INF -> Frauenklinik (INF 440)
+- Gesamt Kälteausspeisung -> Kälte Technologiepark
+- Gesamt Kälteausspeisung -> Kälte Gasturbine
+- Gesamt Kälteausspeisung -> Kälte Ostspange
+- Strombezug Kältezentrale -> Kälte Turbo Gesamt

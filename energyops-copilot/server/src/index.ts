@@ -25,6 +25,10 @@ import { getDuck } from './db/duck.js';
 import { getSensorSeries } from './db/scan.js';
 import { getDiagram, listDiagrams } from './db/topology.js';
 import {
+  enrichNodesWithSparklines,
+  warmTopologySparklineCache
+} from './db/topology-sparklines.js';
+import {
   getAnnotations,
   setAnnotation,
   recordDecision,
@@ -127,14 +131,14 @@ app.get('/datasets/:id/topologies', c =>
   c.json(listDiagrams(c.req.param('id')))
 );
 
-app.get('/datasets/:id/topologies/:diagramId', c => {
+app.get('/datasets/:id/topologies/:diagramId', async c => {
   const id = c.req.param('id');
   if (!listDatasets().some(d => d.id === id)) return c.json(null, 404);
   const diagram = getDiagram(id, c.req.param('diagramId'));
   if (!diagram) return c.json(null, 404);
   return c.json({
     title: diagram.name,
-    nodes: diagram.nodes,
+    nodes: await enrichNodesWithSparklines(id, diagram.nodes),
     edges: diagram.edges
   });
 });
@@ -160,12 +164,16 @@ app.get('/datasets/:id/tables', async c => {
 app.post('/datasets/:id/cache', async c => {
   const id = c.req.param('id');
   if (!listDatasets().some(d => d.id === id)) return c.json({ error: 'unknown dataset' }, 404);
-  const summary = await describeDataset(id);
+  const [summary, sparklines] = await Promise.all([
+    describeDataset(id),
+    warmTopologySparklineCache(id)
+  ]);
   return c.json({
     ok: true,
     dataset: id,
     tables: summary.tables.length,
-    rows: summary.tables.reduce((total, table) => total + table.rows, 0)
+    rows: summary.tables.reduce((total, table) => total + table.rows, 0),
+    sparklines
   });
 });
 

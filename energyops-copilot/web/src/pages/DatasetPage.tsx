@@ -19,7 +19,8 @@ import {
   StickyNote,
   Table2,
   Trash2,
-  X
+  X,
+  type LucideIcon
 } from 'lucide-react';
 import { Button, Card, Textarea } from '@/components/ui';
 import {
@@ -56,11 +57,39 @@ type LogEntry =
   | { type: 'decision'; at: string; item: Decision }
   | { type: 'annotation'; at: string; item: Annotation };
 
+type SessionMetric = {
+  key: 'insights' | 'decisions' | 'annotations';
+  label: string;
+  count: number;
+  icon: LucideIcon;
+};
+
 const tabs: { id: Tab; label: string }[] = [
   { id: 'sessions', label: 'Sessions' },
   { id: 'topologies', label: 'Topologies' },
   { id: 'data', label: 'Data' },
   { id: 'log', label: 'Decisions and annotations' }
+];
+
+const sessionMetrics = (session: SessionRow): SessionMetric[] => [
+  {
+    key: 'insights',
+    label: 'insights',
+    count: session.insight_count ?? 0,
+    icon: Sparkles
+  },
+  {
+    key: 'decisions',
+    label: 'decisions',
+    count: session.decision_count ?? 0,
+    icon: ClipboardList
+  },
+  {
+    key: 'annotations',
+    label: 'annotations',
+    count: session.annotation_count ?? 0,
+    icon: StickyNote
+  }
 ];
 
 export function DatasetPage({
@@ -489,14 +518,38 @@ export function DatasetPage({
                     >
                       <Link
                         to={sessionPath(datasetId, s.id)}
-                        className="flex min-w-0 flex-1 items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                        className="flex min-w-0 flex-1 items-center justify-between gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                       >
-                        <GitFork size={15} className="shrink-0 text-[var(--muted-foreground)]" />
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate text-[13px] font-medium">{s.name}</div>
-                          <div className="text-[12px] text-[var(--muted-foreground)]">
-                          updated {formatDateTime(s.updated_at)}
+                        <div className="flex min-w-0 items-center gap-3">
+                          <GitFork size={15} className="shrink-0 text-[var(--muted-foreground)]" />
+                          <div className="min-w-0 flex-1">
+                            <div className="truncate text-[13px] font-medium">{s.name}</div>
+                            <div className="text-[12px] text-[var(--muted-foreground)]">
+                              updated {formatDateTime(s.updated_at)}
+                            </div>
                           </div>
+                        </div>
+                        <div className="flex shrink-0 items-center justify-end gap-1.5">
+                          {sessionMetrics(s)
+                            .filter(metric => metric.count > 0)
+                            .map(metric => {
+                              const Icon = metric.icon;
+                              return (
+                                <span
+                                  key={metric.key}
+                                  className="inline-flex h-7 w-7 items-center justify-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--secondary)] px-0 text-[11px] font-medium text-[var(--muted-foreground)] transition-all group-hover:w-auto group-hover:px-2 group-focus-within:w-auto group-focus-within:px-2"
+                                  title={`${metric.count} ${metric.label}`}
+                                >
+                                  <Icon size={13} className="shrink-0" />
+                                  <span className="hidden tabular-nums group-hover:inline group-focus-within:inline">
+                                    {metric.count}
+                                  </span>
+                                  <span className="hidden group-hover:inline group-focus-within:inline">
+                                    {metric.label}
+                                  </span>
+                                </span>
+                              );
+                            })}
                         </div>
                       </Link>
                       <Button

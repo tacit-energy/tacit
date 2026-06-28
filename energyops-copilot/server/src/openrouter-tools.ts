@@ -3,6 +3,7 @@ import { getDuck } from './db/duck.js';
 import { annotationsBySensor, getAnnotations, setAnnotation, type AnnotationKind } from './db/memory.js';
 import { scanAnomalies, scanDataQuality } from './db/scan.js';
 import { getDiagram, listDiagrams, neighbors, type TopoNode } from './db/topology.js';
+import { enrichNodesWithSparklines } from './db/topology-sparklines.js';
 import { emitWidget, type ToolContext } from './tools/context.js';
 import type {
   ChartSpec,
@@ -36,6 +37,8 @@ const strArray = (v: unknown) => (Array.isArray(v) ? v.filter(x => typeof x === 
 const numArray = (v: unknown) => (Array.isArray(v) ? v.filter(x => typeof x === 'number') : undefined);
 const DISPLAY_TIME_DESC =
   'Operator-facing date/time text must use German/European format: TT.MM.JJJJ, 24-hour time, Europe/Berlin zone names (MEZ/MESZ). Keep chart x values machine-readable ISO timestamps.';
+const CUMULATIVE_CHART_DESC =
+  'For cumulative meter sensors, do not chart raw counter levels. Compute period deltas in SQL with lag(value) partitioned by sensor_id; if expected_value exists, compute expected deltas and deviation from expected deltas.';
 
 function enrichNodes(datasetId: string, nodes: TopoNode[], includePreviousKnowledge = true) {
   if (!includePreviousKnowledge) return nodes;
@@ -178,7 +181,7 @@ export function makeOpenRouterTools(ctx: ToolContext): OpenRouterTool[] {
     },
     {
       name: 'scan_anomalies',
-      description: 'Rank unusual sensor behavior over a time range.',
+      description: 'Rank unusual sensor behavior over a time range. For cumulative sensors, scoring uses period deltas rather than raw counter levels; with expected_value it compares actual delta vs expected delta.',
       parameters: objectSchema({ from: textProp, to: textProp, sensorIds: arrayProp, method: textProp, limit: numberProp }),
       execute: async input =>
         json(
@@ -244,6 +247,7 @@ export function makeOpenRouterTools(ctx: ToolContext): OpenRouterTool[] {
           const ann = annotationsBySensor(datasetId);
           nodes = nodes.map(n => (n.sensorId !== undefined && ann.has(n.sensorId) ? { ...n, annotation: ann.get(n.sensorId) } : n));
         }
+        nodes = await enrichNodesWithSparklines(datasetId, nodes);
         const spec: TopologySpec = {
           title: str(input.title, 'Topology'),
           nodes,
@@ -257,7 +261,7 @@ export function makeOpenRouterTools(ctx: ToolContext): OpenRouterTool[] {
     },
     {
       name: 'render_chart_from_query',
-      description: `Render a chart by running SQL server-side. The query returns x plus numeric series columns. ${DISPLAY_TIME_DESC}`,
+      description: `Render a chart by running SQL server-side. The query returns x plus numeric series columns. ${CUMULATIVE_CHART_DESC} ${DISPLAY_TIME_DESC}`,
       parameters: objectSchema({ title: textProp, sql: textProp, xColumn: textProp, series: arrayProp, unit: textProp, chartType: textProp, maxPoints: numberProp, replaceId: textProp }, ['title', 'sql', 'xColumn', 'series']),
       execute: async input => {
         const spec = await buildChartFromQuery(datasetId, { ...input, title: str(input.title, 'Chart') });
@@ -352,7 +356,7 @@ export function makeOpenRouterTools(ctx: ToolContext): OpenRouterTool[] {
     },
     {
       name: 'render_insight_card',
-      description: `Render the key operational insight as a reviewable card with evidence, recommendations, and optional chart. Set relatedNodeIds so the UI can handle prior-decision recall separately. ${DISPLAY_TIME_DESC}`,
+      description: `Render the key operational insight as a reviewable card with evidence, recommendations, and optional chart. Set relatedNodeIds so the UI can handle prior-decision recall separately. ${CUMULATIVE_CHART_DESC} ${DISPLAY_TIME_DESC}`,
       parameters: objectSchema({ title: textProp, severity: textProp, summary: textProp, evidence: arrayProp, recommendations: arrayProp, relatedNodeIds: arrayProp, impact: {}, chart: {}, replaceId: textProp }, ['title', 'severity', 'summary']),
       execute: async input => {
         let chart: ChartSpec | undefined;

@@ -225,6 +225,9 @@ export interface SessionRow {
   include_previous_knowledge: number;
   created_at: string;
   updated_at: string;
+  insight_count?: number;
+  decision_count?: number;
+  annotation_count?: number;
 }
 
 export function insertSession(row: {
@@ -267,10 +270,41 @@ export function getSessionRow(id: string): SessionRow | undefined {
     | undefined;
 }
 
+const sessionDecisionCountStmt = db.prepare(
+  'SELECT count(*) AS n FROM decisions WHERE session_id = ?'
+);
+const sessionAnnotationCountStmt = db.prepare(
+  'SELECT count(*) AS n FROM annotations WHERE source_session_id = ?'
+);
+
+function insightCountForSession(sessionId: string): number {
+  const ids = new Set<string>();
+  for (const event of getSessionEvents(sessionId)) {
+    if (event.kind === 'widget' && event.widget.type === 'insight_card') {
+      ids.add(event.widget.id);
+    }
+  }
+  return ids.size;
+}
+
+function withSessionCounts(row: SessionRow): SessionRow {
+  return {
+    ...row,
+    insight_count: insightCountForSession(row.id),
+    decision_count: Number(
+      (sessionDecisionCountStmt.get(row.id) as { n: number }).n
+    ),
+    annotation_count: Number(
+      (sessionAnnotationCountStmt.get(row.id) as { n: number }).n
+    )
+  };
+}
+
 export function listSessions(datasetId: string): SessionRow[] {
-  return db
+  const rows = db
     .prepare('SELECT * FROM sessions WHERE dataset_id = ? ORDER BY updated_at DESC')
     .all(datasetId) as SessionRow[];
+  return rows.map(withSessionCounts);
 }
 
 export function touchSession(id: string): void {

@@ -27,6 +27,7 @@ type DetailWidget = Extract<
 >;
 type DataQualityIssue = DataQualitySpec['issues'][number];
 type DataQualityTarget = NonNullable<DataQualityIssue['targets']>[number];
+type SparklineHighlightRange = NonNullable<ChartSpec['markBands']>[number];
 type TopologyNodeMatch = {
   node: TopoWidget['spec']['nodes'][number];
   topologyIndex: number;
@@ -58,6 +59,12 @@ const TYPE_LABEL_FOR_ISSUE: Record<
   stale: 'Stale',
   unit_mismatch: 'Unit',
   inconsistent: 'Inconsistent'
+};
+
+const WIDGET_TYPE_LABEL: Record<DetailWidget['type'], string> = {
+  chart: 'Chart',
+  data_quality: 'Data quality',
+  state_summary: 'State summary'
 };
 
 function StateMetric({ item }: { item: StateSummaryItem }) {
@@ -204,12 +211,79 @@ function DetailWidgetView({
   }
 }
 
+function detailWidgetTitle(widget: DetailWidget) {
+  return widget.spec.title;
+}
+
+function detailWidgetReference(widget: DetailWidget) {
+  const title = detailWidgetTitle(widget);
+  if (widget.type === 'chart') {
+    const series = widget.spec.series.map(s => s.name).join(', ');
+    const range =
+      widget.spec.x.length > 0
+        ? `${widget.spec.x[0]} to ${widget.spec.x[widget.spec.x.length - 1]}`
+        : 'No time range shown';
+    return [
+      `Widget: ${title}`,
+      `Kind: ${WIDGET_TYPE_LABEL[widget.type]}`,
+      `Range: ${range}`,
+      series ? `Series: ${series}` : null
+    ]
+      .filter(Boolean)
+      .join('\n');
+  }
+
+  if (widget.type === 'data_quality') {
+    const issues = widget.spec.issues
+      .slice(0, 5)
+      .map(issue => {
+        const target =
+          issue.targets?.[0]?.label ?? issue.sensor ?? `Sensor ${issue.sensorId ?? 'unknown'}`;
+        return `- ${TYPE_LABEL_FOR_ISSUE[issue.type]}: ${target} - ${issue.message}`;
+      });
+    return [
+      `Widget: ${title}`,
+      `Kind: ${WIDGET_TYPE_LABEL[widget.type]}`,
+      issues.length ? `Findings:\n${issues.join('\n')}` : 'Findings: none shown'
+    ].join('\n');
+  }
+
+  const sections =
+    widget.spec.sections && widget.spec.sections.length > 0
+      ? widget.spec.sections
+      : [{ title: 'Key values', items: widget.spec.items }];
+  const metrics = sections.flatMap(section =>
+    section.items.slice(0, 6).map(item => {
+      const value = `${item.value}${item.unit ? ` ${item.unit}` : ''}`;
+      return `- ${item.label}: ${value}${item.status ? ` (${item.status})` : ''}`;
+    })
+  );
+  return [
+    `Widget: ${title}`,
+    `Kind: ${WIDGET_TYPE_LABEL[widget.type]}`,
+    widget.spec.verdict
+      ? `Verdict: ${widget.spec.verdict.label}${
+          widget.spec.verdict.detail ? ` - ${widget.spec.verdict.detail}` : ''
+        }`
+      : null,
+    metrics.length ? `Values:\n${metrics.join('\n')}` : null
+  ]
+    .filter(Boolean)
+    .join('\n');
+}
+
+function insightSparklineRanges(w?: InsightWidget): SparklineHighlightRange[] {
+  return w?.spec.chart?.markBands ?? [];
+}
+
 export function Workspace({
   widgets,
   sessionId,
   onBack,
   onNodeChartOpenChange,
   onExplainInsight,
+  onAskWidgetQuestion,
+  agentBusy = false,
   onOpenSettings,
   chatInset = 0
 }: {
@@ -218,6 +292,8 @@ export function Workspace({
   onBack?: () => void;
   onNodeChartOpenChange?: (open: boolean) => void;
   onExplainInsight?: (text: string) => void;
+  onAskWidgetQuestion?: (text: string) => void;
+  agentBusy?: boolean;
   onOpenSettings: () => void;
   chatInset?: number;
 }) {
@@ -252,6 +328,9 @@ export function Workspace({
 
   const [selectedInsightId, setSelectedInsightId] = useState<string | null>(null);
   const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([]);
+  const [sparklineHighlightRanges, setSparklineHighlightRanges] = useState<
+    SparklineHighlightRange[]
+  >([]);
   const [activeTopo, setActiveTopo] = useState(0);
   const [drawer, setDrawer] = useState<{
     spec: ChartSpec | null;
@@ -277,10 +356,11 @@ export function Workspace({
     return idx >= 0 ? idx : activeIdx;
   };
 
-  const selectInsight = (w: InsightWidget) => {
+  const selectInsight = (w: InsightWidget, ranges = insightSparklineRanges(w)) => {
     setSelectedInsightId(w.id);
     const nodes = w.spec.relatedNodeIds ?? [];
     setSelectedNodeIds(nodes);
+    setSparklineHighlightRanges(ranges);
     setActiveTopo(topoIndexForNodes(nodes));
   };
 
@@ -291,9 +371,12 @@ export function Workspace({
     );
     if (insight) {
       setSelectedInsightId(insight.id);
+      setSparklineHighlightRanges(insightSparklineRanges(insight));
       cardRefs.current
         .get(insight.id)
         ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+      setSparklineHighlightRanges([]);
     }
     const node = activeTopology?.spec.nodes.find(n => n.id === nodeId);
     if (node?.sensorId != null) {
@@ -424,6 +507,12 @@ export function Workspace({
     });
   };
 
+  const askAboutWidget = (widget: DetailWidget, question: string) => {
+    onAskWidgetQuestion?.(
+      `I'm asking about this widget:\n\n${detailWidgetReference(widget)}\n\nQuestion: ${question}`
+    );
+  };
+
   const empty = widgets.length === 0;
 
   return (
@@ -490,6 +579,7 @@ export function Workspace({
                   spec={activeTopology.spec}
                   onNodeClick={selectNode}
                   selectionHighlight={selectedNodeIds}
+                  sparklineHighlightRanges={sparklineHighlightRanges}
                   scrollZoom
                   fill
                 />
@@ -560,13 +650,26 @@ export function Workspace({
                     decided={decidedByCard.get(w.id)}
                     onDecided={refetch}
                     onExplain={onExplainInsight}
+                    onTimeframeSelect={range => selectInsight(w, [range])}
+                    explainDisabled={agentBusy}
                     topologies={topologyWidgets.map(t => t.spec)}
                   />
                 </div>
               ))}
 
               {detailWidgets.map(w => (
-                <WidgetFrame key={w.id} widgetId={w.id} sessionId={sessionId}>
+                <WidgetFrame
+                  key={w.id}
+                  widgetId={w.id}
+                  sessionId={sessionId}
+                  widgetTitle={detailWidgetTitle(w)}
+                  askDisabled={agentBusy}
+                  onAskQuestion={
+                    onAskWidgetQuestion
+                      ? question => askAboutWidget(w, question)
+                      : undefined
+                  }
+                >
                   <DetailWidgetView
                     widget={w}
                     onDataQualityTargetClick={openDataQualityTarget}
