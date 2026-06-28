@@ -1,0 +1,457 @@
+{
+  "id": "campus_microgrid",
+  "name": "Aster medical campus energy system",
+  "type": "energy_topology",
+  "nodes": [
+    {
+      "id": "grid_import",
+      "type": "meterNode",
+      "position": {
+        "x": 60,
+        "y": 180
+      },
+      "data": {
+        "label": "Grid import",
+        "sensor_id": 910101,
+        "unit": "kW",
+        "energy_type": "electricity",
+        "role": "source",
+        "branch": "grid"
+      }
+    },
+    {
+      "id": "pv_output",
+      "type": "meterNode",
+      "position": {
+        "x": 60,
+        "y": 40
+      },
+      "data": {
+        "label": "PV output",
+        "sensor_id": 910103,
+        "unit": "kW",
+        "energy_type": "electricity",
+        "role": "source",
+        "branch": "renewable"
+      }
+    },
+    {
+      "id": "chp_output",
+      "type": "meterNode",
+      "position": {
+        "x": 60,
+        "y": 320
+      },
+      "data": {
+        "label": "CHP electric output",
+        "sensor_id": 910104,
+        "unit": "kW",
+        "energy_type": "electricity",
+        "role": "source",
+        "branch": "chp"
+      }
+    },
+    {
+      "id": "campus_load",
+      "type": "meterNode",
+      "position": {
+        "x": 320,
+        "y": 180
+      },
+      "data": {
+        "label": "Campus electric load",
+        "sensor_id": 910102,
+        "unit": "kW",
+        "energy_type": "electricity",
+        "role": "load",
+        "branch": "campus"
+      }
+    },
+    {
+      "id": "battery_power",
+      "type": "meterNode",
+      "position": {
+        "x": 320,
+        "y": 40
+      },
+      "data": {
+        "label": "Battery discharge power",
+        "sensor_id": 910105,
+        "unit": "kW",
+        "energy_type": "electricity",
+        "role": "storage",
+        "branch": "battery"
+      }
+    },
+    {
+      "id": "battery_soc",
+      "type": "meterNode",
+      "position": {
+        "x": 560,
+        "y": 40
+      },
+      "data": {
+        "label": "Battery state of charge",
+        "sensor_id": 910106,
+        "unit": "%",
+        "energy_type": "electricity",
+        "role": "storage",
+        "branch": "battery"
+      }
+    },
+    {
+      "id": "chiller_power",
+      "type": "meterNode",
+      "position": {
+        "x": 560,
+        "y": 180
+      },
+      "data": {
+        "label": "Chiller plant electric power",
+        "sensor_id": 910201,
+        "unit": "kW",
+        "energy_type": "cold",
+        "role": "plant",
+        "branch": "cooling"
+      }
+    },
+    {
+      "id": "chw_supply_temp",
+      "type": "meterNode",
+      "position": {
+        "x": 820,
+        "y": 120
+      },
+      "data": {
+        "label": "Chilled water supply temperature",
+        "sensor_id": 910202,
+        "unit": "C",
+        "energy_type": "cold",
+        "role": "control",
+        "branch": "cooling"
+      }
+    },
+    {
+      "id": "chw_return_temp",
+      "type": "meterNode",
+      "position": {
+        "x": 820,
+        "y": 260
+      },
+      "data": {
+        "label": "Chilled water return temperature",
+        "sensor_id": 910203,
+        "unit": "C",
+        "energy_type": "cold",
+        "role": "return",
+        "branch": "cooling"
+      }
+    },
+    {
+      "id": "chiller_cop",
+      "type": "meterNode",
+      "position": {
+        "x": 560,
+        "y": 340
+      },
+      "data": {
+        "label": "Chiller COP",
+        "sensor_id": 910204,
+        "unit": "COP",
+        "energy_type": "cold",
+        "role": "efficiency",
+        "branch": "cooling"
+      }
+    },
+    {
+      "id": "north_chw_flow",
+      "type": "meterNode",
+      "position": {
+        "x": 1080,
+        "y": 180
+      },
+      "data": {
+        "label": "North chilled water flow",
+        "sensor_id": 910205,
+        "unit": "m3/h",
+        "energy_type": "cold",
+        "role": "branch",
+        "branch": "north"
+      }
+    },
+    {
+      "id": "or_ahu_load",
+      "type": "meterNode",
+      "position": {
+        "x": 1340,
+        "y": 80
+      },
+      "data": {
+        "label": "OR AHU cooling load",
+        "sensor_id": 910301,
+        "unit": "kW",
+        "energy_type": "cold",
+        "role": "consumer",
+        "branch": "or"
+      }
+    },
+    {
+      "id": "or_humidity",
+      "type": "meterNode",
+      "position": {
+        "x": 1580,
+        "y": 80
+      },
+      "data": {
+        "label": "OR relative humidity",
+        "sensor_id": 910302,
+        "unit": "%RH",
+        "energy_type": null,
+        "role": "comfort",
+        "branch": "or"
+      }
+    },
+    {
+      "id": "lab_cooling_load",
+      "type": "meterNode",
+      "position": {
+        "x": 1340,
+        "y": 220
+      },
+      "data": {
+        "label": "Lab chilled water load",
+        "sensor_id": 910303,
+        "unit": "kW",
+        "energy_type": "cold",
+        "role": "consumer",
+        "branch": "lab"
+      }
+    },
+    {
+      "id": "data_center_cooling",
+      "type": "meterNode",
+      "position": {
+        "x": 1340,
+        "y": 360
+      },
+      "data": {
+        "label": "Data center cooling load",
+        "sensor_id": 910304,
+        "unit": "kW",
+        "energy_type": "cold",
+        "role": "consumer",
+        "branch": "datacenter"
+      }
+    },
+    {
+      "id": "boiler_gas",
+      "type": "meterNode",
+      "position": {
+        "x": 820,
+        "y": 440
+      },
+      "data": {
+        "label": "Steam boiler gas input",
+        "sensor_id": 910401,
+        "unit": "kW",
+        "energy_type": "gas",
+        "role": "plant",
+        "branch": "thermal"
+      }
+    },
+    {
+      "id": "thermal_storage",
+      "type": "meterNode",
+      "position": {
+        "x": 1080,
+        "y": 440
+      },
+      "data": {
+        "label": "Thermal storage state",
+        "sensor_id": 910402,
+        "unit": "%",
+        "energy_type": "cold",
+        "role": "storage",
+        "branch": "cooling"
+      }
+    },
+    {
+      "id": "outdoor_temp",
+      "type": "meterNode",
+      "position": {
+        "x": 560,
+        "y": 540
+      },
+      "data": {
+        "label": "Outdoor air temperature",
+        "sensor_id": 910501,
+        "unit": "C",
+        "energy_type": null,
+        "role": "reference",
+        "branch": "weather"
+      }
+    },
+    {
+      "id": "outdoor_humidity",
+      "type": "meterNode",
+      "position": {
+        "x": 820,
+        "y": 540
+      },
+      "data": {
+        "label": "Outdoor relative humidity",
+        "sensor_id": 910502,
+        "unit": "%RH",
+        "energy_type": null,
+        "role": "reference",
+        "branch": "weather"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-1",
+      "source": "pv_output",
+      "target": "campus_load",
+      "data": {
+        "label": "PV offsets load"
+      }
+    },
+    {
+      "id": "edge-2",
+      "source": "chp_output",
+      "target": "campus_load",
+      "data": {
+        "label": "CHP offsets load"
+      }
+    },
+    {
+      "id": "edge-3",
+      "source": "battery_power",
+      "target": "campus_load",
+      "data": {
+        "label": "Storage dispatch"
+      }
+    },
+    {
+      "id": "edge-4",
+      "source": "campus_load",
+      "target": "grid_import",
+      "data": {
+        "label": "Net import"
+      }
+    },
+    {
+      "id": "edge-5",
+      "source": "battery_soc",
+      "target": "battery_power",
+      "data": {
+        "label": "Dispatch constraint"
+      }
+    },
+    {
+      "id": "edge-6",
+      "source": "campus_load",
+      "target": "chiller_power",
+      "data": {
+        "label": "Cooling electricity"
+      }
+    },
+    {
+      "id": "edge-7",
+      "source": "chiller_power",
+      "target": "chw_supply_temp",
+      "data": {
+        "label": "Produces chilled water"
+      }
+    },
+    {
+      "id": "edge-8",
+      "source": "chw_return_temp",
+      "target": "chiller_power",
+      "data": {
+        "label": "Return load"
+      }
+    },
+    {
+      "id": "edge-9",
+      "source": "chiller_power",
+      "target": "chiller_cop",
+      "data": {
+        "label": "Plant efficiency"
+      }
+    },
+    {
+      "id": "edge-10",
+      "source": "chw_supply_temp",
+      "target": "north_chw_flow",
+      "data": {
+        "label": "North loop supply"
+      }
+    },
+    {
+      "id": "edge-11",
+      "source": "north_chw_flow",
+      "target": "or_ahu_load",
+      "data": {
+        "label": "Critical clinical load"
+      }
+    },
+    {
+      "id": "edge-12",
+      "source": "or_ahu_load",
+      "target": "or_humidity",
+      "data": {
+        "label": "Latent control"
+      }
+    },
+    {
+      "id": "edge-13",
+      "source": "north_chw_flow",
+      "target": "lab_cooling_load",
+      "data": {
+        "label": "Lab load"
+      }
+    },
+    {
+      "id": "edge-14",
+      "source": "north_chw_flow",
+      "target": "data_center_cooling",
+      "data": {
+        "label": "Data center load"
+      }
+    },
+    {
+      "id": "edge-15",
+      "source": "boiler_gas",
+      "target": "or_ahu_load",
+      "data": {
+        "label": "Reheat support"
+      }
+    },
+    {
+      "id": "edge-16",
+      "source": "thermal_storage",
+      "target": "chiller_power",
+      "data": {
+        "label": "Load shifting"
+      }
+    },
+    {
+      "id": "edge-17",
+      "source": "outdoor_temp",
+      "target": "chiller_power",
+      "data": {
+        "label": "Weather driver"
+      }
+    },
+    {
+      "id": "edge-18",
+      "source": "outdoor_humidity",
+      "target": "or_humidity",
+      "data": {
+        "label": "Latent driver"
+      }
+    }
+  ]
+}

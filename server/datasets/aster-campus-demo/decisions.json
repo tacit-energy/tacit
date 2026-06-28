@@ -1,0 +1,138 @@
+[
+  {
+    "id": "seed-aster-chw-reset",
+    "dataset_id": "aster-campus-demo",
+    "session_id": null,
+    "insight_card_id": "seed-insight-chw-reset",
+    "insight_title": "CHW reset saved energy in mild weather but needs humidity guardrail",
+    "decision_type": "accept",
+    "rationale": "Accepted the 8.6 C chilled-water reset after mild-weather data showed COP improvement. Guardrail: rollback if OR RH exceeds 58 percent or COP drops below 3.6.",
+    "related_node_ids": [
+      "chw_supply_temp",
+      "chiller_power",
+      "chiller_cop",
+      "or_humidity",
+      "or_ahu_load"
+    ],
+    "impact": 4200,
+    "created_at": "2026-05-20T08:15:00Z",
+    "insight_snapshot": {
+      "title": "CHW reset saved energy in mild weather but needs humidity guardrail",
+      "severity": "watch",
+      "summary": "Raising chilled-water supply from 7.0 C to 8.6 C improved plant efficiency during mild weeks, but the decision depends on OR humidity staying below 58 percent.",
+      "evidence": [
+        "Chiller COP improved during mild occupied hours after 20.05.2026.",
+        "OR humidity stayed near 52 percent during the acceptance window.",
+        "The decision explicitly required rollback above 58 percent RH."
+      ],
+      "recommendations": [
+        "Keep the reset active only while clinical humidity remains below the guardrail.",
+        "Rollback automatically during humid weather or low-COP operation."
+      ],
+      "relatedNodeIds": [
+        "chw_supply_temp",
+        "chiller_cop",
+        "or_humidity"
+      ],
+      "impact": {
+        "value": 4200,
+        "unit": "EUR/month",
+        "confidence": "med"
+      },
+      "chart": {
+        "title": "CHW reset acceptance window",
+        "x": [
+          "2026-05-18T12:00:00Z",
+          "2026-05-20T12:00:00Z",
+          "2026-05-22T12:00:00Z"
+        ],
+        "unit": "%RH",
+        "chartType": "line",
+        "referenceLines": [
+          {
+            "value": 58,
+            "label": "Rollback guardrail"
+          }
+        ],
+        "series": [
+          {
+            "name": "OR RH",
+            "role": "actual",
+            "data": [
+              51.8,
+              52.4,
+              52.1
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "seed-aster-bess-reserve",
+    "dataset_id": "aster-campus-demo",
+    "session_id": null,
+    "insight_card_id": "seed-insight-bess-reserve",
+    "insight_title": "Battery reserve override should not block demand response",
+    "decision_type": "override",
+    "rationale": "Raised minimum SOC to 88 percent after a nuisance relay trip, but only as a temporary protection until inspection. The guardrail says to release before DR unless the alarm recurs.",
+    "related_node_ids": [
+      "battery_power",
+      "battery_soc",
+      "grid_import"
+    ],
+    "impact": -2600,
+    "created_at": "2026-05-27T12:20:00Z",
+    "insight_snapshot": {
+      "title": "Battery reserve override should not block demand response",
+      "severity": "watch",
+      "summary": "The high-SOC override protects backup reserve after a relay event, but it suppresses dispatch value during peak grid events.",
+      "evidence": [
+        "Minimum SOC was raised to 88 percent after the 27.05.2026 relay trip.",
+        "The override was marked temporary and should be released before DR calls.",
+        "Expected impact was negative while the override remained active."
+      ],
+      "recommendations": [
+        "Release the override for DR windows unless a fresh relay alarm is present.",
+        "Track grid import against expected battery discharge during every DR call."
+      ],
+      "relatedNodeIds": [
+        "battery_power",
+        "battery_soc",
+        "grid_import"
+      ],
+      "impact": {
+        "value": -2600,
+        "unit": "EUR",
+        "confidence": "med"
+      },
+      "chart": {
+        "title": "Battery reserve override",
+        "x": [
+          "2026-05-27T12:00:00Z",
+          "2026-05-28T12:00:00Z",
+          "2026-05-29T12:00:00Z"
+        ],
+        "unit": "%",
+        "chartType": "line",
+        "referenceLines": [
+          {
+            "value": 88,
+            "label": "Temporary minimum SOC"
+          }
+        ],
+        "series": [
+          {
+            "name": "Battery SOC",
+            "role": "actual",
+            "data": [
+              89,
+              91,
+              92
+            ]
+          }
+        ]
+      }
+    }
+  }
+]

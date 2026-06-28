@@ -1,0 +1,6 @@
+timestamp,decision_id,node_id,control,prior_value,new_value,mode
+2026-05-13T08:00:00Z,DEC-2026-05-13-ECONOMIZER,or_ahu_load,economizer_min_oa_pct,18,28,accepted
+2026-05-20T08:30:00Z,DEC-2026-05-20-CHW-RESET,chw_supply_temp,supply_setpoint_c,7,8.6,accepted
+2026-05-27T12:30:00Z,DEC-2026-05-27-BESS-RESERVE,battery_soc,minimum_soc_pct,35,88,temporary_override
+2026-06-04T10:15:00Z,DEC-2026-06-04-ROLLBACK,chw_supply_temp,supply_setpoint_c,8.6,7,rollback
+2026-06-04T18:00:00Z,DEC-2026-06-04-ROLLBACK,battery_soc,minimum_soc_pct,88,35,released

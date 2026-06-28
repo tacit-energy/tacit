@@ -1,0 +1,20 @@
+sensor_id,name,unit,cumulative,energy_type,role,branch,description
+910101,Grid import,kW,False,electricity,source,grid,Utility import at the campus intertie. Positive means importing from the grid.
+910102,Campus electric load,kW,False,electricity,load,campus,Total campus electric demand before on-site generation and storage.
+910103,PV output,kW,False,electricity,source,renewable,Rooftop and carport photovoltaic output.
+910104,CHP electric output,kW,False,electricity,source,chp,Combined heat and power electric output.
+910105,Battery discharge power,kW,False,electricity,storage,battery,Battery power. Positive values discharge to support the campus.
+910106,Battery state of charge,%,False,electricity,storage,battery,Battery state of charge.
+910201,Chiller plant electric power,kW,False,cold,plant,cooling,Total electric power for the chilled-water plant.
+910202,Chilled water supply temperature,C,False,cold,control,cooling,Leaving chilled-water temperature from the central plant.
+910203,Chilled water return temperature,C,False,cold,return,cooling,Return chilled-water temperature from campus loads.
+910204,Chiller COP,COP,False,cold,efficiency,cooling,Measured chiller coefficient of performance.
+910205,North chilled water flow,m3/h,False,cold,branch,north,North branch chilled-water flow feeding critical clinical zones.
+910301,OR AHU cooling load,kW,False,cold,consumer,or,Cooling load for operating-room air handling units.
+910302,OR relative humidity,%RH,False,,comfort,or,Operating-room relative humidity.
+910303,Lab chilled water load,kW,False,cold,consumer,lab,Research lab chilled-water load.
+910304,Data center cooling load,kW,False,cold,consumer,datacenter,Data center chilled-water load.
+910401,Steam boiler gas input,kW,False,gas,plant,thermal,Gas input to steam boilers for reheat and sterilization.
+910402,Thermal storage state,%,False,cold,storage,cooling,Thermal storage state of charge.
+910501,Outdoor air temperature,C,False,,reference,weather,Outdoor air dry-bulb temperature.
+910502,Outdoor relative humidity,%RH,False,,reference,weather,Outdoor air relative humidity.

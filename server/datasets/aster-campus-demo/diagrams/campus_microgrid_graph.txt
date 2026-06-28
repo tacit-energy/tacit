@@ -1,0 +1,21 @@
+# Aster medical campus energy system
+
+Topology edges:
+- pv_output -> campus_load: PV offsets load
+- chp_output -> campus_load: CHP offsets load
+- battery_power -> campus_load: Storage dispatch
+- campus_load -> grid_import: Net import
+- battery_soc -> battery_power: Dispatch constraint
+- campus_load -> chiller_power: Cooling electricity
+- chiller_power -> chw_supply_temp: Produces chilled water
+- chw_return_temp -> chiller_power: Return load
+- chiller_power -> chiller_cop: Plant efficiency
+- chw_supply_temp -> north_chw_flow: North loop supply
+- north_chw_flow -> or_ahu_load: Critical clinical load
+- or_ahu_load -> or_humidity: Latent control
+- north_chw_flow -> lab_cooling_load: Lab load
+- north_chw_flow -> data_center_cooling: Data center load
+- boiler_gas -> or_ahu_load: Reheat support
+- thermal_storage -> chiller_power: Load shifting
+- outdoor_temp -> chiller_power: Weather driver
+- outdoor_humidity -> or_humidity: Latent driver

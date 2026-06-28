@@ -1,0 +1,8 @@
+param,value
+currency,EUR
+energy_price_eur_per_kwh,0.22
+demand_charge_eur_per_kw_month,14.5
+dr_nonperformance_penalty_eur_per_kw,38
+or_humidity_risk_threshold_pct,58
+or_humidity_risk_eur_per_hour_above_threshold,2200
+chiller_low_cop_threshold,3.6

@@ -1,0 +1,20 @@
+sensor_id,source,external_id,external_key,label
+910101,aster-campus-bms,ASTER-910101,grid_import,Grid import
+910102,aster-campus-bms,ASTER-910102,campus_load,Campus electric load
+910103,aster-campus-bms,ASTER-910103,pv_output,PV output
+910104,aster-campus-bms,ASTER-910104,chp_output,CHP electric output
+910105,aster-campus-bms,ASTER-910105,battery_power,Battery discharge power
+910106,aster-campus-bms,ASTER-910106,battery_soc,Battery state of charge
+910201,aster-campus-bms,ASTER-910201,chiller_power,Chiller plant electric power
+910202,aster-campus-bms,ASTER-910202,chw_supply_temp,Chilled water supply temperature
+910203,aster-campus-bms,ASTER-910203,chw_return_temp,Chilled water return temperature
+910204,aster-campus-bms,ASTER-910204,chiller_cop,Chiller COP
+910205,aster-campus-bms,ASTER-910205,north_chw_flow,North chilled water flow
+910301,aster-campus-bms,ASTER-910301,or_ahu_load,OR AHU cooling load
+910302,aster-campus-bms,ASTER-910302,or_humidity,OR relative humidity
+910303,aster-campus-bms,ASTER-910303,lab_cooling_load,Lab chilled water load
+910304,aster-campus-bms,ASTER-910304,data_center_cooling,Data center cooling load
+910401,aster-campus-bms,ASTER-910401,boiler_gas,Steam boiler gas input
+910402,aster-campus-bms,ASTER-910402,thermal_storage,Thermal storage state
+910501,aster-campus-bms,ASTER-910501,outdoor_temp,Outdoor air temperature
+910502,aster-campus-bms,ASTER-910502,outdoor_humidity,Outdoor relative humidity

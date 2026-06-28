@@ -7,10 +7,22 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const SERVER_ROOT = fileURLToPath(new URL('../../', import.meta.url));
+const REPO_ROOT = path.resolve(SERVER_ROOT, '..');
 
-export const DATASETS_DIR = process.env.DATASETS_DIR
-  ? path.resolve(SERVER_ROOT, process.env.DATASETS_DIR)
-  : path.resolve(SERVER_ROOT, '../datasets'); // repo-root/datasets
+function resolveConfiguredPath(value: string): string {
+  if (path.isAbsolute(value)) return path.resolve(value);
+
+  const repoRelative = path.resolve(REPO_ROOT, value);
+  if (existsSync(repoRelative)) return repoRelative;
+
+  return path.resolve(SERVER_ROOT, value);
+}
+
+const configuredDatasetsDir = process.env.DATASETS_DIR ?? process.env.DATA_DIR;
+
+export const DATASETS_DIR = configuredDatasetsDir
+  ? resolveConfiguredPath(configuredDatasetsDir)
+  : path.join(REPO_ROOT, 'datasets');
 
 export interface DatasetInfo {
   id: string; // folder name (stable key)
@@ -41,6 +53,38 @@ function readManifest(dir: string): Record<string, unknown> | null {
 
 function isDataset(dir: string): boolean {
   return existsSync(path.join(dir, 'sensors.csv'));
+}
+
+export function datasetRoots(): string[] {
+  const roots = [
+    DATASETS_DIR,
+    path.join(REPO_ROOT, 'datasets'),
+    path.join(SERVER_ROOT, 'datasets'),
+    path.join(SERVER_ROOT, 'data'),
+    path.join(process.cwd(), 'datasets'),
+    path.join(process.cwd(), 'server', 'datasets')
+  ];
+  return [...new Set(roots.map(root => path.resolve(root)))];
+}
+
+export function datasetRootStatus(): { path: string; exists: boolean; datasets: number }[] {
+  return datasetRoots().map(root => {
+    let datasets = 0;
+    if (existsSync(root)) {
+      const candidates = isDataset(root)
+        ? [root]
+        : readdirSync(root).map(entry => path.join(root, entry));
+      datasets = candidates.filter(candidate => {
+        try {
+          return statSync(candidate).isDirectory() && isDataset(candidate);
+        } catch {
+          return false;
+        }
+      }).length;
+    }
+
+    return { path: root, exists: existsSync(root), datasets };
+  });
 }
 
 function dateOnly(value: unknown): string | undefined {
@@ -110,18 +154,30 @@ function describe(id: string, dir: string): DatasetInfo {
 }
 
 export function listDatasets(): DatasetInfo[] {
-  if (!existsSync(DATASETS_DIR)) return [];
-  return readdirSync(DATASETS_DIR)
-    .map(entry => path.join(DATASETS_DIR, entry))
-    .filter(p => {
+  const datasets = new Map<string, DatasetInfo>();
+
+  for (const root of datasetRoots()) {
+    if (!existsSync(root)) continue;
+
+    const candidates = isDataset(root)
+      ? [root]
+      : readdirSync(root).map(entry => path.join(root, entry));
+
+    for (const candidate of candidates) {
       try {
-        return statSync(p).isDirectory() && isDataset(p);
+        if (!statSync(candidate).isDirectory() || !isDataset(candidate)) continue;
       } catch {
-        return false;
+        continue;
       }
-    })
-    .map(dir => describe(path.basename(dir), dir))
-    .sort((a, b) => a.id.localeCompare(b.id));
+
+      const id = path.basename(candidate);
+      if (!datasets.has(id)) {
+        datasets.set(id, describe(id, candidate));
+      }
+    }
+  }
+
+  return [...datasets.values()].sort((a, b) => a.id.localeCompare(b.id));
 }
 
 export function getDataset(id: string): DatasetInfo | undefined {

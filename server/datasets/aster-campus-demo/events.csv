@@ -1,0 +1,6 @@
+start_time,end_time,event_type,title,detail
+2026-05-20T08:00:00Z,2026-05-20T10:00:00Z,operator_decision,CHW reset accepted,Mild-weather efficiency decision raised chilled-water supply setpoint.
+2026-05-27T10:00:00Z,2026-05-27T12:00:00Z,equipment_alarm,Battery relay nuisance trip,Spurious relay trip led to a conservative SOC override.
+2026-06-02T12:00:00Z,2026-06-04T09:00:00Z,weather,Humid heat event,"Outdoor humidity and temperature rose together, increasing latent cooling load."
+2026-06-03T15:00:00Z,2026-06-03T19:00:00Z,market,Demand-response call,Campus was expected to discharge the battery and reduce grid import.
+2026-06-04T10:00:00Z,2026-06-04T18:00:00Z,operator_decision,Rollback and release,Temporary decisions were rolled back after the June 3 interaction was reviewed.

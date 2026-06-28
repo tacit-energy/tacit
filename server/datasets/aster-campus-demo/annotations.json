@@ -1,0 +1,20 @@
+[
+  {
+    "target_kind": "sensor",
+    "target_id": "910302",
+    "text": "[2026-05-20 Nora] OR humidity guardrail for CHW reset is 58 percent. If it crosses that under humid weather, the setpoint reset should roll back immediately.",
+    "updated_at": "2026-05-20T08:30:00Z"
+  },
+  {
+    "target_kind": "sensor",
+    "target_id": "910106",
+    "text": "[2026-05-27 Jonas] Battery minimum SOC was raised to 88 percent after a relay nuisance trip. This is temporary and should not block demand-response dispatch.",
+    "updated_at": "2026-05-27T12:30:00Z"
+  },
+  {
+    "target_kind": "dataset",
+    "target_id": "aster-campus-demo",
+    "text": "Demo objective: connect prior decisions to later operation. The June 3 humid DR event is the primary story.",
+    "updated_at": "2026-06-04T10:15:00Z"
+  }
+]

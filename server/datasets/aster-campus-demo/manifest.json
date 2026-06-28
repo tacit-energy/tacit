@@ -1,0 +1,43 @@
+{
+  "created_at_utc": "2026-06-28T10:27:58.698Z",
+  "source": "synthetic_demo",
+  "scenario": "prior_decision_influenced_operation",
+  "start_date": "2026-04-20",
+  "time_window": {
+    "start": "2026-04-20",
+    "end": "2026-06-07"
+  },
+  "site": "Aster Medical Campus",
+  "narrative": "Synthetic medical-campus microgrid and chilled-water dataset designed for EnergyOps Copilot demos. The hero incident is 2026-06-03: a humid demand-response event exposes two stale temporary decisions, a chilled-water reset and a battery reserve override.",
+  "hero_day": "2026-06-03",
+  "hero_window": [
+    "15:00",
+    "19:00"
+  ],
+  "counts": {
+    "sensors": 19,
+    "diagrams": 1,
+    "hourly_sensor_rows": 22344,
+    "sensor_attributes": 76,
+    "sensor_external_refs": 19,
+    "decisions": 4,
+    "seeded_decision_memory": 2,
+    "control_actions": 5,
+    "events": 5,
+    "annotations": 3
+  },
+  "files": {
+    "readme": "README.md",
+    "diagrams": "diagrams/",
+    "sensors": "sensors.csv",
+    "sensor_attributes": "sensor_attributes.csv",
+    "sensor_external_refs": "sensor_external_refs.csv",
+    "sensor_data_hourly": "sensor_data_hourly.csv",
+    "decisions": "decisions.csv",
+    "decision_memory": "decisions.json",
+    "control_actions": "control_actions.csv",
+    "events": "events.csv",
+    "cost_model": "cost_model.csv",
+    "annotations": "annotations.json"
+  }
+}

@@ -3,7 +3,7 @@ import { fileURLToPath, URL } from 'node:url';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
-const SERVER = 'http://localhost:3460';
+const SERVER = 'http://localhost:3461';
 
 // https://vite.dev/config/
 export default defineConfig({

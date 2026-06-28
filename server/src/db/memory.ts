@@ -405,9 +405,6 @@ function hydrate(row: DecisionRow): Decision {
 }
 
 const seededDecisionDatasets = new Set<string>();
-const decisionCountStmt = db.prepare(
-  'SELECT count(*) AS n FROM decisions WHERE dataset_id = ?'
-);
 const seedDecisionStmt = db.prepare(
   `INSERT OR IGNORE INTO decisions
      (id, dataset_id, session_id, insight_card_id, insight_title,
@@ -424,7 +421,6 @@ function ensureDecisionsSeeded(datasetId: string): void {
   if (!dir) return;
   const file = path.join(dir, 'decisions.json');
   if (!existsSync(file)) return;
-  if (Number((decisionCountStmt.get(datasetId) as { n: number }).n) > 0) return;
   let parsed: unknown;
   try {
     parsed = JSON.parse(readFileSync(file, 'utf8'));

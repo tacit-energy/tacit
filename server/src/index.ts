@@ -20,7 +20,7 @@ import { streamSSE } from 'hono/streaming';
 import type { Context } from 'hono';
 import type { Bus } from './bus.js';
 import { describeDataset, getCachedDatasetDescription } from './db/describe.js';
-import { listDatasets } from './db/datasets.js';
+import { datasetRootStatus, listDatasets } from './db/datasets.js';
 import { getDuck } from './db/duck.js';
 import { getSensorSeries } from './db/scan.js';
 import { getDiagram, listDiagrams } from './db/topology.js';
@@ -56,7 +56,7 @@ if (!process.env.CLAUDE_CODE_OAUTH_TOKEN && !process.env.ANTHROPIC_API_KEY) {
   );
 }
 
-const PORT = Number(process.env.PORT ?? 3460);
+const PORT = Number(process.env.ENERGYOPS_PORT ?? 3461);
 const app = new Hono();
 app.use('*', cors());
 
@@ -120,7 +120,13 @@ function withAnalysisRange(prompt: string, range?: { from?: string; to?: string 
 // Datasets + sessions
 // ---------------------------------------------------------------------------
 
-app.get('/health', c => c.json({ ok: true }));
+app.get('/health', c =>
+  c.json({
+    ok: true,
+    datasets: listDatasets().length,
+    datasetRoots: datasetRootStatus()
+  })
+);
 app.get('/datasets', c => c.json(listDatasets()));
 
 app.get('/datasets/:id/sessions', c =>
@@ -524,4 +530,10 @@ app.post('/annotation', async c => {
 
 serve({ fetch: app.fetch, port: PORT }, info => {
   console.log(`EnergyOps Copilot server on http://localhost:${info.port}`);
+  console.log(
+    `Datasets discovered: ${listDatasets().length}`,
+    datasetRootStatus()
+      .map(root => `${root.path} (${root.datasets})`)
+      .join('; ')
+  );
 });
