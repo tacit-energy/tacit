@@ -48,6 +48,17 @@ const initialState: AgentState = {
 let seq = 0;
 const uid = () => `f${++seq}`;
 
+const eventKey = (event: ServerEvent) => JSON.stringify(event);
+
+function countEvents(events: ServerEvent[]) {
+  const counts = new Map<string, number>();
+  for (const event of events) {
+    const key = eventKey(event);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  return counts;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function reduceSdk(state: AgentState, m: any): AgentState {
   switch (m?.type) {
@@ -377,31 +388,51 @@ export function useAgentStream(
 ) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const esRef = useRef<EventSource | null>(null);
+  const replaySkipRef = useRef<Map<string, number>>(new Map());
+  const userEchoSkipRef = useRef<Map<string, number>>(new Map());
 
   const restoreSnapshot = useCallback(async () => {
     const snapshot = await getSessionSnapshot(sessionId);
     if (!snapshot.live) {
       dispatch({ type: 'reset' });
+      replaySkipRef.current = countEvents(snapshot.events);
       dispatch({ type: 'snapshot', events: snapshot.events });
       return true;
     }
     return false;
   }, [sessionId]);
 
-  const openStream = useCallback(() => {
+  const openStream = useCallback((preserveState = false) => {
     if (esRef.current) return;
-    // The SSE endpoint replays the FULL history on connect and then streams
-    // live events, so it is the single source of truth. Reset first so the
-    // replay rebuilds state from scratch instead of stacking on top of an
-    // already-hydrated snapshot — which doubled tool cards (duplicate React
-    // keys) and desynced widgets (the topology "disappearing").
-    dispatch({ type: 'reset' });
+    // The SSE endpoint replays the full history on connect and then streams
+    // live events. Initial live sessions rebuild from replay; restored idle
+    // sessions preserve their snapshot UI and skip already-applied events.
+    if (!preserveState) {
+      replaySkipRef.current = new Map();
+      dispatch({ type: 'reset' });
+    }
     dispatch({ type: 'live_start' });
     const es = new EventSource(`/sessions/${sessionId}/events`);
     esRef.current = es;
     es.onmessage = e => {
       if (!e.data) return;
-      dispatch({ type: 'event', event: JSON.parse(e.data) as ServerEvent });
+      const event = JSON.parse(e.data) as ServerEvent;
+      const key = eventKey(event);
+      const skipCount = replaySkipRef.current.get(key) ?? 0;
+      if (skipCount > 0) {
+        if (skipCount === 1) replaySkipRef.current.delete(key);
+        else replaySkipRef.current.set(key, skipCount - 1);
+        return;
+      }
+      if (event.kind === 'agent' && event.event.type === 'user_message') {
+        const echoCount = userEchoSkipRef.current.get(event.event.text) ?? 0;
+        if (echoCount > 0) {
+          if (echoCount === 1) userEchoSkipRef.current.delete(event.event.text);
+          else userEchoSkipRef.current.set(event.event.text, echoCount - 1);
+          return;
+        }
+      }
+      dispatch({ type: 'event', event });
     };
     es.onerror = () => {
       es.close();
@@ -416,6 +447,8 @@ export function useAgentStream(
 
   useEffect(() => {
     dispatch({ type: 'reset' });
+    replaySkipRef.current = new Map();
+    userEchoSkipRef.current = new Map();
     esRef.current?.close();
     esRef.current = null;
     let cancelled = false;
@@ -426,7 +459,10 @@ export function useAgentStream(
         // Live session: the stream replays history + live (single source of
         // truth). Idle session: seed from the snapshot and don't hold a stream.
         if (snapshot.live) openStream();
-        else dispatch({ type: 'snapshot', events: snapshot.events });
+        else {
+          replaySkipRef.current = countEvents(snapshot.events);
+          dispatch({ type: 'snapshot', events: snapshot.events });
+        }
       })
       .catch(() => {
         if (!cancelled) {
@@ -465,6 +501,10 @@ export function useAgentStream(
   const send = useCallback(
     async (text: string, openRouterApiKey = options.openRouterApiKey) => {
       dispatch({ type: 'user', text });
+      userEchoSkipRef.current.set(
+        text,
+        (userEchoSkipRef.current.get(text) ?? 0) + 1
+      );
       try {
         const res = await fetch(`/sessions/${sessionId}/message`, {
           method: 'POST',
@@ -480,8 +520,11 @@ export function useAgentStream(
           })
         });
         if (!res.ok) throw new Error(`Message failed (${res.status})`);
-        openStream();
+        openStream(true);
       } catch {
+        const echoCount = userEchoSkipRef.current.get(text) ?? 0;
+        if (echoCount <= 1) userEchoSkipRef.current.delete(text);
+        else userEchoSkipRef.current.set(text, echoCount - 1);
         dispatch({ type: 'send_error' });
       }
     },

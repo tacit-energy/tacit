@@ -2,8 +2,10 @@ import { AlertTriangle } from 'lucide-react';
 import type { DataQualitySpec } from '@shared/types';
 import { Badge, Card } from '@/components/ui';
 
+type DataQualityIssue = DataQualitySpec['issues'][number];
+
 const SEV_VARIANT: Record<
-  DataQualitySpec['issues'][number]['severity'],
+  DataQualityIssue['severity'],
   'outline' | 'warning' | 'danger'
 > = {
   low: 'outline',
@@ -11,14 +13,22 @@ const SEV_VARIANT: Record<
   high: 'danger'
 };
 
-const TYPE_LABEL: Record<DataQualitySpec['issues'][number]['type'], string> = {
+const TYPE_LABEL: Record<DataQualityIssue['type'], string> = {
   gap: 'Gap',
   stale: 'Stale',
   unit_mismatch: 'Unit',
   inconsistent: 'Inconsistent'
 };
 
-export function DataQualityWidget({ spec }: { spec: DataQualitySpec }) {
+export function DataQualityWidget({
+  spec,
+  onIssueClick,
+  canOpenIssue
+}: {
+  spec: DataQualitySpec;
+  onIssueClick?: (issue: DataQualityIssue, title: string) => void;
+  canOpenIssue?: (issue: DataQualityIssue, title: string) => boolean;
+}) {
   return (
     <Card className="p-4">
       <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
@@ -35,24 +45,40 @@ export function DataQualityWidget({ spec }: { spec: DataQualitySpec }) {
         </div>
       ) : (
         <div className="flex flex-col gap-2">
-          {spec.issues.map((issue, i) => (
-            <div
-              key={i}
-              className="flex items-start gap-2 rounded-md border border-[var(--border)] bg-[var(--background)] p-2.5"
-            >
-              <Badge variant={SEV_VARIANT[issue.severity]}>
-                {TYPE_LABEL[issue.type]}
-              </Badge>
-              <div className="min-w-0 flex-1">
-                <div className="text-[12px] font-medium text-[var(--card-foreground)]">
-                  {issue.sensor}
+          {spec.issues.map((issue, i) => {
+            const canOpen = Boolean(onIssueClick && canOpenIssue?.(issue, spec.title));
+            return (
+              <button
+                key={i}
+                type="button"
+                disabled={!canOpen}
+                onClick={() => onIssueClick?.(issue, spec.title)}
+                title={
+                  canOpen
+                    ? 'Open sensor chart'
+                    : 'No sensor id or matching topology node stored for this issue'
+                }
+                className="flex w-full items-start gap-2 rounded-md border border-[var(--border)] bg-[var(--background)] p-2.5 text-left transition hover:border-[var(--primary)] disabled:cursor-default disabled:opacity-100 disabled:hover:border-[var(--border)]"
+              >
+                <Badge variant={SEV_VARIANT[issue.severity]}>
+                  {TYPE_LABEL[issue.type]}
+                </Badge>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[12px] font-medium text-[var(--card-foreground)]">
+                    {issue.sensor || 'Unmapped issue'}
+                  </div>
+                  <div className="text-[12px] text-[var(--muted-foreground)]">
+                    {issue.detail}
+                  </div>
+                  {!canOpen ? (
+                    <div className="mt-1 text-[11px] text-[var(--muted-foreground)]">
+                      No linked sensor chart
+                    </div>
+                  ) : null}
                 </div>
-                <div className="text-[12px] text-[var(--muted-foreground)]">
-                  {issue.detail}
-                </div>
-              </div>
-            </div>
-          ))}
+              </button>
+            );
+          })}
         </div>
       )}
     </Card>

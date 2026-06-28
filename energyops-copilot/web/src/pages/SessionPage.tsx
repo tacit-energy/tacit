@@ -82,14 +82,12 @@ export function SessionPage({
   sessionId,
   providerSettings,
   onBack,
-  onOpenSettings,
-  onOpenSession
+  onOpenSettings
 }: {
   sessionId: string;
   providerSettings: ProviderSettings;
   onBack: () => void;
   onOpenSettings: () => void;
-  onOpenSession?: (sessionId: string) => void;
 }) {
   const [chatOpen, setChatOpen] = useState(false);
   const [nodeChartOpen, setNodeChartOpen] = useState(false);
@@ -128,6 +126,7 @@ export function SessionPage({
   const analyzing =
     state.status.startsWith('connecting') ||
     (state.completedTurns === 0 && state.working);
+  const showAnalyzingOverlay = analyzing && !chatOpen;
   const lastAssistant = useMemo(() => latestAssistantMessage(state), [state]);
 
   const sendFromChat = useCallback(
@@ -178,11 +177,14 @@ export function SessionPage({
         className="h-full min-h-0 min-w-0 overflow-hidden"
         initial={false}
         animate={{
-          opacity: analyzing ? 0 : 1,
-          scale: analyzing ? 0.985 : 1,
-          filter: analyzing ? 'blur(6px)' : 'blur(0px)'
+          opacity: showAnalyzingOverlay ? 0 : 1,
+          scale: showAnalyzingOverlay ? 0.985 : 1,
+          filter: showAnalyzingOverlay ? 'blur(6px)' : 'blur(0px)'
         }}
-        transition={{ duration: analyzing ? 0.5 : 0.28, ease: 'easeOut' }}
+        transition={{
+          duration: showAnalyzingOverlay ? 0.5 : 0.28,
+          ease: 'easeOut'
+        }}
       >
         <Workspace
           widgets={state.widgets}
@@ -191,8 +193,7 @@ export function SessionPage({
           onNodeChartOpenChange={setNodeChartOpen}
           onExplainInsight={explainInsight}
           onOpenSettings={onOpenSettings}
-          onOpenSession={onOpenSession}
-          chatInset={chatOpen && !analyzing ? chatDrawerWidth : 0}
+          chatInset={chatOpen ? chatDrawerWidth : 0}
         />
       </motion.div>
 
@@ -210,7 +211,7 @@ export function SessionPage({
       </LayoutGroup>
 
       <AnimatePresence>
-        {chatOpen && !analyzing && (
+        {chatOpen && (
           <motion.div
             key="chat-drawer"
             initial={{ x: '-100%' }}
@@ -231,7 +232,7 @@ export function SessionPage({
       </AnimatePresence>
 
       <AnimatePresence>
-        {analyzing && (
+        {showAnalyzingOverlay && (
           <AnalyzingOverlay
             key="overlay"
             state={state}

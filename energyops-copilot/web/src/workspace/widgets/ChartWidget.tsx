@@ -18,6 +18,7 @@ import {
 import type { ChartSpec, ChartType } from '@shared/types';
 import { Button, Card, Textarea } from '@/components/ui';
 import { postAnnotation, postDecision } from '@/lib/api';
+import { formatChartTick, formatChartTooltip } from '@/lib/format';
 
 const COLORS = [
   'var(--chart-1)',
@@ -25,13 +26,8 @@ const COLORS = [
   'var(--chart-3)',
   'var(--chart-4)',
   'var(--chart-5)',
-  '#f472b6'
+  'var(--chart-6)'
 ];
-
-const fmtTick = (v: string) => {
-  const m = /^\d{4}-(\d{2})-(\d{2})T(\d{2})/.exec(v);
-  return m ? `${m[1]}-${m[2]} ${m[3]}:00` : v;
-};
 
 type ChartSelectionTarget = {
   sessionId: string;
@@ -257,11 +253,12 @@ export function ChartWidget({
   };
 
   const moveSelection = (state: unknown) => {
-    if (!selectionTarget || !dragStart) return;
+    const drag = dragRef.current;
+    if (!selectionTarget || !drag) return;
     const label = activeLabel(state);
     if (label) {
       dragRef.current = {
-        from: dragRef.current?.from ?? dragStart,
+        from: drag.from,
         to: label
       };
       setDragEnd(label);
@@ -287,8 +284,8 @@ export function ChartWidget({
 
   const rangeText = (range: RangeSelection) =>
     range.from === range.to
-      ? fmtTick(range.from)
-      : `${fmtTick(range.from)} to ${fmtTick(range.to)}`;
+      ? formatChartTooltip(range.from)
+      : `${formatChartTooltip(range.from)} bis ${formatChartTooltip(range.to)}`;
 
   const saveAnnotation = async () => {
     if (!selectionTarget || !selection || !note.trim()) return;
@@ -363,7 +360,7 @@ export function ChartWidget({
           <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
           <XAxis
             dataKey="x"
-            tickFormatter={fmtTick}
+            tickFormatter={value => formatChartTick(String(value))}
             tick={axisTick}
             minTickGap={32}
           />
@@ -391,7 +388,7 @@ export function ChartWidget({
               borderRadius: 8,
               fontSize: 12
             }}
-            labelFormatter={label => fmtTick(String(label))}
+            labelFormatter={label => formatChartTooltip(String(label))}
           />
           <Legend wrapperStyle={{ fontSize: 12 }} />
           {spec.markBands?.map((b, i) => (
@@ -402,7 +399,13 @@ export function ChartWidget({
               yAxisId="left"
               fill="var(--accent)"
               fillOpacity={0.12}
-              label={{ value: b.label, fill: 'var(--accent)', fontSize: 11 }}
+              style={{ pointerEvents: 'none' }}
+              label={{
+                value: b.label,
+                fill: 'var(--accent)',
+                fontSize: 11,
+                pointerEvents: 'none'
+              }}
             />
           ))}
           {activeRange && (
@@ -414,6 +417,7 @@ export function ChartWidget({
               fillOpacity={0.16}
               stroke="var(--primary)"
               strokeOpacity={0.45}
+              style={{ pointerEvents: 'none' }}
             />
           )}
           {activeMoment && (
@@ -422,10 +426,12 @@ export function ChartWidget({
               yAxisId="left"
               stroke="var(--primary)"
               strokeWidth={2}
+              style={{ pointerEvents: 'none' }}
               label={{
-                value: fmtTick(activeMoment),
+                value: formatChartTick(activeMoment),
                 fill: 'var(--primary)',
-                fontSize: 10
+                fontSize: 10,
+                pointerEvents: 'none'
               }}
             />
           )}
@@ -436,7 +442,13 @@ export function ChartWidget({
               yAxisId={r.axis ?? 'left'}
               stroke="var(--muted-foreground)"
               strokeDasharray="4 4"
-              label={{ value: r.label, fill: 'var(--muted-foreground)', fontSize: 10 }}
+              style={{ pointerEvents: 'none' }}
+              label={{
+                value: r.label,
+                fill: 'var(--muted-foreground)',
+                fontSize: 10,
+                pointerEvents: 'none'
+              }}
             />
           ))}
           {spec.series.map((s, i) => seriesElement(s, i, fallback))}

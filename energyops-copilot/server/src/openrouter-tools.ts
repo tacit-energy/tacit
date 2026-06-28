@@ -1,3 +1,4 @@
+import { describeDataset } from './db/describe.js';
 import { getDuck } from './db/duck.js';
 import { annotationsBySensor, getAnnotations, setAnnotation, type AnnotationKind } from './db/memory.js';
 import { scanAnomalies, scanDataQuality } from './db/scan.js';
@@ -28,12 +29,13 @@ const objectSchema = (properties: Record<string, JsonSchema>, required: string[]
   additionalProperties: false
 });
 
-const qid = (s: string) => `"${s.replace(/"/g, '""')}"`;
 const json = (obj: unknown) => JSON.stringify(obj, null, 2);
 const str = (v: unknown, fallback = '') => (typeof v === 'string' ? v : fallback);
 const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : undefined);
 const strArray = (v: unknown) => (Array.isArray(v) ? v.filter(x => typeof x === 'string') : undefined);
 const numArray = (v: unknown) => (Array.isArray(v) ? v.filter(x => typeof x === 'number') : undefined);
+const DISPLAY_TIME_DESC =
+  'Operator-facing date/time text must use German/European format: TT.MM.JJJJ, 24-hour time, Europe/Berlin zone names (MEZ/MESZ). Keep chart x values machine-readable ISO timestamps.';
 
 function enrichNodes(datasetId: string, nodes: TopoNode[], includePreviousKnowledge = true) {
   if (!includePreviousKnowledge) return nodes;
@@ -42,43 +44,6 @@ function enrichNodes(datasetId: string, nodes: TopoNode[], includePreviousKnowle
     ...n,
     annotation: n.sensorId !== undefined ? ann.get(n.sensorId) : undefined
   }));
-}
-
-async function describeDataset(datasetId: string) {
-  const duck = await getDuck(datasetId);
-  const tables: Record<string, unknown>[] = [];
-  for (const name of duck.tables()) {
-    const desc = await duck.raw(`DESCRIBE ${qid(name)}`, 1000);
-    const cols = desc.rows.map(r => ({
-      name: String(r.column_name),
-      type: String(r.column_type)
-    }));
-    const counts = cols.map(c => `count(${qid(c.name)}) AS ${qid(c.name)}`).join(', ');
-    const stat = await duck.raw(`SELECT count(*) AS __n, ${counts} FROM ${qid(name)}`, 1);
-    const row = stat.rows[0] ?? {};
-    const n = Number(row.__n ?? 0);
-    const columns = cols.map(c => ({
-      name: c.name,
-      type: c.type,
-      populated: n ? `${Math.round((Number(row[c.name] ?? 0) / n) * 100)}%` : 'n/a'
-    }));
-    const timeCol = cols.find(c => /TIMESTAMP|DATE/i.test(c.type));
-    let timeRange: { from: unknown; to: unknown } | undefined;
-    if (timeCol) {
-      const tr = await duck.raw(
-        `SELECT min(${qid(timeCol.name)}) AS f, max(${qid(timeCol.name)}) AS t FROM ${qid(name)}`,
-        1
-      );
-      timeRange = { from: tr.rows[0]?.f, to: tr.rows[0]?.t };
-    }
-    tables.push({ table: name, rows: n, columns, timeRange });
-  }
-  return {
-    dataset: datasetId,
-    tables,
-    diagrams: listDiagrams(datasetId),
-    note: 'Schema reflects the currently loaded dataset. Query tables with query_data. Rank deviations and inspect ranges to find what is unusual.'
-  };
 }
 
 async function buildChartFromQuery(
@@ -292,7 +257,7 @@ export function makeOpenRouterTools(ctx: ToolContext): OpenRouterTool[] {
     },
     {
       name: 'render_chart_from_query',
-      description: 'Render a chart by running SQL server-side. The query returns x plus numeric series columns.',
+      description: `Render a chart by running SQL server-side. The query returns x plus numeric series columns. ${DISPLAY_TIME_DESC}`,
       parameters: objectSchema({ title: textProp, sql: textProp, xColumn: textProp, series: arrayProp, unit: textProp, chartType: textProp, maxPoints: numberProp, replaceId: textProp }, ['title', 'sql', 'xColumn', 'series']),
       execute: async input => {
         const spec = await buildChartFromQuery(datasetId, { ...input, title: str(input.title, 'Chart') });
@@ -302,7 +267,7 @@ export function makeOpenRouterTools(ctx: ToolContext): OpenRouterTool[] {
     },
     {
       name: 'render_state_summary',
-      description: 'Render a Current Operating Snapshot, not a raw KPI dump. Use a clear verdict plus 2-4 grouped sections with only the values needed to explain whether the system is okay, what is driving the state, and what the operator should inspect next. Include comparisons/notes only when grounded in data. Legacy flat items are still accepted.',
+      description: `Render a Current Operating Snapshot, not a raw KPI dump. Use a clear verdict plus 2-4 grouped sections with only the values needed to explain whether the system is okay, what is driving the state, and what the operator should inspect next. Include comparisons/notes only when grounded in data. Legacy flat items are still accepted. ${DISPLAY_TIME_DESC}`,
       parameters: objectSchema(
         {
           title: textProp,
@@ -333,17 +298,33 @@ export function makeOpenRouterTools(ctx: ToolContext): OpenRouterTool[] {
     },
     {
       name: 'render_data_quality',
-      description: 'Render a data-quality issue panel.',
+      description: 'Render a data-quality issue panel. Preserve sensor_id from scan_data_quality as sensorId, and pass from/to when the issue has a concrete affected time range.',
       parameters: objectSchema({ title: textProp, issues: arrayProp, replaceId: textProp }, ['title', 'issues']),
       execute: async input => {
-        const spec: DataQualitySpec = { title: str(input.title, 'Data quality'), issues: Array.isArray(input.issues) ? (input.issues as DataQualitySpec['issues']) : [] };
+        const rawIssues = Array.isArray(input.issues) ? input.issues : [];
+        const issues: DataQualitySpec['issues'] = rawIssues
+          .filter((issue): issue is Record<string, unknown> => Boolean(issue && typeof issue === 'object'))
+          .map(issue => ({
+            sensor: str(issue.sensor, issue.name ? String(issue.name) : 'Sensor'),
+            sensorId: num(issue.sensorId) ?? num(issue.sensor_id),
+            type: ['gap', 'stale', 'unit_mismatch', 'inconsistent'].includes(str(issue.type))
+              ? (str(issue.type) as DataQualitySpec['issues'][number]['type'])
+              : 'inconsistent',
+            severity: ['low', 'med', 'high'].includes(str(issue.severity))
+              ? (str(issue.severity) as DataQualitySpec['issues'][number]['severity'])
+              : 'med',
+            detail: str(issue.detail),
+            from: str(issue.from) || undefined,
+            to: str(issue.to) || undefined
+          }));
+        const spec: DataQualitySpec = { title: str(input.title, 'Data quality'), issues };
         const id = emitWidget(ctx, { id: newId(), type: 'data_quality', spec }, str(input.replaceId) || undefined);
         return `Rendered data-quality panel "${spec.title}" as widget ${id}.`;
       }
     },
     {
       name: 'render_insight_card',
-      description: 'Render the key operational insight as a reviewable card with evidence, recommendations, and optional chart. Set relatedNodeIds so the UI can handle prior-decision recall separately.',
+      description: `Render the key operational insight as a reviewable card with evidence, recommendations, and optional chart. Set relatedNodeIds so the UI can handle prior-decision recall separately. ${DISPLAY_TIME_DESC}`,
       parameters: objectSchema({ title: textProp, severity: textProp, summary: textProp, evidence: arrayProp, recommendations: arrayProp, relatedNodeIds: arrayProp, impact: {}, chart: {}, replaceId: textProp }, ['title', 'severity', 'summary']),
       execute: async input => {
         let chart: ChartSpec | undefined;

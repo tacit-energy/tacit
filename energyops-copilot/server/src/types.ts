@@ -88,9 +88,12 @@ export interface DataQualitySpec {
   title: string;
   issues: {
     sensor: string;
+    sensorId?: number;
     type: 'gap' | 'stale' | 'unit_mismatch' | 'inconsistent';
     severity: 'low' | 'med' | 'high';
     detail: string;
+    from?: string;
+    to?: string;
   }[];
 }
 

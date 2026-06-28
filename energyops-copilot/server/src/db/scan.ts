@@ -227,12 +227,53 @@ async function sensorNames(duck: Duck, s: TsSchema): Promise<Map<number, string>
   return map;
 }
 
+function boolValue(v: unknown): boolean | undefined {
+  if (v === null || v === undefined) return undefined;
+  if (typeof v === 'boolean') return v;
+  const normalized = String(v).trim().toLowerCase();
+  if (['true', '1', 'yes', 'y'].includes(normalized)) return true;
+  if (['false', '0', 'no', 'n'].includes(normalized)) return false;
+  return undefined;
+}
+
+async function sensorMeta(
+  duck: Duck,
+  s: TsSchema,
+  sensorId: number
+): Promise<{ name?: string; cumulative?: boolean; unit?: string }> {
+  if (!s.catalog) return {};
+  const cols = await columns(duck, s.catalog.table);
+  const cumulativeCol = cols.find(c => c.name.toLowerCase() === 'cumulative')?.name;
+  const unitCol = cols.find(c => c.name.toLowerCase() === 'unit')?.name;
+  const select = [
+    `${q(s.catalog.nameCol)} AS name`,
+    cumulativeCol ? `${q(cumulativeCol)} AS cumulative` : undefined,
+    unitCol ? `${q(unitCol)} AS unit` : undefined
+  ]
+    .filter(Boolean)
+    .join(', ');
+  const r = await duck.raw(
+    `SELECT ${select} FROM ${q(s.catalog.table)}
+     WHERE ${q(s.catalog.idCol)} = ${Number(sensorId)}`,
+    1
+  );
+  const row = r.rows[0];
+  if (!row) return {};
+  return {
+    name: row.name !== undefined && row.name !== null ? String(row.name) : undefined,
+    cumulative: boolValue(row.cumulative),
+    unit: row.unit !== undefined && row.unit !== null ? String(row.unit) : undefined
+  };
+}
+
 export interface QualityIssue {
   sensor_id: number;
   name?: string;
   type: 'gap' | 'stale' | 'inconsistent';
   severity: 'low' | 'med' | 'high';
   detail: string;
+  from?: string;
+  to?: string;
 }
 
 export async function scanDataQuality(
@@ -261,20 +302,29 @@ export async function scanDataQuality(
       name: names.get(Number(r.sid)),
       type: 'stale',
       severity: 'high',
-      detail: `Value never changes across ${Number(r.n)} readings (flatlined / possibly stale).`
+      detail: `Value never changes across ${Number(r.n)} readings (flatlined / possibly stale).`,
+      from: opts.from,
+      to: opts.to
     });
   }
 
   const gaps = await duck.raw(
     `WITH d AS (
        SELECT ${q(s.idCol)} AS sid, ${q(s.timeCol)} AS ts,
+         lag(${q(s.timeCol)}) OVER (
+           PARTITION BY ${q(s.idCol)} ORDER BY ${q(s.timeCol)}) AS prev_ts,
          epoch(${q(s.timeCol)}) - epoch(lag(${q(s.timeCol)}) OVER (
            PARTITION BY ${q(s.idCol)} ORDER BY ${q(s.timeCol)})) AS gap
        FROM ${q(s.table)} ${where}
      ), agg AS (
        SELECT sid, median(gap) AS med, max(gap) AS mx FROM d WHERE gap IS NOT NULL GROUP BY sid
+     ), ranked AS (
+       SELECT d.sid, d.prev_ts, d.ts, d.gap, agg.med, agg.mx,
+         row_number() OVER (PARTITION BY d.sid ORDER BY d.gap DESC NULLS LAST) AS rn
+       FROM d JOIN agg ON d.sid = agg.sid
+       WHERE d.gap IS NOT NULL
      )
-     SELECT sid, med, mx FROM agg WHERE med > 0 AND mx > med * 3`,
+     SELECT sid, prev_ts, ts, med, mx FROM ranked WHERE rn = 1 AND med > 0 AND mx > med * 3`,
     1000
   );
   for (const r of gaps.rows) {
@@ -285,7 +335,9 @@ export async function scanDataQuality(
       name: names.get(Number(r.sid)),
       type: 'gap',
       severity: mx > med * 10 ? 'high' : 'med',
-      detail: `Largest gap ${Math.round(mx / 60)} min vs typical ${Math.round(med / 60)} min between readings (missing data).`
+      detail: `Largest gap ${Math.round(mx / 60)} min vs typical ${Math.round(med / 60)} min between readings (missing data).`,
+      from: r.prev_ts !== undefined && r.prev_ts !== null ? String(r.prev_ts) : undefined,
+      to: r.ts !== undefined && r.ts !== null ? String(r.ts) : undefined
     });
   }
 
@@ -313,14 +365,54 @@ export async function getSensorSeries(
   if (!s) return null;
   const duck = await getDuck(datasetId);
 
-  const cols = [`${q(s.timeCol)} AS x`, `${q(s.valueCol)} AS actual`];
-  if (s.expectedCol) cols.push(`${q(s.expectedCol)} AS expected`);
+  const meta = await sensorMeta(duck, s, sensorId);
+  const cumulative = meta.cumulative === true;
   const where = [`${q(s.idCol)} = ${Number(sensorId)}`];
-  if (opts.from) where.push(`${q(s.timeCol)} >= TIMESTAMP '${sanitizeTs(opts.from)}'`);
-  if (opts.to) where.push(`${q(s.timeCol)} <= TIMESTAMP '${sanitizeTs(opts.to)}'`);
+  if (!cumulative && opts.from) where.push(`${q(s.timeCol)} >= TIMESTAMP '${sanitizeTs(opts.from)}'`);
+  if (!cumulative && opts.to) where.push(`${q(s.timeCol)} <= TIMESTAMP '${sanitizeTs(opts.to)}'`);
 
-  const sql = `SELECT ${cols.join(', ')} FROM ${q(s.table)}
-               WHERE ${where.join(' AND ')} ORDER BY ${q(s.timeCol)}`;
+  const sql = cumulative
+    ? `SELECT x,
+              CASE
+                WHEN prev_actual IS NULL OR actual < prev_actual THEN NULL
+                ELSE actual - prev_actual
+              END AS actual
+              ${
+                s.expectedCol
+                  ? `, CASE
+                       WHEN prev_expected IS NULL OR expected < prev_expected THEN NULL
+                       ELSE expected - prev_expected
+                     END AS expected`
+                  : ''
+              }
+       FROM (
+         SELECT ${q(s.timeCol)} AS x,
+                ${q(s.valueCol)} AS actual,
+                lag(${q(s.valueCol)}) OVER (ORDER BY ${q(s.timeCol)}) AS prev_actual
+                ${
+                  s.expectedCol
+                    ? `, ${q(s.expectedCol)} AS expected,
+                       lag(${q(s.expectedCol)}) OVER (ORDER BY ${q(s.timeCol)}) AS prev_expected`
+                    : ''
+                }
+         FROM ${q(s.table)}
+         WHERE ${q(s.idCol)} = ${Number(sensorId)}
+       ) AS series
+       ${whereClause(
+         opts.from ? `x >= TIMESTAMP '${sanitizeTs(opts.from)}'` : '',
+         opts.to ? `x <= TIMESTAMP '${sanitizeTs(opts.to)}'` : ''
+       )}
+       ORDER BY x`
+    : `SELECT ${[
+        `${q(s.timeCol)} AS x`,
+        `${q(s.valueCol)} AS actual`,
+        s.expectedCol ? `${q(s.expectedCol)} AS expected` : undefined
+      ]
+        .filter(Boolean)
+        .join(', ')}
+       FROM ${q(s.table)}
+       WHERE ${where.join(' AND ')}
+       ORDER BY ${q(s.timeCol)}`;
   const res = await duck.raw(sql, 5000);
   let rows = res.rows;
   const maxPoints = opts.maxPoints ?? 500;
@@ -329,21 +421,25 @@ export async function getSensorSeries(
     rows = rows.filter((_, i) => i % stride === 0);
   }
 
-  const names = await sensorNames(duck, s);
   const series: ChartSpec['series'] = [
-    { name: 'Actual', role: 'actual', data: rows.map(r => num(r.actual)) }
+    {
+      name: cumulative ? 'Delta' : 'Actual',
+      role: 'actual',
+      data: rows.map(r => num(r.actual))
+    }
   ];
   if (s.expectedCol) {
     series.push({
-      name: 'Expected',
+      name: cumulative ? 'Expected delta' : 'Expected',
       role: 'expected',
       data: rows.map(r => num(r.expected))
     });
   }
   return {
-    title: names.get(Number(sensorId)) ?? `Sensor ${sensorId}`,
+    title: meta.name ?? `Sensor ${sensorId}`,
     x: rows.map(r => String(r.x)),
     series,
+    unit: meta.unit,
     chartType: 'line'
   };
 }

@@ -611,9 +611,7 @@ export function ChatPanel({
   const feedRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const shouldStickToBottomRef = useRef(true);
-  const lastFeedItem = state.feed[state.feed.length - 1];
-  const showThinkingIndicator =
-    state.working && !state.streaming && lastFeedItem?.kind === 'user';
+  const showThinkingIndicator = state.working && !state.streaming;
 
   const scrollToBottom = () => {
     const el = feedRef.current;

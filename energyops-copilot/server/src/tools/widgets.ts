@@ -56,6 +56,8 @@ const topoEdge = z.object({
 
 const REPLACE_ID_DESC =
   'To UPDATE an existing widget in place (e.g. the user asks to change a chart/topology already shown), pass its id from a previous render result. Omit to create a new widget.';
+const DISPLAY_TIME_DESC =
+  'Operator-facing date/time text must use German/European format: TT.MM.JJJJ, 24-hour time, Europe/Berlin zone names (MEZ/MESZ). Keep chart x values machine-readable ISO timestamps.';
 
 const CHART_TYPE = z.enum(['line', 'area', 'bar', 'scatter']);
 const referenceLinesSchema = z
@@ -71,7 +73,7 @@ const markBandsSchema = z
   .array(z.object({ from: z.string(), to: z.string(), label: z.string().optional() }))
   .optional();
 
-// Shared "build a chart by running SQL server-side" shape — reused by
+// Shared "build a chart by running SQL server-side" shape - reused by
 // render_chart_from_query and the chart embedded in an insight card.
 const chartQueryFields = {
   sql: z.string().describe('Read-only SELECT returning an x column + numeric value column(s)'),
@@ -217,7 +219,7 @@ export function widgetTools(ctx: ToolContext) {
 
     tool(
       'render_chart',
-      'Render a time-series chart from data you already have. Build `x` (ISO timestamps) and one `series` per metric. Use role "expected"/"deviation" for those traces, markBands to shade a window. For a full raw series prefer render_chart_from_query.',
+      `Render a time-series chart from data you already have. Build \`x\` (ISO timestamps) and one \`series\` per metric. Use role "expected"/"deviation" for those traces, markBands to shade a window. For a full raw series prefer render_chart_from_query. ${DISPLAY_TIME_DESC}`,
       {
         title: z.string(),
         x: z.array(z.string()),
@@ -259,7 +261,7 @@ export function widgetTools(ctx: ToolContext) {
 
     tool(
       'render_chart_from_query',
-      'Plot a time-series chart by running SQL SERVER-SIDE — the rows are NOT returned to you, so use THIS (not query_data + render_chart) to chart a full sensor series without pulling thousands of points into context. The query should return an x column (e.g. timestamp) plus one or more numeric value columns, ideally ORDER BY the x column. Data is downsampled to maxPoints for rendering.',
+      `Plot a time-series chart by running SQL SERVER-SIDE — the rows are NOT returned to you, so use THIS (not query_data + render_chart) to chart a full sensor series without pulling thousands of points into context. The query should return an x column (e.g. timestamp) plus one or more numeric value columns, ideally ORDER BY the x column. Data is downsampled to maxPoints for rendering. ${DISPLAY_TIME_DESC}`,
       {
         title: z.string(),
         ...chartQueryFields,
@@ -289,10 +291,15 @@ export function widgetTools(ctx: ToolContext) {
 
     tool(
       'render_state_summary',
-      'Render a Current Operating Snapshot, not a raw KPI dump. Use it to answer: are we okay, what is driving the state, and what should the operator inspect next? Prefer a clear verdict plus 2-4 grouped sections with only the values needed to support that verdict. Include comparisons/notes when grounded in data. Legacy flat items are still accepted.',
+      `Render a Current Operating Snapshot, not a raw KPI dump. Use it to answer: are we okay, what is driving the state, and what should the operator inspect next? Prefer a clear verdict plus 2-4 grouped sections with only the values needed to support that verdict. Include comparisons/notes when grounded in data. Legacy flat items are still accepted. ${DISPLAY_TIME_DESC}`,
       {
         title: z.string(),
-        observedAt: z.string().optional().describe('Timestamp or range label for this snapshot'),
+        observedAt: z
+          .string()
+          .optional()
+          .describe(
+            'Timestamp or range label for this snapshot, displayed as German/European operator text such as "24.06.2026, 08:00 Uhr MESZ" or "08.06.2026 bis 27.06.2026"'
+          ),
         verdict: z
           .object({
             label: z.string().describe('One-line operator verdict, e.g. "Balanced supply, north branch carrying the load"'),
@@ -337,21 +344,35 @@ export function widgetTools(ctx: ToolContext) {
 
     tool(
       'render_data_quality',
-      'Render a data-quality panel listing issues (gaps, stale sensors, inconsistencies) found via scan_data_quality, so the operator can see whether a signal is trustworthy.',
+      'Render a data-quality panel listing issues (gaps, stale sensors, inconsistencies) found via scan_data_quality, so the operator can see whether a signal is trustworthy. Preserve sensor_id from scan_data_quality as sensor_id or sensorId, and pass from/to when the issue has a concrete affected time range.',
       {
         title: z.string(),
         issues: z.array(
           z.object({
-            sensor: z.string(),
+            sensor: z.string().optional(),
+            name: z.string().optional(),
+            sensor_id: z.number().optional(),
+            sensorId: z.number().optional(),
             type: z.enum(['gap', 'stale', 'unit_mismatch', 'inconsistent']),
             severity: z.enum(['low', 'med', 'high']),
-            detail: z.string()
+            detail: z.string(),
+            from: z.string().optional(),
+            to: z.string().optional()
           })
         ),
         replaceId: z.string().optional().describe(REPLACE_ID_DESC)
       },
       async input => {
-        const spec: DataQualitySpec = { title: input.title, issues: input.issues };
+        const issues: DataQualitySpec['issues'] = input.issues.map(issue => ({
+          sensor: issue.sensor ?? issue.name ?? 'Sensor',
+          sensorId: issue.sensorId ?? issue.sensor_id,
+          type: issue.type,
+          severity: issue.severity,
+          detail: issue.detail,
+          from: issue.from,
+          to: issue.to
+        }));
+        const spec: DataQualitySpec = { title: input.title, issues };
         const id = emitWidget(
           ctx,
           { id: newId(), type: 'data_quality', spec },
@@ -365,7 +386,7 @@ export function widgetTools(ctx: ToolContext) {
 
     tool(
       'render_insight_card',
-      'Render the key operational insight as a reviewable card: a concise summary, evidence, and recommended actions. This is the payoff of an analysis. Set severity info/watch/act. Set relatedNodeIds to the topology node ids this insight concerns (links the card to the diagram and prior-decision recall). Embed the supporting chart via `chart` (a SQL query, built server-side) instead of a standalone chart. Set impact only when you can quantify the at-stake value from data.',
+      `Render the key operational insight as a reviewable card: a concise summary, evidence, and recommended actions. This is the payoff of an analysis. Set severity info/watch/act. Set relatedNodeIds to the topology node ids this insight concerns (links the card to the diagram and prior-decision recall). Embed the supporting chart via \`chart\` (a SQL query, built server-side) instead of a standalone chart. Set impact only when you can quantify the at-stake value from data. ${DISPLAY_TIME_DESC}`,
       {
         title: z.string(),
         severity: z.enum(['info', 'watch', 'act']),
@@ -383,7 +404,7 @@ export function widgetTools(ctx: ToolContext) {
             confidence: z.enum(['low', 'med', 'high']).optional()
           })
           .optional()
-          .describe('Grounded impact estimate only — omit if not quantifiable'),
+          .describe('Grounded impact estimate only - omit if not quantifiable'),
         chart: chartQuerySchema
           .optional()
           .describe('Supporting chart, built server-side from SQL and embedded in the card'),

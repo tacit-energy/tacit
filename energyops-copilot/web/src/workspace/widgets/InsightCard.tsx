@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Check,
   ChevronDown,
+  ChevronRight,
   ChevronUp,
   ExternalLink,
   History,
@@ -19,6 +20,8 @@ import {
   type Decision,
   type DecisionType
 } from '@/lib/api';
+import { formatDateTime, formatNumber } from '@/lib/format';
+import { sessionPath } from '@/lib/routes';
 
 const SEVERITY: Record<
   InsightCardSpec['severity'],
@@ -108,10 +111,7 @@ function RelatedTopologyPreview({
 
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-        Related topology
-      </div>
-      <div className="mt-1 overflow-hidden rounded-md">
+      <div className="overflow-hidden rounded-md">
         <TopologyWidget
           spec={previewSpec}
           selectionHighlight={relatedNodeIds}
@@ -132,7 +132,6 @@ export function InsightCard({
   decided,
   onDecided,
   onExplain,
-  onOpenSession,
   topologies
 }: {
   id: string;
@@ -143,17 +142,18 @@ export function InsightCard({
   decided?: Decision;
   onDecided?: () => void;
   onExplain?: (text: string) => void;
-  onOpenSession?: (sessionId: string) => void;
   topologies?: TopologySpec[];
 }) {
   const sev = SEVERITY[spec.severity];
   const [precedent, setPrecedent] = useState<Decision[]>([]);
   const [showChart, setShowChart] = useState(true);
-  const [pending, setPending] = useState<null | 'override' | 'dismiss'>(null);
+  const [pending, setPending] = useState<DecisionType | null>(null);
   const [rationale, setRationale] = useState('');
   const [busy, setBusy] = useState(false);
   const [asked, setAsked] = useState(false);
   const [activePrecedent, setActivePrecedent] = useState<Decision | null>(null);
+  const [precedentClosing, setPrecedentClosing] = useState(false);
+  const closeTimer = useRef<number | null>(null);
 
   const explain = () => {
     setAsked(true);
@@ -167,6 +167,30 @@ export function InsightCard({
       .then(rows => setPrecedent(rows.filter(d => d.insight_card_id !== id)))
       .catch(() => {});
   }, [sessionId, id, spec.relatedNodeIds, spec.title]);
+
+  useEffect(
+    () => () => {
+      if (closeTimer.current != null) window.clearTimeout(closeTimer.current);
+    },
+    []
+  );
+
+  const openPrecedent = (decision: Decision) => {
+    if (closeTimer.current != null) window.clearTimeout(closeTimer.current);
+    closeTimer.current = null;
+    setPrecedentClosing(false);
+    setActivePrecedent(decision);
+  };
+
+  const closePrecedent = () => {
+    if (!activePrecedent || precedentClosing) return;
+    setPrecedentClosing(true);
+    closeTimer.current = window.setTimeout(() => {
+      setActivePrecedent(null);
+      setPrecedentClosing(false);
+      closeTimer.current = null;
+    }, 160);
+  };
 
   const submit = async (type: DecisionType, why?: string) => {
     setBusy(true);
@@ -198,18 +222,6 @@ export function InsightCard({
   const decisionLabel = (type: DecisionType) =>
     type === 'accept' ? 'accepted' : type === 'override' ? 'overrode' : 'dismissed';
 
-  const formatDate = (value: string) => {
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return value;
-    return new Intl.DateTimeFormat(undefined, {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
-  };
-
   return (
     <>
     <Card
@@ -228,7 +240,7 @@ export function InsightCard({
             <Badge variant={sev.variant}>{sev.label}</Badge>
             {spec.impact && (
               <Badge variant="outline">
-                est. {spec.impact.value.toLocaleString()}
+                est. {formatNumber(spec.impact.value)}
                 {spec.impact.unit ? ` ${spec.impact.unit}` : ''}
                 {spec.impact.confidence ? ` · ${spec.impact.confidence}` : ''}
               </Badge>
@@ -291,23 +303,43 @@ export function InsightCard({
           {precedent.length > 0 && (
             <div className="mt-3 rounded-md border border-[var(--border)] bg-[var(--secondary)] p-2.5">
               <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
-                <History size={12} /> Seen before
+                <History size={12} /> Related
               </div>
-              <ul className="mt-1 space-y-1 text-[12px] text-[var(--card-foreground)]">
+              <ul className="mt-2 space-y-1.5 text-[12px] text-[var(--card-foreground)]">
                 {precedent.map(d => (
-                  <li
-                    key={d.id}
-                    onClick={e => {
-                      stop(e);
-                      setActivePrecedent(d);
-                    }}
-                    className="cursor-pointer rounded-sm hover:text-[var(--accent)]"
-                  >
-                    <span className="font-medium">
-                      You {decisionLabel(d.decision_type)}
-                    </span>{' '}
-                    {d.insight_title}
-                    {d.rationale ? ` - ${d.rationale}` : ''}
+                  <li key={d.id}>
+                    <button
+                      type="button"
+                      onClick={e => {
+                        stop(e);
+                        openPrecedent(d);
+                      }}
+                      className="group flex w-full items-start gap-2 rounded-md border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-left transition hover:border-[var(--accent)] hover:bg-[var(--panel)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+                      aria-label={`Open past decision from ${formatDateTime(d.created_at)}`}
+                    >
+                      <History
+                        size={13}
+                        className="mt-0.5 shrink-0 text-[var(--muted-foreground)] group-hover:text-[var(--accent)]"
+                      />
+                      <span className="min-w-0 flex-1">
+                        <span className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+                          <span className="font-medium">
+                            You {decisionLabel(d.decision_type)}
+                          </span>
+                          <span className="text-[11px] text-[var(--muted-foreground)]">
+                            {formatDateTime(d.created_at)}
+                          </span>
+                        </span>
+                        <span className="mt-0.5 block leading-snug">
+                          {d.insight_title}
+                          {d.rationale ? ` - ${d.rationale}` : ''}
+                        </span>
+                      </span>
+                      <ChevronRight
+                        size={14}
+                        className="mt-0.5 shrink-0 text-[var(--muted-foreground)] transition group-hover:translate-x-0.5 group-hover:text-[var(--accent)]"
+                      />
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -340,24 +372,43 @@ export function InsightCard({
                 <div className="text-[12px] text-[var(--muted-foreground)]">
                   {pending === 'override'
                     ? 'What is your call instead, and why? (saved as the decision)'
-                    : 'Why is this not actionable? (false alarm, known, expected…)'}
+                    : pending === 'dismiss'
+                      ? 'Why is this not actionable? (false alarm, known, expected...)'
+                      : 'What will you act on from this? (optional)'}
                 </div>
                 <Textarea
                   autoFocus
                   rows={2}
                   value={rationale}
                   onChange={e => setRationale(e.target.value)}
-                  placeholder={pending === 'override' ? 'Your reasoning…' : 'Reason…'}
+                  placeholder={
+                    pending === 'override'
+                      ? 'Your reasoning...'
+                      : pending === 'dismiss'
+                        ? 'Reason...'
+                        : 'Next action, owner, or follow-up...'
+                  }
                 />
                 <div className="flex justify-end gap-2">
-                  <Button size="sm" variant="ghost" onClick={() => setPending(null)}>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setPending(null);
+                      setRationale('');
+                    }}
+                  >
                     Cancel
                   </Button>
                   <Button
                     size="sm"
                     variant="primary"
-                    disabled={busy || !rationale.trim()}
-                    onClick={() => submit(pending, rationale.trim())}
+                    disabled={
+                      busy ||
+                      ((pending === 'override' || pending === 'dismiss') &&
+                        !rationale.trim())
+                    }
+                    onClick={() => submit(pending, rationale.trim() || undefined)}
                   >
                     Save decision
                   </Button>
@@ -378,7 +429,7 @@ export function InsightCard({
                     desc="Agree & act on it"
                     variant="primary"
                     disabled={busy}
-                    onClick={() => submit('accept')}
+                    onClick={() => setPending('accept')}
                   />
                   <DecisionButton
                     icon={<Pencil size={15} />}
@@ -408,17 +459,21 @@ export function InsightCard({
 
     {activePrecedent && (
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4"
+        className={`fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4 ${
+          precedentClosing ? 'eo-modal-overlay-out' : 'eo-modal-overlay-in'
+        }`}
         onClick={e => {
           stop(e);
-          setActivePrecedent(null);
+          closePrecedent();
         }}
       >
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby={`decision-${activePrecedent.id}-title`}
-          className="w-full max-w-lg rounded-lg border border-[var(--border)] bg-[var(--panel-strong)] p-4 shadow-[0_24px_90px_rgb(0_0_0/0.45)]"
+          className={`w-full max-w-lg rounded-lg border border-[var(--border)] bg-[var(--panel-strong)] p-4 shadow-[0_24px_90px_rgb(0_0_0/0.45)] ${
+            precedentClosing ? 'eo-modal-panel-out' : 'eo-modal-panel-in'
+          }`}
           onClick={stop}
         >
           <div className="flex items-start gap-3">
@@ -437,13 +492,13 @@ export function InsightCard({
                 {activePrecedent.insight_title}&quot;
               </h3>
               <div className="mt-1 text-[12px] text-[var(--muted-foreground)]">
-                {formatDate(activePrecedent.created_at)}
+                {formatDateTime(activePrecedent.created_at)}
               </div>
             </div>
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setActivePrecedent(null)}
+              onClick={closePrecedent}
               aria-label="Close past decision"
             >
               <X />
@@ -485,27 +540,32 @@ export function InsightCard({
                   Recorded impact
                 </div>
                 <div className="mt-1 text-[var(--card-foreground)]">
-                  {activePrecedent.impact.toLocaleString()}
+                  {formatNumber(activePrecedent.impact)}
                 </div>
               </div>
             ) : null}
           </div>
 
           <div className="mt-5 flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => setActivePrecedent(null)}>
+            <Button variant="ghost" onClick={closePrecedent}>
               Close
             </Button>
             {activePrecedent.session_id && activePrecedent.session_id !== sessionId ? (
               <Button
+                asChild
                 variant="primary"
-                onClick={() => {
-                  const targetSession = activePrecedent.session_id;
-                  setActivePrecedent(null);
-                  if (targetSession) onOpenSession?.(targetSession);
-                }}
               >
-                <ExternalLink size={14} />
-                Open old session
+                <a
+                  href={sessionPath(
+                    activePrecedent.dataset_id,
+                    activePrecedent.session_id
+                  )}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink size={14} />
+                  Open old session
+                </a>
               </Button>
             ) : null}
           </div>

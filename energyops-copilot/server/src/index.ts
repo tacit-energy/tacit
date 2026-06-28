@@ -19,6 +19,7 @@ import { cors } from 'hono/cors';
 import { streamSSE } from 'hono/streaming';
 import type { Context } from 'hono';
 import type { Bus } from './bus.js';
+import { describeDataset, getCachedDatasetDescription } from './db/describe.js';
 import { listDatasets } from './db/datasets.js';
 import { getDuck } from './db/duck.js';
 import { getSensorSeries } from './db/scan.js';
@@ -141,6 +142,12 @@ app.get('/datasets/:id/topologies/:diagramId', c => {
 app.get('/datasets/:id/tables', async c => {
   const id = c.req.param('id');
   if (!listDatasets().some(d => d.id === id)) return c.json([], 404);
+  const cached = getCachedDatasetDescription(id);
+  if (cached) {
+    const summary = await cached;
+    return c.json(summary.tables.map(t => ({ table: t.table, rows: t.rows })));
+  }
+
   const duck = await getDuck(id);
   const out: { table: string; rows: number }[] = [];
   for (const t of duck.tables()) {
@@ -148,6 +155,18 @@ app.get('/datasets/:id/tables', async c => {
     out.push({ table: t, rows: Number(r.rows[0]?.n ?? 0) });
   }
   return c.json(out);
+});
+
+app.post('/datasets/:id/cache', async c => {
+  const id = c.req.param('id');
+  if (!listDatasets().some(d => d.id === id)) return c.json({ error: 'unknown dataset' }, 404);
+  const summary = await describeDataset(id);
+  return c.json({
+    ok: true,
+    dataset: id,
+    tables: summary.tables.length,
+    rows: summary.tables.reduce((total, table) => total + table.rows, 0)
+  });
 });
 
 app.get('/datasets/:id/tables/:table/rows', async c => {

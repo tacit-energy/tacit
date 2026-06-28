@@ -1,8 +1,9 @@
 import { randomUUID } from 'node:crypto';
-import { getSystemPrompt } from './prompt.js';
+import { getSystemPrompt, TOPOLOGY_REQUIRED_FOLLOWUP } from './prompt.js';
 import { makeOpenRouterTools, type OpenRouterTool } from './openrouter-tools.js';
 import type { Bus } from './bus.js';
 import type { ToolContext } from './tools/context.js';
+import type { TopologySpec } from './types.js';
 
 interface AzureResponsesRunnerOptions {
   id: string;
@@ -45,16 +46,20 @@ export class AzureResponsesRunner {
   private readonly bus: Bus;
   private readonly tools: OpenRouterTool[];
   private readonly instructions: string;
+  private readonly nextWidgetId: () => string;
   private abort?: AbortController;
   private busy = false;
   private previousResponseId: string | null = null;
   private pendingInputs: unknown[] = [];
+  private topologyRenderedThisTurn = false;
+  private topologyGuardAttempts = 0;
 
   constructor(options: AzureResponsesRunnerOptions) {
     this.apiKey = options.apiKey;
     this.endpoint = options.endpoint;
     this.model = options.model;
     this.bus = options.bus;
+    this.nextWidgetId = options.nextWidgetId;
     this.instructions = buildInstructions(options.includePreviousKnowledge !== false);
     const ctx: ToolContext = {
       datasetId: options.datasetId,
@@ -64,6 +69,11 @@ export class AzureResponsesRunner {
       nextWidgetId: options.nextWidgetId
     };
     this.tools = makeOpenRouterTools(ctx);
+    this.bus.subscribe(event => {
+      if (event.kind === 'widget' && event.widget.type === 'topology') {
+        this.topologyRenderedThisTurn = true;
+      }
+    });
     this.bus.broadcast({
       kind: 'agent',
       event: { type: 'meta', provider: 'azure', model: this.model, sessionId: options.id }
@@ -94,11 +104,34 @@ export class AzureResponsesRunner {
       return;
     }
     this.pendingInputs.push({ role: 'user', content: text });
+    this.topologyRenderedThisTurn = false;
+    this.topologyGuardAttempts = 0;
     void this.runTurn();
   }
 
   async interrupt(): Promise<void> {
     this.abort?.abort();
+  }
+
+  private emitRequiredTopologyFallback(): void {
+    if (this.topologyRenderedThisTurn) return;
+    const spec: TopologySpec = {
+      title: 'Focused topology',
+      nodes: [
+        {
+          id: 'focused-request',
+          label: 'Current request',
+          status: 'inferred',
+          position: { x: 0, y: 0 }
+        }
+      ],
+      edges: [],
+      highlight: ['focused-request']
+    };
+    this.bus.broadcast({
+      kind: 'widget',
+      widget: { id: this.nextWidgetId(), type: 'topology', spec }
+    });
   }
 
   private async runTurn(): Promise<void> {
@@ -112,6 +145,12 @@ export class AzureResponsesRunner {
         if (outcome.responseId) this.previousResponseId = outcome.responseId;
 
         if (!outcome.functionCalls.length) {
+          if (!this.topologyRenderedThisTurn && this.topologyGuardAttempts < 1) {
+            this.topologyGuardAttempts += 1;
+            this.pendingInputs = [{ role: 'user', content: TOPOLOGY_REQUIRED_FOLLOWUP }];
+            continue;
+          }
+          this.emitRequiredTopologyFallback();
           if (outcome.text.trim()) {
             this.bus.broadcast({
               kind: 'agent',
@@ -161,6 +200,7 @@ export class AzureResponsesRunner {
         }
         this.pendingInputs = toolOutputs;
       }
+      this.emitRequiredTopologyFallback();
       this.bus.broadcast({
         kind: 'agent',
         event: {

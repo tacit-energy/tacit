@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import { Navigate, Route, Routes, useNavigate, useParams } from 'react-router-dom';
 import { HomePage } from '@/pages/HomePage';
 import { DatasetPage } from '@/pages/DatasetPage';
 import { SessionPage } from '@/pages/SessionPage';
 import { SettingsPage } from '@/settings/SettingsPage';
+import { datasetPath, homePath, sessionPath } from '@/lib/routes';
 import { DEFAULT_THEME, isThemeId, type ThemeId } from '@/lib/themes';
 
 export interface ProviderSettings {
@@ -16,13 +18,7 @@ export interface ProviderSettings {
   azureApiKey: string;
 }
 
-type View =
-  | { name: 'home' }
-  | { name: 'dataset'; datasetId: string }
-  | { name: 'session'; sessionId: string; datasetId: string };
-
 function App() {
-  const [view, setView] = useState<View>({ name: 'home' });
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [theme, setTheme] = useState<ThemeId>(() => {
     const stored = window.localStorage.getItem('energyops-theme');
@@ -87,9 +83,11 @@ function App() {
     }
   }, [providerSettings]);
 
-  let content;
+  const openSettings = () => setSettingsOpen(true);
+
   if (settingsOpen) {
-    content = (
+    return (
+      <div className="h-dvh min-h-0 overflow-hidden">
       <SettingsPage
         theme={theme}
         onThemeChange={setTheme}
@@ -97,40 +95,75 @@ function App() {
         onProviderSettingsChange={setProviderSettings}
         onBack={() => setSettingsOpen(false)}
       />
-    );
-  } else if (view.name === 'home') {
-    content = (
-      <HomePage
-        onOpenDataset={id => setView({ name: 'dataset', datasetId: id })}
-        onOpenSettings={() => setSettingsOpen(true)}
-      />
-    );
-  } else if (view.name === 'dataset') {
-    content = (
-      <DatasetPage
-        datasetId={view.datasetId}
-        providerSettings={providerSettings}
-        onBack={() => setView({ name: 'home' })}
-        onOpenSession={id =>
-          setView({ name: 'session', sessionId: id, datasetId: view.datasetId })
-        }
-      />
-    );
-  } else {
-    content = (
-      <SessionPage
-        sessionId={view.sessionId}
-        providerSettings={providerSettings}
-        onBack={() => setView({ name: 'dataset', datasetId: view.datasetId })}
-        onOpenSettings={() => setSettingsOpen(true)}
-        onOpenSession={id =>
-          setView({ name: 'session', sessionId: id, datasetId: view.datasetId })
-        }
-      />
+      </div>
     );
   }
 
-  return <div className="h-dvh min-h-0 overflow-hidden">{content}</div>;
+  return (
+    <div className="h-dvh min-h-0 overflow-hidden">
+      <Routes>
+        <Route path="/" element={<HomePage onOpenSettings={openSettings} />} />
+        <Route
+          path="/app/datasets/:datasetId"
+          element={
+            <DatasetRoute
+              providerSettings={providerSettings}
+            />
+          }
+        />
+        <Route
+          path="/app/datasets/:datasetId/sessions/:sessionId"
+          element={
+            <SessionRoute
+              providerSettings={providerSettings}
+              onOpenSettings={openSettings}
+            />
+          }
+        />
+        <Route path="*" element={<Navigate to={homePath()} replace />} />
+      </Routes>
+    </div>
+  );
+}
+
+function DatasetRoute({
+  providerSettings
+}: {
+  providerSettings: ProviderSettings;
+}) {
+  const { datasetId } = useParams();
+  const navigate = useNavigate();
+  if (!datasetId) return <Navigate to={homePath()} replace />;
+
+  return (
+    <DatasetPage
+      datasetId={datasetId}
+      providerSettings={providerSettings}
+      onBack={() => navigate(homePath())}
+      onOpenSession={id => navigate(sessionPath(datasetId, id))}
+    />
+  );
+}
+
+function SessionRoute({
+  providerSettings,
+  onOpenSettings
+}: {
+  providerSettings: ProviderSettings;
+  onOpenSettings: () => void;
+}) {
+  const { datasetId, sessionId } = useParams();
+  const navigate = useNavigate();
+  if (!datasetId || !sessionId) return <Navigate to={homePath()} replace />;
+
+  return (
+    <SessionPage
+      sessionId={sessionId}
+      providerSettings={providerSettings}
+      onBack={() => navigate(datasetPath(datasetId))}
+      onOpenSettings={onOpenSettings}
+    />
+  );
 }
 
 export default App;
