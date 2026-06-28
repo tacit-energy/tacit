@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Database, FolderPlus, Settings } from 'lucide-react';
 import { Button, Card } from '@/components/ui';
 import { getDatasets, type DatasetInfo } from '@/lib/api';
+import { datasetPath } from '@/lib/routes';
 
 export function HomePage({
-  onOpenDataset,
   onOpenSettings
 }: {
-  onOpenDataset: (id: string) => void;
   onOpenSettings: () => void;
 }) {
   const [datasets, setDatasets] = useState<DatasetInfo[] | null>(null);
@@ -46,29 +46,28 @@ export function HomePage({
 
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {datasets?.map(d => (
-              <Card
+              <Link
                 key={d.id}
-                role="button"
-                tabIndex={0}
-                onClick={() => onOpenDataset(d.id)}
-                onKeyDown={e => e.key === 'Enter' && onOpenDataset(d.id)}
-                className="cursor-pointer p-4 transition hover:border-[var(--primary)]"
+                to={datasetPath(d.id)}
+                className="block rounded-[var(--radius)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
               >
-                <div className="flex items-center gap-2">
-                  <Database size={16} className="text-[var(--primary)]" />
-                  <span className="font-medium">{d.name}</span>
-                </div>
-                {d.narrative && (
-                  <p className="mt-2 line-clamp-2 text-[13px] text-[var(--muted-foreground)]">
-                    {d.narrative}
-                  </p>
-                )}
-                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-[var(--muted-foreground)]">
-                  {d.sensors != null && <span>{d.sensors} sensors</span>}
-                  {d.diagrams != null && <span>{d.diagrams} topolog{d.diagrams === 1 ? 'y' : 'ies'}</span>}
-                  {d.days != null && <span>{d.days} days</span>}
-                </div>
-              </Card>
+                <Card className="h-full cursor-pointer p-4 transition hover:border-[var(--primary)]">
+                  <div className="flex items-center gap-2">
+                    <Database size={16} className="text-[var(--primary)]" />
+                    <span className="font-medium">{d.name}</span>
+                  </div>
+                  {d.narrative && (
+                    <p className="mt-2 line-clamp-2 text-[13px] text-[var(--muted-foreground)]">
+                      {d.narrative}
+                    </p>
+                  )}
+                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-[var(--muted-foreground)]">
+                    {d.sensors != null && <span>{d.sensors} sensors</span>}
+                    {d.diagrams != null && <span>{d.diagrams} topolog{d.diagrams === 1 ? 'y' : 'ies'}</span>}
+                    {d.days != null && <span>{d.days} days</span>}
+                  </div>
+                </Card>
+              </Link>
             ))}
 
             {datasets && datasets.length === 0 && (

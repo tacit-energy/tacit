@@ -1,8 +1,9 @@
 import { randomUUID } from 'node:crypto';
-import { getSystemPrompt } from './prompt.js';
+import { getSystemPrompt, TOPOLOGY_REQUIRED_FOLLOWUP } from './prompt.js';
 import { makeOpenRouterTools, type OpenRouterTool } from './openrouter-tools.js';
 import type { Bus } from './bus.js';
 import type { ToolContext } from './tools/context.js';
+import type { TopologySpec } from './types.js';
 
 type ChatMessage =
   | { role: 'system'; content: string }
@@ -55,13 +56,17 @@ export class OpenRouterRunner {
   private readonly bus: Bus;
   private readonly tools: OpenRouterTool[];
   private readonly messages: ChatMessage[];
+  private readonly nextWidgetId: () => string;
   private abort?: AbortController;
   private busy = false;
+  private topologyRenderedThisTurn = false;
+  private topologyGuardAttempts = 0;
 
   constructor(options: OpenRouterRunnerOptions) {
     this.apiKey = options.apiKey;
     this.model = options.model;
     this.bus = options.bus;
+    this.nextWidgetId = options.nextWidgetId;
     const ctx: ToolContext = {
       datasetId: options.datasetId,
       sessionId: options.id,
@@ -76,6 +81,11 @@ export class OpenRouterRunner {
         content: `${getSystemPrompt(options.includePreviousKnowledge !== false)}\n\nYou have access to EnergyOps tools. Use them to inspect the dataset and render workspace widgets. Prefer describe_dataset first.`
       }
     ];
+    this.bus.subscribe(event => {
+      if (event.kind === 'widget' && event.widget.type === 'topology') {
+        this.topologyRenderedThisTurn = true;
+      }
+    });
     this.bus.broadcast({
       kind: 'agent',
       event: { type: 'meta', provider: 'openrouter', model: this.model, sessionId: options.id }
@@ -97,11 +107,34 @@ export class OpenRouterRunner {
       return;
     }
     this.messages.push({ role: 'user', content: text });
+    this.topologyRenderedThisTurn = false;
+    this.topologyGuardAttempts = 0;
     void this.runTurn();
   }
 
   async interrupt(): Promise<void> {
     this.abort?.abort();
+  }
+
+  private emitRequiredTopologyFallback(): void {
+    if (this.topologyRenderedThisTurn) return;
+    const spec: TopologySpec = {
+      title: 'Focused topology',
+      nodes: [
+        {
+          id: 'focused-request',
+          label: 'Current request',
+          status: 'inferred',
+          position: { x: 0, y: 0 }
+        }
+      ],
+      edges: [],
+      highlight: ['focused-request']
+    };
+    this.bus.broadcast({
+      kind: 'widget',
+      widget: { id: this.nextWidgetId(), type: 'topology', spec }
+    });
   }
 
   private async runTurn(): Promise<void> {
@@ -112,6 +145,15 @@ export class OpenRouterRunner {
       for (let step = 0; step < 8; step += 1) {
         const outcome = await this.callModel();
         if (!outcome.toolCalls.length) {
+          if (!this.topologyRenderedThisTurn && this.topologyGuardAttempts < 1) {
+            this.topologyGuardAttempts += 1;
+            if (outcome.text.trim()) {
+              this.messages.push({ role: 'assistant', content: outcome.text });
+            }
+            this.messages.push({ role: 'user', content: TOPOLOGY_REQUIRED_FOLLOWUP });
+            continue;
+          }
+          this.emitRequiredTopologyFallback();
           if (outcome.text.trim()) {
             this.messages.push({ role: 'assistant', content: outcome.text });
             this.bus.broadcast({
@@ -163,6 +205,7 @@ export class OpenRouterRunner {
           }
         }
       }
+      this.emitRequiredTopologyFallback();
       this.bus.broadcast({
         kind: 'agent',
         event: { type: 'assistant_message', text: 'I stopped after the maximum tool-loop depth. Ask me to continue if needed.' }

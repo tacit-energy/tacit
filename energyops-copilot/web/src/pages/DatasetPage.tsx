@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import {
   ArrowLeft,
   CalendarRange,
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   ClipboardList,
+  Database,
   ExternalLink,
   GitFork,
   Loader2,
@@ -19,6 +22,7 @@ import {
 } from 'lucide-react';
 import { Button, Card, Textarea } from '@/components/ui';
 import {
+  cacheDataset,
   deleteSession,
   getDatasetAnnotations,
   getDatasetDecisions,
@@ -37,11 +41,14 @@ import {
   type TableInfo,
   type TableRows
 } from '@/lib/api';
+import { sessionPath } from '@/lib/routes';
 import { TopologyWidget } from '@/workspace/widgets/TopologyWidget';
 import type { TopologySpec } from '@shared/types';
 import type { ProviderSettings } from '@/App';
+import { formatDateTime, formatNumber, formatTableCell } from '@/lib/format';
 
 type Tab = 'sessions' | 'topologies' | 'data' | 'log';
+type CacheStatus = 'idle' | 'warming' | 'ready' | 'error';
 
 type LogEntry =
   | { type: 'decision'; at: string; item: Decision }
@@ -88,6 +95,7 @@ export function DatasetPage({
   const [deleteTarget, setDeleteTarget] = useState<SessionRow | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [cacheStatus, setCacheStatus] = useState<CacheStatus>('idle');
 
   useEffect(() => {
     setSelectedTopologyId(null);
@@ -95,6 +103,7 @@ export function DatasetPage({
     setSelectedTable(null);
     setTablePage(1);
     setTableRows(null);
+    setCacheStatus('idle');
     getDatasets().then(ds => {
       const nextDataset = ds.find(d => d.id === datasetId) ?? null;
       setDataset(nextDataset);
@@ -212,9 +221,7 @@ export function DatasetPage({
   };
 
   const formatCell = (value: unknown) => {
-    if (value == null) return '';
-    if (typeof value === 'object') return JSON.stringify(value);
-    return String(value);
+    return formatTableCell(value);
   };
 
   const start = async () => {
@@ -269,6 +276,18 @@ export function DatasetPage({
     }
   };
 
+  const warmDatasetCache = async () => {
+    if (cacheStatus === 'warming') return;
+    setCacheStatus('warming');
+    try {
+      await cacheDataset(datasetId);
+      setTables(await getTables(datasetId));
+      setCacheStatus('ready');
+    } catch {
+      setCacheStatus('error');
+    }
+  };
+
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-[image:var(--workspace-background)] text-[var(--foreground)]">
       <header className="flex items-center gap-2 border-b border-[var(--border)] px-4 py-2.5">
@@ -281,6 +300,29 @@ export function DatasetPage({
             {dataset.scenario}
           </span>
         )}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={warmDatasetCache}
+          disabled={cacheStatus === 'warming'}
+          title="Cache dataset summary without starting an analysis"
+          className="ml-auto"
+        >
+          {cacheStatus === 'warming' ? (
+            <Loader2 size={14} className="animate-spin" />
+          ) : cacheStatus === 'ready' ? (
+            <CheckCircle2 size={14} />
+          ) : (
+            <Database size={14} />
+          )}
+          {cacheStatus === 'warming'
+            ? 'Caching...'
+            : cacheStatus === 'ready'
+              ? 'Cached'
+              : cacheStatus === 'error'
+                ? 'Retry cache'
+                : 'Cache dataset'}
+        </Button>
       </header>
 
       <nav className="flex gap-1 border-b border-[var(--border)] px-3">
@@ -391,23 +433,20 @@ export function DatasetPage({
                   {sessions.map(s => (
                     <Card
                       key={s.id}
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => onOpenSession(s.id)}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter' && e.currentTarget === e.target) {
-                          onOpenSession(s.id);
-                        }
-                      }}
-                      className="group flex cursor-pointer items-center gap-3 p-3 transition hover:border-[var(--primary)] focus-within:border-[var(--primary)]"
+                      className="group flex items-center gap-3 p-3 transition hover:border-[var(--primary)] focus-within:border-[var(--primary)]"
                     >
-                      <GitFork size={15} className="shrink-0 text-[var(--muted-foreground)]" />
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-[13px] font-medium">{s.name}</div>
-                        <div className="text-[12px] text-[var(--muted-foreground)]">
-                          updated {new Date(s.updated_at).toLocaleString()}
+                      <Link
+                        to={sessionPath(datasetId, s.id)}
+                        className="flex min-w-0 flex-1 items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                      >
+                        <GitFork size={15} className="shrink-0 text-[var(--muted-foreground)]" />
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-[13px] font-medium">{s.name}</div>
+                          <div className="text-[12px] text-[var(--muted-foreground)]">
+                          updated {formatDateTime(s.updated_at)}
+                          </div>
                         </div>
-                      </div>
+                      </Link>
                       <Button
                         variant="danger"
                         size="icon"
@@ -496,7 +535,7 @@ export function DatasetPage({
                     <div className="min-w-0 flex-1">
                       <div className="truncate font-mono text-[13px]">{t.table}</div>
                       <div className="text-[12px] text-[var(--muted-foreground)]">
-                        {t.rows.toLocaleString()} rows
+                        {formatNumber(t.rows)} rows
                       </div>
                     </div>
                   </Card>
@@ -511,7 +550,7 @@ export function DatasetPage({
                     </div>
                     {tableRows && (
                       <div className="text-[12px] text-[var(--muted-foreground)]">
-                        {tableRows.totalRows.toLocaleString()} rows
+                        {formatNumber(tableRows.totalRows)} rows
                       </div>
                     )}
                   </div>
@@ -657,18 +696,20 @@ export function DatasetPage({
                                   ) : d.session_id ? (
                                     <span>session deleted</span>
                                   ) : null}
-                                  <span>{new Date(d.created_at).toLocaleString()}</span>
+                                  <span>{formatDateTime(d.created_at)}</span>
                                 </div>
                               </div>
                             </div>
                             {savedSession && (
                               <Button
+                                asChild
                                 size="sm"
                                 variant="ghost"
-                                onClick={() => onOpenSession(savedSession.id)}
                               >
-                                <ExternalLink size={14} />
-                                Open session
+                                <Link to={sessionPath(datasetId, savedSession.id)}>
+                                  <ExternalLink size={14} />
+                                  Open session
+                                </Link>
                               </Button>
                             )}
                           </div>
@@ -719,19 +760,21 @@ export function DatasetPage({
                                   <span>session deleted</span>
                                 ) : null}
                                 <span>
-                                  updated {new Date(a.updated_at).toLocaleString()}
+                                  updated {formatDateTime(a.updated_at)}
                                 </span>
                               </div>
                             </div>
                           </div>
                           {savedSession && (
                             <Button
+                              asChild
                               size="sm"
                               variant="ghost"
-                              onClick={() => onOpenSession(savedSession.id)}
                             >
-                              <ExternalLink size={14} />
-                              Open session
+                              <Link to={sessionPath(datasetId, savedSession.id)}>
+                                <ExternalLink size={14} />
+                                Open session
+                              </Link>
                             </Button>
                           )}
                         </div>

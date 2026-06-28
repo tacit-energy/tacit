@@ -1,3 +1,4 @@
 .env
 .venv
 node_modules
+energyops-copilot/datasets/energyops_copilot_dataset

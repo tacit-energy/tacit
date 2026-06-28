@@ -9,8 +9,10 @@ import { WidgetFrame } from './WidgetFrame';
 import { WorkspaceKpiStrip } from './WorkspaceKpiStrip';
 import { useDecisions } from '@/lib/useDecisions';
 import { getSeries, type Decision } from '@/lib/api';
+import { formatDateTime } from '@/lib/format';
 import type {
   ChartSpec,
+  DataQualitySpec,
   NodeStatus,
   StateSummaryItem,
   StateSummarySpec,
@@ -42,20 +44,15 @@ const STATUS_DOT: Record<NodeStatus, string> = {
   missing: 'bg-fuchsia-400'
 };
 
-function formatObservedAt(value: string) {
-  const timestamp = Date.parse(value);
-  if (!Number.isFinite(timestamp)) return value;
-
-  return new Intl.DateTimeFormat(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    timeZone: 'UTC',
-    timeZoneName: 'short'
-  }).format(new Date(timestamp));
-}
+const TYPE_LABEL_FOR_ISSUE: Record<
+  DataQualitySpec['issues'][number]['type'],
+  string
+> = {
+  gap: 'Gap',
+  stale: 'Stale',
+  unit_mismatch: 'Unit',
+  inconsistent: 'Inconsistent'
+};
 
 function StateMetric({ item }: { item: StateSummaryItem }) {
   return (
@@ -115,7 +112,7 @@ function StateSummaryWidget({ spec }: { spec: StateSummarySpec }) {
           </div>
           {spec.observedAt ? (
             <div className="mt-0.5 text-[12px] text-[var(--muted-foreground)]">
-              {formatObservedAt(spec.observedAt)}
+              {formatDateTime(spec.observedAt)}
             </div>
           ) : null}
         </div>
@@ -170,12 +167,32 @@ function StateSummaryWidget({ spec }: { spec: StateSummarySpec }) {
   );
 }
 
-function DetailWidgetView({ widget }: { widget: DetailWidget }) {
+function DetailWidgetView({
+  widget,
+  onDataQualityIssueClick,
+  canOpenDataQualityIssue
+}: {
+  widget: DetailWidget;
+  onDataQualityIssueClick?: (
+    issue: DataQualitySpec['issues'][number],
+    title: string
+  ) => void;
+  canOpenDataQualityIssue?: (
+    issue: DataQualitySpec['issues'][number],
+    title: string
+  ) => boolean;
+}) {
   switch (widget.type) {
     case 'chart':
       return <ChartWidget spec={widget.spec} />;
     case 'data_quality':
-      return <DataQualityWidget spec={widget.spec} />;
+      return (
+        <DataQualityWidget
+          spec={widget.spec}
+          onIssueClick={onDataQualityIssueClick}
+          canOpenIssue={canOpenDataQualityIssue}
+        />
+      );
     case 'state_summary':
       return <StateSummaryWidget spec={widget.spec} />;
   }
@@ -188,7 +205,6 @@ export function Workspace({
   onNodeChartOpenChange,
   onExplainInsight,
   onOpenSettings,
-  onOpenSession,
   chatInset = 0
 }: {
   widgets: Widget[];
@@ -197,7 +213,6 @@ export function Workspace({
   onNodeChartOpenChange?: (open: boolean) => void;
   onExplainInsight?: (text: string) => void;
   onOpenSettings: () => void;
-  onOpenSession?: (sessionId: string) => void;
   chatInset?: number;
 }) {
   const { decisions, refetch } = useDecisions(sessionId);
@@ -286,6 +301,77 @@ export function Workspace({
           : null
       );
     }
+  };
+
+  const resolveDataQualityTarget = (
+    issue: DataQualitySpec['issues'][number],
+    title = ''
+  ) => {
+    const text = `${title} ${issue.sensor} ${issue.detail}`;
+    const parsedSensorId = text.match(/\b\d{4,}\b/)?.[0];
+    const issueSensorId =
+      issue.sensorId ??
+      (parsedSensorId !== undefined ? Number(parsedSensorId) : undefined);
+    const nodeMatch = topologyWidgets
+      .flatMap((w, topologyIndex) =>
+        w.spec.nodes.map(node => ({ node, topologyIndex }))
+      )
+      .find(
+        ({ node }) =>
+          node.sensorId === issueSensorId ||
+          text.includes(node.id) ||
+          text.includes(node.label)
+      );
+    const sensorId = issueSensorId ?? nodeMatch?.node.sensorId;
+    return { nodeMatch, sensorId };
+  };
+
+  const canOpenDataQualityIssue = (
+    issue: DataQualitySpec['issues'][number],
+    title: string
+  ) => resolveDataQualityTarget(issue, title).sensorId != null;
+
+  const openDataQualityIssue = async (
+    issue: DataQualitySpec['issues'][number],
+    title: string
+  ) => {
+    const { nodeMatch, sensorId } = resolveDataQualityTarget(issue, title);
+    if (sensorId == null) return;
+
+    if (nodeMatch) {
+      setActiveTopo(nodeMatch.topologyIndex);
+      setSelectedNodeIds([nodeMatch.node.id]);
+    }
+
+    const range = { from: issue.from, to: issue.to };
+    const spec = await getSeries(sessionId, sensorId, range).catch(
+      () => null
+    );
+    if (!spec) {
+      setDrawer(null);
+      return;
+    }
+
+    const markedSpec: ChartSpec =
+      issue.from || issue.to
+        ? {
+            ...spec,
+            markBands: [
+              ...(spec.markBands ?? []),
+              {
+                from: spec.x[0] ?? '',
+                to: spec.x[spec.x.length - 1] ?? '',
+                label: TYPE_LABEL_FOR_ISSUE[issue.type]
+              }
+            ].filter(b => b.from && b.to)
+          }
+        : spec;
+
+    setDrawer({
+      spec: markedSpec,
+      nodeId: nodeMatch?.node.id ?? `sensor:${sensorId}`,
+      nodeLabel: nodeMatch?.node.label ?? issue.sensor
+    });
   };
 
   const empty = widgets.length === 0;
@@ -417,7 +503,6 @@ export function Workspace({
                     decided={decidedByCard.get(w.id)}
                     onDecided={refetch}
                     onExplain={onExplainInsight}
-                    onOpenSession={onOpenSession}
                     topologies={topologyWidgets.map(t => t.spec)}
                   />
                 </div>
@@ -425,7 +510,11 @@ export function Workspace({
 
               {detailWidgets.map(w => (
                 <WidgetFrame key={w.id} widgetId={w.id} sessionId={sessionId}>
-                  <DetailWidgetView widget={w} />
+                  <DetailWidgetView
+                    widget={w}
+                    onDataQualityIssueClick={openDataQualityIssue}
+                    canOpenDataQualityIssue={canOpenDataQualityIssue}
+                  />
                 </WidgetFrame>
               ))}
             </div>

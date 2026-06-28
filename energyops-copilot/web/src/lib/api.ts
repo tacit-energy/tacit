@@ -94,6 +94,23 @@ export const getTopology = (datasetId: string, diagramId: string) =>
   );
 export const getTables = (datasetId: string) =>
   getJSON<TableInfo[]>(`/datasets/${datasetId}/tables`);
+
+export async function cacheDataset(datasetId: string): Promise<{
+  ok: boolean;
+  dataset: string;
+  tables: number;
+  rows: number;
+}> {
+  const res = await fetch(`/datasets/${datasetId}/cache`, { method: 'POST' });
+  if (!res.ok) throw new Error(`cache dataset -> ${res.status}`);
+  return res.json() as Promise<{
+    ok: boolean;
+    dataset: string;
+    tables: number;
+    rows: number;
+  }>;
+}
+
 export const getTableRows = (
   datasetId: string,
   table: string,
@@ -230,5 +247,13 @@ export async function postDecision(
   return res.json() as Promise<Decision>;
 }
 
-export const getSeries = (sessionId: string, sensorId: number) =>
-  getJSON<ChartSpec | null>(`/sessions/${sessionId}/series?sensorId=${sensorId}`);
+export const getSeries = (
+  sessionId: string,
+  sensorId: number,
+  range?: { from?: string; to?: string }
+) => {
+  const params = new URLSearchParams({ sensorId: String(sensorId) });
+  if (range?.from) params.set('from', range.from);
+  if (range?.to) params.set('to', range.to);
+  return getJSON<ChartSpec | null>(`/sessions/${sessionId}/series?${params}`);
+};

@@ -3,6 +3,7 @@
 
 import { z } from 'zod';
 import { tool } from '@anthropic-ai/claude-agent-sdk';
+import { describeDataset } from '../db/describe.js';
 import { getDuck } from '../db/duck.js';
 import {
   getDiagram,
@@ -13,7 +14,6 @@ import {
 import { annotationsBySensor } from '../db/memory.js';
 import type { ToolContext } from './context.js';
 
-const qid = (s: string) => `"${s.replace(/"/g, '""')}"`;
 const jsonText = (obj: unknown) => ({
   content: [{ type: 'text' as const, text: JSON.stringify(obj, null, 2) }]
 });
@@ -21,54 +21,6 @@ const jsonText = (obj: unknown) => ({
 export function dataTools(ctx: ToolContext) {
   const { datasetId } = ctx;
   const includePreviousKnowledge = ctx.includePreviousKnowledge !== false;
-
-  async function describeDataset() {
-    const duck = await getDuck(datasetId);
-    const tables: Record<string, unknown>[] = [];
-
-    for (const name of duck.tables()) {
-      const desc = await duck.raw(`DESCRIBE ${qid(name)}`, 1000);
-      const cols = desc.rows.map(r => ({
-        name: String(r.column_name),
-        type: String(r.column_type)
-      }));
-      const counts = cols
-        .map(c => `count(${qid(c.name)}) AS ${qid(c.name)}`)
-        .join(', ');
-      const stat = await duck.raw(
-        `SELECT count(*) AS __n, ${counts} FROM ${qid(name)}`,
-        1
-      );
-      const row = stat.rows[0] ?? {};
-      const n = Number(row.__n ?? 0);
-      const columns = cols.map(c => ({
-        name: c.name,
-        type: c.type,
-        populated: n
-          ? `${Math.round((Number(row[c.name] ?? 0) / n) * 100)}%`
-          : 'n/a'
-      }));
-
-      const timeCol = cols.find(c => /TIMESTAMP|DATE/i.test(c.type));
-      let timeRange: { from: unknown; to: unknown } | undefined;
-      if (timeCol) {
-        const tr = await duck.raw(
-          `SELECT min(${qid(timeCol.name)}) AS f, max(${qid(timeCol.name)}) AS t FROM ${qid(name)}`,
-          1
-        );
-        timeRange = { from: tr.rows[0]?.f, to: tr.rows[0]?.t };
-      }
-
-      tables.push({ table: name, rows: n, columns, timeRange });
-    }
-
-    return {
-      dataset: datasetId,
-      tables,
-      diagrams: listDiagrams(datasetId),
-      note: 'Schema reflects the currently loaded dataset. Query any table with query_data. Do not assume a specific scenario; rank deviations / inspect ranges to find what is unusual.'
-    };
-  }
 
   function enrichNodes(nodes: TopoNode[]) {
     if (!includePreviousKnowledge) return nodes;
@@ -84,7 +36,7 @@ export function dataTools(ctx: ToolContext) {
       'describe_dataset',
       'Inspect the currently loaded dataset: tables, columns (with type and how populated each is), row counts, time ranges, and available topology diagrams. Call this first to learn what you can query — never assume a specific scenario or schema.',
       {},
-      async () => jsonText(await describeDataset())
+      async () => jsonText(await describeDataset(datasetId))
     ),
 
     tool(

@@ -1,5 +1,17 @@
 export const THEMES = [
   {
+    id: 'tacit',
+    name: 'Tacit',
+    description: 'Tacit brand — Deep Ink surfaces with Signal Blue and Amber.',
+    swatches: ['#14181f', '#2d6be0', '#d98a26']
+  },
+  {
+    id: 'tacit-light',
+    name: 'Tacit Light',
+    description: 'Tacit brand on Paper — bright reports with Signal Blue and Amber.',
+    swatches: ['#fbfbfc', '#2d6be0', '#e5e8ec']
+  },
+  {
     id: 'ember',
     name: 'Ember',
     description: 'Dark operations room with warm alerts.',
@@ -81,7 +93,7 @@ export const THEMES = [
 
 export type ThemeId = (typeof THEMES)[number]['id'];
 
-export const DEFAULT_THEME: ThemeId = 'ember';
+export const DEFAULT_THEME: ThemeId = 'tacit';
 
 export function isThemeId(value: string | null): value is ThemeId {
   return THEMES.some(theme => theme.id === value);

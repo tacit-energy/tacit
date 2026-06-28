@@ -1,6 +1,7 @@
 import { AlertTriangle, CheckCircle2, Coins, Lightbulb } from 'lucide-react';
 import type { Widget } from '@shared/types';
 import type { Decision } from '@/lib/api';
+import { formatNumber } from '@/lib/format';
 
 const CONF_RANK: Record<string, number> = { low: 0, med: 1, high: 2 };
 const CONF_LABEL = ['low', 'med', 'high'];
@@ -88,7 +89,7 @@ export function WorkspaceKpiStrip({
         <Stat
           icon={<Coins size={16} />}
           label="Est. impact"
-          value={`${impactTotal.toLocaleString()}${unit ? ` ${unit}` : ''}${conf}`}
+          value={`${formatNumber(impactTotal)}${unit ? ` ${unit}` : ''}${conf}`}
         />
       )}
     </div>

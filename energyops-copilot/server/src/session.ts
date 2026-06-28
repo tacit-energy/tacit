@@ -15,8 +15,8 @@ import { Bus } from './bus.js';
 import { makeEoTools } from './tools/index.js';
 import { AzureResponsesRunner } from './azure-responses-runner.js';
 import { OpenRouterRunner } from './openrouter-runner.js';
-import { getSystemPrompt } from './prompt.js';
-import type { ServerEvent } from './types.js';
+import { getSystemPrompt, TOPOLOGY_REQUIRED_FOLLOWUP } from './prompt.js';
+import type { ServerEvent, TopologySpec } from './types.js';
 import {
   insertSession,
   setSdkSessionId,
@@ -90,6 +90,8 @@ export class Session {
   private openRouter: OpenRouterRunner | null = null;
   private azure: AzureResponsesRunner | null = null;
   private activeTurn = false;
+  private topologyRenderedThisTurn = false;
+  private topologyGuardAttempts = 0;
 
   constructor(id: string, datasetId: string, options: SessionOptions = {}) {
     this.id = id;
@@ -101,7 +103,9 @@ export class Session {
       appendSessionEvent(this.id, event)
     );
     this.bus.subscribe(event => {
-      if (
+      if (event.kind === 'widget' && event.widget.type === 'topology') {
+        this.topologyRenderedThisTurn = true;
+      } else if (
         event.kind === 'agent' &&
         event.event.type === 'turn_complete'
       ) {
@@ -173,6 +177,17 @@ export class Session {
           setSdkSessionId(this.id, m.session_id);
         }
         if (m?.type === 'result') {
+          if (!this.topologyRenderedThisTurn && this.topologyGuardAttempts < 1) {
+            this.topologyGuardAttempts += 1;
+            this.inputQueue.push({
+              type: 'user',
+              message: { role: 'user', content: TOPOLOGY_REQUIRED_FOLLOWUP },
+              parent_tool_use_id: null,
+              session_id: ''
+            });
+            continue;
+          }
+          this.emitRequiredTopologyFallback();
           this.activeTurn = false;
         }
         this.bus.broadcast({ kind: 'sdk', message });
@@ -209,6 +224,27 @@ export class Session {
     return { behavior: 'deny', message: answer.message || 'User denied this action' };
   };
 
+  private emitRequiredTopologyFallback(): void {
+    if (this.topologyRenderedThisTurn) return;
+    const spec: TopologySpec = {
+      title: 'Focused topology',
+      nodes: [
+        {
+          id: 'focused-request',
+          label: 'Current request',
+          status: 'inferred',
+          position: { x: 0, y: 0 }
+        }
+      ],
+      edges: [],
+      highlight: ['focused-request']
+    };
+    this.bus.broadcast({
+      kind: 'widget',
+      widget: { id: `w${++this.widgetSeq}`, type: 'topology', spec }
+    });
+  }
+
   /** Queue a context note (e.g. an operator decision) for the agent's next turn. */
   noteDecision(text: string): void {
     this.pendingContext.push(text);
@@ -227,6 +263,8 @@ export class Session {
   ): void {
     touchSession(this.id);
     this.activeTurn = true;
+    this.topologyRenderedThisTurn = false;
+    this.topologyGuardAttempts = 0;
     this.bus.broadcast({ kind: 'agent', event: { type: 'user_message', text } });
 
     const prefix: string[] = [];
