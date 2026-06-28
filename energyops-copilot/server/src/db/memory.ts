@@ -52,6 +52,7 @@ db.exec(`
     decision_type    TEXT NOT NULL,   -- 'accept' | 'override' | 'dismiss'
     rationale        TEXT,
     related_node_ids TEXT,            -- JSON string[]
+    insight_snapshot TEXT,            -- JSON InsightCardSpec subset
     impact           REAL,
     created_at       TEXT NOT NULL
   );
@@ -84,6 +85,13 @@ const currentAnnCols = db.prepare('PRAGMA table_info(annotations)').all() as {
 }[];
 if (currentAnnCols.length && !currentAnnCols.some(c => c.name === 'source_session_id')) {
   db.exec('ALTER TABLE annotations ADD COLUMN source_session_id TEXT');
+}
+
+const decisionCols = db.prepare('PRAGMA table_info(decisions)').all() as {
+  name: string;
+}[];
+if (decisionCols.length && !decisionCols.some(c => c.name === 'insight_snapshot')) {
+  db.exec('ALTER TABLE decisions ADD COLUMN insight_snapshot TEXT');
 }
 
 // --- Annotations (dataset-scoped) ------------------------------------------
@@ -327,22 +335,31 @@ export interface DecisionRow {
   decision_type: DecisionType;
   rationale: string | null;
   related_node_ids: string | null; // JSON string[]
+  insight_snapshot: string | null; // JSON InsightSnapshot
   impact: number | null;
   created_at: string;
 }
 
-export interface Decision extends Omit<DecisionRow, 'related_node_ids'> {
+export interface Decision
+  extends Omit<DecisionRow, 'related_node_ids' | 'insight_snapshot'> {
   related_node_ids: string[];
+  insight_snapshot: unknown | null;
 }
 
 function hydrate(row: DecisionRow): Decision {
   let nodes: string[] = [];
+  let insightSnapshot: unknown | null = null;
   try {
     nodes = row.related_node_ids ? JSON.parse(row.related_node_ids) : [];
   } catch {
     nodes = [];
   }
-  return { ...row, related_node_ids: nodes };
+  try {
+    insightSnapshot = row.insight_snapshot ? JSON.parse(row.insight_snapshot) : null;
+  } catch {
+    insightSnapshot = null;
+  }
+  return { ...row, related_node_ids: nodes, insight_snapshot: insightSnapshot };
 }
 
 export function recordDecision(input: {
@@ -353,6 +370,7 @@ export function recordDecision(input: {
   decisionType: DecisionType;
   rationale?: string | null;
   relatedNodeIds?: string[];
+  insightSnapshot?: unknown | null;
   impact?: number | null;
 }): Decision {
   const row: DecisionRow = {
@@ -364,15 +382,18 @@ export function recordDecision(input: {
     decision_type: input.decisionType,
     rationale: input.rationale ?? null,
     related_node_ids: JSON.stringify(input.relatedNodeIds ?? []),
+    insight_snapshot: input.insightSnapshot
+      ? JSON.stringify(input.insightSnapshot)
+      : null,
     impact: input.impact ?? null,
     created_at: new Date().toISOString()
   };
   db.prepare(
     `INSERT INTO decisions
        (id, dataset_id, session_id, insight_card_id, insight_title,
-        decision_type, rationale, related_node_ids, impact, created_at)
+        decision_type, rationale, related_node_ids, insight_snapshot, impact, created_at)
      VALUES (@id, @dataset_id, @session_id, @insight_card_id, @insight_title,
-        @decision_type, @rationale, @related_node_ids, @impact, @created_at)`
+        @decision_type, @rationale, @related_node_ids, @insight_snapshot, @impact, @created_at)`
   ).run(row);
   return hydrate(row);
 }

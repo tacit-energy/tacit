@@ -112,13 +112,14 @@ function seriesElement(
   const kind = s.kind ?? fallback;
   const color = COLORS[i % COLORS.length];
   const yAxisId = s.axis ?? 'left';
-  const common = { key: s.name, dataKey: s.name, name: s.name, yAxisId };
+  const common = { dataKey: s.name, name: s.name, yAxisId };
   switch (kind) {
     case 'bar':
-      return <Bar {...common} fill={color} radius={[3, 3, 0, 0]} />;
+      return <Bar key={s.name} {...common} fill={color} radius={[3, 3, 0, 0]} />;
     case 'area':
       return (
         <Area
+          key={s.name}
           {...common}
           type="monotone"
           stroke={color}
@@ -130,10 +131,11 @@ function seriesElement(
         />
       );
     case 'scatter':
-      return <Scatter {...common} fill={color} />;
+      return <Scatter key={s.name} {...common} fill={color} />;
     default:
       return (
         <Line
+          key={s.name}
           {...common}
           type="monotone"
           stroke={color}
@@ -206,6 +208,27 @@ export function ChartWidget({
     selectedMoment ??
     (dragStart && dragEnd && dragStart === dragEnd ? dragStart : null);
 
+  const labelAtClientX = (clientX: number) => {
+    const el = chartShellRef.current;
+    if (!selectionTarget || !el || data.length === 0) return undefined;
+    const bounds = el.getBoundingClientRect();
+    if (bounds.width <= 0) return undefined;
+    const ratio = Math.max(0, Math.min(1, (clientX - bounds.left) / bounds.width));
+    const index = Math.round(ratio * (data.length - 1));
+    const label = data[index]?.x;
+    return typeof label === 'string' ? label : undefined;
+  };
+
+  const updateDragSelection = (label: string) => {
+    const drag = dragRef.current;
+    if (!selectionTarget || !drag) return;
+    dragRef.current = {
+      from: drag.from,
+      to: label
+    };
+    setDragEnd(label);
+  };
+
   const zoomChartAt = (clientX: number, deltaY: number, bounds: DOMRect) => {
     if (!selectionTarget || spec.x.length < 3) return;
     const ratio =
@@ -253,16 +276,8 @@ export function ChartWidget({
   };
 
   const moveSelection = (state: unknown) => {
-    const drag = dragRef.current;
-    if (!selectionTarget || !drag) return;
     const label = activeLabel(state);
-    if (label) {
-      dragRef.current = {
-        from: drag.from,
-        to: label
-      };
-      setDragEnd(label);
-    }
+    if (label) updateDragSelection(label);
   };
 
   const endSelection = () => {
@@ -337,6 +352,21 @@ export function ChartWidget({
       className={selectionTarget ? 'select-none outline-none' : undefined}
       style={{ height }}
       tabIndex={selectionTarget ? -1 : undefined}
+      onMouseDownCapture={event => {
+        if (!selectionTarget) return;
+        const label = labelAtClientX(event.clientX);
+        if (!label) return;
+        dragRef.current = { from: label, to: label };
+        setDragStart(label);
+        setDragEnd(label);
+        setSelection(null);
+        setSaved(null);
+      }}
+      onMouseMoveCapture={event => {
+        const label = labelAtClientX(event.clientX);
+        if (label) updateDragSelection(label);
+      }}
+      onMouseUpCapture={endSelection}
     >
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart

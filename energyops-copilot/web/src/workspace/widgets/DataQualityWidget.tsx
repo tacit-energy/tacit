@@ -3,6 +3,7 @@ import type { DataQualitySpec } from '@shared/types';
 import { Badge, Card } from '@/components/ui';
 
 type DataQualityIssue = DataQualitySpec['issues'][number];
+type DataQualityTarget = NonNullable<DataQualityIssue['targets']>[number];
 
 const SEV_VARIANT: Record<
   DataQualityIssue['severity'],
@@ -22,12 +23,18 @@ const TYPE_LABEL: Record<DataQualityIssue['type'], string> = {
 
 export function DataQualityWidget({
   spec,
-  onIssueClick,
-  canOpenIssue
+  onTargetClick,
+  getIssueTargets
 }: {
   spec: DataQualitySpec;
-  onIssueClick?: (issue: DataQualityIssue, title: string) => void;
-  canOpenIssue?: (issue: DataQualityIssue, title: string) => boolean;
+  onTargetClick?: (
+    target: DataQualityTarget,
+    issue: DataQualityIssue
+  ) => void;
+  getIssueTargets?: (
+    issue: DataQualityIssue,
+    title: string
+  ) => DataQualityTarget[];
 }) {
   return (
     <Card className="p-4">
@@ -46,37 +53,39 @@ export function DataQualityWidget({
       ) : (
         <div className="flex flex-col gap-2">
           {spec.issues.map((issue, i) => {
-            const canOpen = Boolean(onIssueClick && canOpenIssue?.(issue, spec.title));
+            const targets = getIssueTargets?.(issue, spec.title) ?? issue.targets ?? [];
             return (
-              <button
+              <div
                 key={i}
-                type="button"
-                disabled={!canOpen}
-                onClick={() => onIssueClick?.(issue, spec.title)}
-                title={
-                  canOpen
-                    ? 'Open sensor chart'
-                    : 'No sensor id or matching topology node stored for this issue'
-                }
-                className="flex w-full items-start gap-2 rounded-md border border-[var(--border)] bg-[var(--background)] p-2.5 text-left transition hover:border-[var(--primary)] disabled:cursor-default disabled:opacity-100 disabled:hover:border-[var(--border)]"
+                className="flex w-full items-start gap-2 rounded-md border border-[var(--border)] bg-[var(--background)] p-2.5 text-left"
               >
                 <Badge variant={SEV_VARIANT[issue.severity]}>
                   {TYPE_LABEL[issue.type]}
                 </Badge>
                 <div className="min-w-0 flex-1">
                   <div className="text-[12px] font-medium text-[var(--card-foreground)]">
-                    {issue.sensor || 'Unmapped issue'}
+                    {issue.sensor}
                   </div>
                   <div className="text-[12px] text-[var(--muted-foreground)]">
                     {issue.detail}
                   </div>
-                  {!canOpen ? (
-                    <div className="mt-1 text-[11px] text-[var(--muted-foreground)]">
-                      No linked sensor chart
+                  {targets.length ? (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {targets.map(target => (
+                        <button
+                          key={`${target.sensorId}:${target.nodeId ?? target.label}`}
+                          type="button"
+                          onClick={() => onTargetClick?.(target, issue)}
+                          className="rounded border border-[var(--border)] bg-[var(--panel)] px-2 py-0.5 text-[11px] font-medium text-[var(--card-foreground)] transition hover:border-[var(--primary)] hover:text-[var(--foreground)]"
+                          title="Open sensor chart"
+                        >
+                          {target.label}
+                        </button>
+                      ))}
                     </div>
                   ) : null}
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>

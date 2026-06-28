@@ -72,6 +72,16 @@ const referenceLinesSchema = z
 const markBandsSchema = z
   .array(z.object({ from: z.string(), to: z.string(), label: z.string().optional() }))
   .optional();
+const dataQualityTarget = z.object({
+  sensorId: z.number().optional(),
+  sensor_id: z.number().optional(),
+  nodeId: z.string().optional(),
+  node_id: z.string().optional(),
+  label: z.string().optional(),
+  name: z.string().optional(),
+  from: z.string().optional(),
+  to: z.string().optional()
+});
 
 // Shared "build a chart by running SQL server-side" shape - reused by
 // render_chart_from_query and the chart embedded in an insight card.
@@ -139,8 +149,8 @@ export function widgetTools(ctx: ToolContext) {
     tool(
       'render_topology',
       includePreviousKnowledge
-        ? 'Render a topology graph in the workspace. Easiest path: pass `from_diagram` (a diagram id from get_topology) to seed all nodes/edges/positions, then use `highlight` and `statuses` to spotlight or flag nodes. For a simplified/custom view, pass your own `nodes` and `edges` instead. Operator annotations are merged in automatically.'
-        : 'Render a topology graph in the workspace. Easiest path: pass `from_diagram` (a diagram id from get_topology) to seed all nodes/edges/positions, then use `highlight` and `statuses` to spotlight or flag nodes. For a simplified/custom view, pass your own `nodes` and `edges` instead.',
+        ? 'Render a topology graph in the workspace. Easiest path: pass `from_diagram` (a diagram id from get_topology) to seed all nodes/edges/positions, then use `highlight` and `statuses` to spotlight or flag nodes. For a simplified/custom view, pass your own `nodes` and `edges` instead. Node color is driven by `energyType`; give each custom node a `sensorId` (energyType/unit are auto-filled from it) or set `energyType` directly. Operator annotations are merged in automatically.'
+        : 'Render a topology graph in the workspace. Easiest path: pass `from_diagram` (a diagram id from get_topology) to seed all nodes/edges/positions, then use `highlight` and `statuses` to spotlight or flag nodes. For a simplified/custom view, pass your own `nodes` and `edges` instead. Node color is driven by `energyType`; give each custom node a `sensorId` (energyType/unit are auto-filled from it) or set `energyType` directly.',
       {
         title: z.string(),
         from_diagram: z
@@ -178,6 +188,48 @@ export function widgetTools(ctx: ToolContext) {
               position: n.position
             }));
             if (input.edges === undefined) edges = diagram.edges;
+          }
+        }
+
+        // Backfill energyType/unit for custom nodes that carry a sensorId but
+        // dropped these fields. Node color is driven by energyType (the widget
+        // greys out nodes without one), so a simplified view built from scratch
+        // would otherwise lose all coloring even though the sensor metadata is
+        // known. The from_diagram path already seeds these; do the same here.
+        const needsLookup = nodes.filter(
+          n =>
+            n.sensorId !== undefined &&
+            (n.energyType === undefined || n.energyType === null || n.unit === undefined)
+        );
+        if (needsLookup.length) {
+          const ids = [...new Set(needsLookup.map(n => n.sensorId as number))];
+          try {
+            const duck = await getDuck(datasetId);
+            const res = await duck.query(
+              `SELECT sensor_id, energy_type, unit FROM sensors WHERE sensor_id IN (${ids.join(',')})`,
+              ids.length
+            );
+            const meta = new Map(
+              res.rows.map(r => [
+                Number(r.sensor_id),
+                { energyType: r.energy_type as string | null, unit: r.unit as string | null }
+              ])
+            );
+            nodes = nodes.map(n => {
+              if (n.sensorId === undefined) return n;
+              const m = meta.get(n.sensorId);
+              if (!m) return n;
+              return {
+                ...n,
+                energyType:
+                  n.energyType === undefined || n.energyType === null
+                    ? m.energyType
+                    : n.energyType,
+                unit: n.unit === undefined ? m.unit ?? undefined : n.unit
+              };
+            });
+          } catch {
+            // Non-fatal: if the lookup fails, render with whatever was provided.
           }
         }
 
@@ -344,7 +396,7 @@ export function widgetTools(ctx: ToolContext) {
 
     tool(
       'render_data_quality',
-      'Render a data-quality panel listing issues (gaps, stale sensors, inconsistencies) found via scan_data_quality, so the operator can see whether a signal is trustworthy. Preserve sensor_id from scan_data_quality as sensor_id or sensorId, and pass from/to when the issue has a concrete affected time range.',
+      'Render a data-quality panel listing issues (gaps, stale sensors, inconsistencies) found via scan_data_quality, so the operator can see whether a signal is trustworthy. Preserve every referenced meter as targets[]. Use sensor_id/sensorId for single-sensor scan results, and targets/sensorIds/sensor_ids for multi-meter findings. Pass from/to when the issue has a concrete affected time range.',
       {
         title: z.string(),
         issues: z.array(
@@ -353,6 +405,9 @@ export function widgetTools(ctx: ToolContext) {
             name: z.string().optional(),
             sensor_id: z.number().optional(),
             sensorId: z.number().optional(),
+            sensor_ids: z.array(z.number()).optional(),
+            sensorIds: z.array(z.number()).optional(),
+            targets: z.array(dataQualityTarget).optional(),
             type: z.enum(['gap', 'stale', 'unit_mismatch', 'inconsistent']),
             severity: z.enum(['low', 'med', 'high']),
             detail: z.string(),
@@ -363,15 +418,44 @@ export function widgetTools(ctx: ToolContext) {
         replaceId: z.string().optional().describe(REPLACE_ID_DESC)
       },
       async input => {
-        const issues: DataQualitySpec['issues'] = input.issues.map(issue => ({
-          sensor: issue.sensor ?? issue.name ?? 'Sensor',
-          sensorId: issue.sensorId ?? issue.sensor_id,
-          type: issue.type,
-          severity: issue.severity,
-          detail: issue.detail,
-          from: issue.from,
-          to: issue.to
-        }));
+        const issues: DataQualitySpec['issues'] = input.issues.map(issue => {
+          const primarySensorId = issue.sensorId ?? issue.sensor_id;
+          const targetMap = new Map<number, NonNullable<DataQualitySpec['issues'][number]['targets']>[number]>();
+          const addTarget = (
+            sensorId: number | undefined,
+            target?: { nodeId?: string; node_id?: string; label?: string; name?: string; from?: string; to?: string }
+          ) => {
+            if (sensorId === undefined || !Number.isFinite(sensorId)) return;
+            targetMap.set(sensorId, {
+              sensorId,
+              nodeId: target?.nodeId ?? target?.node_id,
+              label: target?.label ?? target?.name ?? `Sensor ${sensorId}`,
+              from: target?.from ?? issue.from,
+              to: target?.to ?? issue.to
+            });
+          };
+
+          for (const sensorId of issue.sensorIds ?? issue.sensor_ids ?? []) addTarget(sensorId);
+          addTarget(primarySensorId, {
+            label: issue.sensor ?? issue.name,
+            from: issue.from,
+            to: issue.to
+          });
+          for (const target of issue.targets ?? []) {
+            addTarget(target.sensorId ?? target.sensor_id, target);
+          }
+
+          return {
+            sensor: issue.sensor ?? issue.name ?? 'Sensor',
+            sensorId: primarySensorId,
+            targets: targetMap.size ? [...targetMap.values()] : undefined,
+            type: issue.type,
+            severity: issue.severity,
+            detail: issue.detail,
+            from: issue.from,
+            to: issue.to
+          };
+        });
         const spec: DataQualitySpec = { title: input.title, issues };
         const id = emitWidget(
           ctx,

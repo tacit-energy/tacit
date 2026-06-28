@@ -1,5 +1,5 @@
 // Thin fetch helpers for the dataset / session REST API.
-import type { ChartSpec, ServerEvent, TopologySpec } from '@shared/types';
+import type { ChartSpec, InsightCardSpec, ServerEvent, TopologySpec } from '@shared/types';
 
 export interface DatasetInfo {
   id: string;
@@ -208,6 +208,7 @@ export interface Decision {
   decision_type: DecisionType;
   rationale: string | null;
   related_node_ids: string[];
+  insight_snapshot: Partial<InsightCardSpec> | null;
   impact: number | null;
   created_at: string;
 }
@@ -237,6 +238,7 @@ export async function postDecision(
     decisionType: DecisionType;
     rationale?: string;
     relatedNodeIds?: string[];
+    insightSnapshot?: Partial<InsightCardSpec>;
     impact?: number;
   }
 ): Promise<Decision> {

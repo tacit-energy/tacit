@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
@@ -11,6 +11,7 @@ import {
   Database,
   ExternalLink,
   GitFork,
+  History as HistoryIcon,
   Loader2,
   MessageSquarePlus,
   Play,
@@ -43,6 +44,7 @@ import {
 } from '@/lib/api';
 import { sessionPath } from '@/lib/routes';
 import { TopologyWidget } from '@/workspace/widgets/TopologyWidget';
+import { DecisionDetailsModal } from '@/workspace/widgets/DecisionDetailsModal';
 import type { TopologySpec } from '@shared/types';
 import type { ProviderSettings } from '@/App';
 import { formatDateTime, formatNumber, formatTableCell } from '@/lib/format';
@@ -87,6 +89,10 @@ export function DatasetPage({
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
   const [decisions, setDecisions] = useState<Decision[]>([]);
   const [logLoading, setLogLoading] = useState(false);
+  const [logTopologySpecs, setLogTopologySpecs] = useState<TopologySpec[]>([]);
+  const [activeDecision, setActiveDecision] = useState<Decision | null>(null);
+  const [decisionClosing, setDecisionClosing] = useState(false);
+  const decisionCloseTimer = useRef<number | null>(null);
   const [prompt, setPrompt] = useState('');
   const [rangeFrom, setRangeFrom] = useState('');
   const [rangeTo, setRangeTo] = useState('');
@@ -100,10 +106,13 @@ export function DatasetPage({
   useEffect(() => {
     setSelectedTopologyId(null);
     setTopologySpec(null);
+    setTopologies([]);
     setSelectedTable(null);
     setTablePage(1);
     setTableRows(null);
     setCacheStatus('idle');
+    setActiveDecision(null);
+    setDecisionClosing(false);
     getDatasets().then(ds => {
       const nextDataset = ds.find(d => d.id === datasetId) ?? null;
       setDataset(nextDataset);
@@ -128,6 +137,7 @@ export function DatasetPage({
     getTables(datasetId).then(setTables).catch(() => {});
     setAnnotations([]);
     setDecisions([]);
+    setLogTopologySpecs([]);
   }, [datasetId]);
 
   useEffect(() => {
@@ -190,6 +200,31 @@ export function DatasetPage({
       alive = false;
     };
   }, [datasetId, tab]);
+
+  useEffect(() => {
+    if (tab !== 'log' || topologies.length === 0) return;
+    let alive = true;
+    Promise.all(
+      topologies.map(topology =>
+        getTopology(datasetId, topology.id).catch(() => null)
+      )
+    ).then(specs => {
+      if (!alive) return;
+      setLogTopologySpecs(specs.filter((spec): spec is TopologySpec => Boolean(spec)));
+    });
+    return () => {
+      alive = false;
+    };
+  }, [datasetId, tab, topologies]);
+
+  useEffect(
+    () => () => {
+      if (decisionCloseTimer.current != null) {
+        window.clearTimeout(decisionCloseTimer.current);
+      }
+    },
+    []
+  );
 
   const totalPages = useMemo(() => {
     if (!tableRows) return 1;
@@ -286,6 +321,23 @@ export function DatasetPage({
     } catch {
       setCacheStatus('error');
     }
+  };
+
+  const openDecision = (decision: Decision) => {
+    if (decisionCloseTimer.current != null) window.clearTimeout(decisionCloseTimer.current);
+    decisionCloseTimer.current = null;
+    setDecisionClosing(false);
+    setActiveDecision(decision);
+  };
+
+  const closeDecision = () => {
+    if (!activeDecision || decisionClosing) return;
+    setDecisionClosing(true);
+    decisionCloseTimer.current = window.setTimeout(() => {
+      setActiveDecision(null);
+      setDecisionClosing(false);
+      decisionCloseTimer.current = null;
+    }, 160);
   };
 
   return (
@@ -670,15 +722,37 @@ export function DatasetPage({
               )}
 
               {!logLoading && logEntries.length > 0 && (
-                <div className="flex flex-col gap-3">
-                  {logEntries.map(entry => {
+                <div className="pb-2">
+                  <div className="relative flex flex-col gap-3 md:gap-0">
+                    <div className="pointer-events-none absolute bottom-0 left-1/2 top-0 hidden w-px -translate-x-1/2 bg-[var(--border)] md:block" />
+                  {logEntries.map((entry, index) => {
+                    const isLeft = index % 2 === 0;
                     if (entry.type === 'decision') {
                       const d = entry.item;
                       const savedSession = d.session_id
                         ? sessionsById.get(d.session_id)
                         : undefined;
                       return (
-                        <Card key={`decision-${d.id}`} className="p-4">
+                        <div
+                          key={`decision-${d.id}`}
+                          className="relative md:grid md:grid-cols-[minmax(0,1fr)_56px_minmax(0,1fr)] md:items-center md:py-3"
+                        >
+                        <div
+                          className={`pointer-events-none absolute top-1/2 hidden h-px -translate-y-1/2 bg-[var(--border)] md:block ${
+                            isLeft ? 'left-[calc(50%_-_56px)] w-14' : 'left-1/2 w-14'
+                          }`}
+                        />
+                        <div
+                          className="hidden items-center justify-center md:flex"
+                          style={{ gridColumn: 2, gridRow: 1 }}
+                        >
+                          <div className="relative z-10 h-3 w-3 rounded-full border-2 border-[var(--background)] bg-[var(--primary)] shadow-[0_0_0_1px_var(--border)]" />
+                        </div>
+                        <Card
+                          className={`p-4 md:flex md:flex-col ${
+                            isLeft ? 'md:col-start-1 md:mr-7' : 'md:col-start-3 md:ml-7'
+                          }`}
+                        >
                           <div className="flex flex-wrap items-start justify-between gap-2">
                             <div className="flex min-w-0 items-center gap-2">
                               <ClipboardList
@@ -686,7 +760,7 @@ export function DatasetPage({
                                 className="shrink-0 text-[var(--primary)]"
                               />
                               <div className="min-w-0">
-                                <div className="truncate text-[13px] font-semibold">
+                                <div className="text-[13px] font-semibold leading-5">
                                   {d.insight_title}
                                 </div>
                                 <div className="mt-0.5 flex flex-wrap gap-2 text-[12px] text-[var(--muted-foreground)]">
@@ -700,6 +774,14 @@ export function DatasetPage({
                                 </div>
                               </div>
                             </div>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => openDecision(d)}
+                            >
+                              <HistoryIcon size={14} />
+                              Details
+                            </Button>
                             {savedSession && (
                               <Button
                                 asChild
@@ -714,7 +796,7 @@ export function DatasetPage({
                             )}
                           </div>
                           {d.rationale && (
-                            <p className="mt-3 whitespace-pre-wrap text-[13px] leading-5">
+                            <p className="mt-3 line-clamp-4 whitespace-pre-wrap text-[13px] leading-5">
                               {d.rationale}
                             </p>
                           )}
@@ -731,6 +813,7 @@ export function DatasetPage({
                             </div>
                           )}
                         </Card>
+                        </div>
                       );
                     }
 
@@ -739,9 +822,25 @@ export function DatasetPage({
                       ? sessionsById.get(a.source_session_id)
                       : undefined;
                     return (
-                      <Card
+                      <div
                         key={`annotation-${a.target_kind}-${a.target_id}`}
-                        className="p-4"
+                        className="relative md:grid md:grid-cols-[minmax(0,1fr)_56px_minmax(0,1fr)] md:items-center md:py-3"
+                      >
+                      <div
+                        className={`pointer-events-none absolute top-1/2 hidden h-px -translate-y-1/2 bg-[var(--border)] md:block ${
+                          isLeft ? 'left-[calc(50%_-_56px)] w-14' : 'left-1/2 w-14'
+                        }`}
+                      />
+                      <div
+                        className="hidden items-center justify-center md:flex"
+                        style={{ gridColumn: 2, gridRow: 1 }}
+                      >
+                        <div className="relative z-10 h-3 w-3 rounded-full border-2 border-[var(--background)] bg-[var(--primary)] shadow-[0_0_0_1px_var(--border)]" />
+                      </div>
+                      <Card
+                        className={`p-4 md:flex md:flex-col ${
+                          isLeft ? 'md:col-start-1 md:mr-7' : 'md:col-start-3 md:ml-7'
+                        }`}
                       >
                         <div className="flex flex-wrap items-start justify-between gap-2">
                           <div className="flex min-w-0 items-center gap-2">
@@ -750,7 +849,7 @@ export function DatasetPage({
                               className="shrink-0 text-[var(--primary)]"
                             />
                             <div className="min-w-0">
-                              <div className="truncate text-[13px] font-semibold">
+                              <div className="text-[13px] font-semibold leading-5">
                                 {a.target_kind} {a.target_id}
                               </div>
                               <div className="mt-0.5 flex flex-wrap gap-2 text-[12px] text-[var(--muted-foreground)]">
@@ -778,18 +877,29 @@ export function DatasetPage({
                             </Button>
                           )}
                         </div>
-                        <p className="mt-3 whitespace-pre-wrap text-[13px] leading-5">
+                        <p className="mt-3 line-clamp-5 whitespace-pre-wrap text-[13px] leading-5">
                           {a.text}
                         </p>
                       </Card>
+                      </div>
                     );
                   })}
+                  </div>
                 </div>
               )}
             </div>
           )}
         </div>
       </main>
+
+      {activeDecision && (
+        <DecisionDetailsModal
+          decision={activeDecision}
+          topologies={logTopologySpecs}
+          closing={decisionClosing}
+          onClose={closeDecision}
+        />
+      )}
 
       <AnimatePresence>
         {starting && (

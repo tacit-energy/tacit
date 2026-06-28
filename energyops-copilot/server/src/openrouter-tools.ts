@@ -298,25 +298,53 @@ export function makeOpenRouterTools(ctx: ToolContext): OpenRouterTool[] {
     },
     {
       name: 'render_data_quality',
-      description: 'Render a data-quality issue panel. Preserve sensor_id from scan_data_quality as sensorId, and pass from/to when the issue has a concrete affected time range.',
+      description: 'Render a data-quality issue panel. Preserve every referenced meter as targets[]. Use sensor_id/sensorId for single-sensor scan results, and targets/sensorIds/sensor_ids for multi-meter findings. Pass from/to when the issue has a concrete affected time range.',
       parameters: objectSchema({ title: textProp, issues: arrayProp, replaceId: textProp }, ['title', 'issues']),
       execute: async input => {
         const rawIssues = Array.isArray(input.issues) ? input.issues : [];
         const issues: DataQualitySpec['issues'] = rawIssues
           .filter((issue): issue is Record<string, unknown> => Boolean(issue && typeof issue === 'object'))
-          .map(issue => ({
-            sensor: str(issue.sensor, issue.name ? String(issue.name) : 'Sensor'),
-            sensorId: num(issue.sensorId) ?? num(issue.sensor_id),
-            type: ['gap', 'stale', 'unit_mismatch', 'inconsistent'].includes(str(issue.type))
-              ? (str(issue.type) as DataQualitySpec['issues'][number]['type'])
-              : 'inconsistent',
-            severity: ['low', 'med', 'high'].includes(str(issue.severity))
-              ? (str(issue.severity) as DataQualitySpec['issues'][number]['severity'])
-              : 'med',
-            detail: str(issue.detail),
-            from: str(issue.from) || undefined,
-            to: str(issue.to) || undefined
-          }));
+          .map(issue => {
+            const from = str(issue.from) || undefined;
+            const to = str(issue.to) || undefined;
+            const primarySensorId = num(issue.sensorId) ?? num(issue.sensor_id);
+            const targetMap = new Map<number, NonNullable<DataQualitySpec['issues'][number]['targets']>[number]>();
+            const addTarget = (sensorId: number | undefined, target?: Record<string, unknown>) => {
+              if (sensorId === undefined || !Number.isFinite(sensorId)) return;
+              targetMap.set(sensorId, {
+                sensorId,
+                nodeId: str(target?.nodeId) || str(target?.node_id) || undefined,
+                label: str(target?.label) || str(target?.sensor) || str(target?.name) || `Sensor ${sensorId}`,
+                from: str(target?.from) || from,
+                to: str(target?.to) || to
+              });
+            };
+            for (const sensorId of numArray(issue.sensorIds) ?? numArray(issue.sensor_ids) ?? []) addTarget(sensorId);
+            addTarget(primarySensorId, issue);
+            if (Array.isArray(issue.targets)) {
+              for (const target of issue.targets) {
+                if (target && typeof target === 'object') {
+                  const t = target as Record<string, unknown>;
+                  addTarget(num(t.sensorId) ?? num(t.sensor_id), t);
+                }
+              }
+            }
+
+            return {
+              sensor: str(issue.sensor, issue.name ? String(issue.name) : 'Sensor'),
+              sensorId: primarySensorId,
+              targets: targetMap.size ? [...targetMap.values()] : undefined,
+              type: ['gap', 'stale', 'unit_mismatch', 'inconsistent'].includes(str(issue.type))
+                ? (str(issue.type) as DataQualitySpec['issues'][number]['type'])
+                : 'inconsistent',
+              severity: ['low', 'med', 'high'].includes(str(issue.severity))
+                ? (str(issue.severity) as DataQualitySpec['issues'][number]['severity'])
+                : 'med',
+              detail: str(issue.detail),
+              from,
+              to
+            };
+          });
         const spec: DataQualitySpec = { title: str(input.title, 'Data quality'), issues };
         const id = emitWidget(ctx, { id: newId(), type: 'data_quality', spec }, str(input.replaceId) || undefined);
         return `Rendered data-quality panel "${spec.title}" as widget ${id}.`;

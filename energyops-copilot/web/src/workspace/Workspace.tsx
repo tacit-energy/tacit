@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, LayoutDashboard, Settings, X } from 'lucide-react';
+import { ArrowLeft, LayoutDashboard, Loader2, Settings, X } from 'lucide-react';
 import { Button, Card } from '@/components/ui';
 import { TopologyWidget } from './widgets/TopologyWidget';
 import { ChartWidget } from './widgets/ChartWidget';
@@ -25,6 +25,12 @@ type DetailWidget = Extract<
   Widget,
   { type: 'chart' | 'data_quality' | 'state_summary' }
 >;
+type DataQualityIssue = DataQualitySpec['issues'][number];
+type DataQualityTarget = NonNullable<DataQualityIssue['targets']>[number];
+type TopologyNodeMatch = {
+  node: TopoWidget['spec']['nodes'][number];
+  topologyIndex: number;
+};
 
 const STATUS_COLOR: Record<NodeStatus, string> = {
   ok: 'text-emerald-400',
@@ -169,18 +175,18 @@ function StateSummaryWidget({ spec }: { spec: StateSummarySpec }) {
 
 function DetailWidgetView({
   widget,
-  onDataQualityIssueClick,
-  canOpenDataQualityIssue
+  onDataQualityTargetClick,
+  getDataQualityTargets
 }: {
   widget: DetailWidget;
-  onDataQualityIssueClick?: (
-    issue: DataQualitySpec['issues'][number],
-    title: string
+  onDataQualityTargetClick?: (
+    target: DataQualityTarget,
+    issue: DataQualityIssue
   ) => void;
-  canOpenDataQualityIssue?: (
-    issue: DataQualitySpec['issues'][number],
+  getDataQualityTargets?: (
+    issue: DataQualityIssue,
     title: string
-  ) => boolean;
+  ) => DataQualityTarget[];
 }) {
   switch (widget.type) {
     case 'chart':
@@ -189,8 +195,8 @@ function DetailWidgetView({
       return (
         <DataQualityWidget
           spec={widget.spec}
-          onIssueClick={onDataQualityIssueClick}
-          canOpenIssue={canOpenDataQualityIssue}
+          onTargetClick={onDataQualityTargetClick}
+          getIssueTargets={getDataQualityTargets}
         />
       );
     case 'state_summary':
@@ -248,9 +254,10 @@ export function Workspace({
   const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([]);
   const [activeTopo, setActiveTopo] = useState(0);
   const [drawer, setDrawer] = useState<{
-    spec: ChartSpec;
+    spec: ChartSpec | null;
     nodeId: string;
     nodeLabel: string;
+    loading?: boolean;
   } | null>(null);
 
   const cardRefs = useRef(new Map<string, HTMLDivElement>());
@@ -290,60 +297,103 @@ export function Workspace({
     }
     const node = activeTopology?.spec.nodes.find(n => n.id === nodeId);
     if (node?.sensorId != null) {
+      setDrawer({
+        spec: null,
+        nodeId,
+        nodeLabel: node.label,
+        loading: true
+      });
       const spec = await getSeries(sessionId, node.sensorId).catch(() => null);
-      setDrawer(
-        spec
+      setDrawer(current => {
+        if (current?.nodeId !== nodeId) return current;
+        return spec
           ? {
               spec,
               nodeId,
-              nodeLabel: node.label
+              nodeLabel: node.label,
+              loading: false
             }
-          : null
-      );
+          : null;
+      });
     }
   };
 
-  const resolveDataQualityTarget = (
-    issue: DataQualitySpec['issues'][number],
-    title = ''
-  ) => {
-    const text = `${title} ${issue.sensor} ${issue.detail}`;
-    const parsedSensorId = text.match(/\b\d{4,}\b/)?.[0];
-    const issueSensorId =
-      issue.sensorId ??
-      (parsedSensorId !== undefined ? Number(parsedSensorId) : undefined);
-    const nodeMatch = topologyWidgets
-      .flatMap((w, topologyIndex) =>
+  const topologyNodeMatches = useMemo<TopologyNodeMatch[]>(
+    () =>
+      topologyWidgets.flatMap((w, topologyIndex) =>
         w.spec.nodes.map(node => ({ node, topologyIndex }))
-      )
-      .find(
-        ({ node }) =>
-          node.sensorId === issueSensorId ||
-          text.includes(node.id) ||
-          text.includes(node.label)
-      );
-    const sensorId = issueSensorId ?? nodeMatch?.node.sensorId;
-    return { nodeMatch, sensorId };
+      ),
+    [topologyWidgets]
+  );
+
+  const findTopologyNodeForTarget = (target: DataQualityTarget) =>
+    topologyNodeMatches.find(
+      ({ node }) =>
+        node.sensorId === target.sensorId ||
+        (target.nodeId !== undefined && node.id === target.nodeId) ||
+        node.label === target.label
+    );
+
+  const enrichDataQualityTarget = (target: DataQualityTarget): DataQualityTarget => {
+    const nodeMatch = findTopologyNodeForTarget(target);
+    if (!nodeMatch) return target;
+    return {
+      ...target,
+      nodeId: target.nodeId ?? nodeMatch.node.id,
+      label:
+        target.label === `Sensor ${target.sensorId}` || target.label === ''
+          ? nodeMatch.node.label
+          : target.label
+    };
   };
 
-  const canOpenDataQualityIssue = (
-    issue: DataQualitySpec['issues'][number],
-    title: string
-  ) => resolveDataQualityTarget(issue, title).sensorId != null;
+  const resolveLegacyDataQualityTargets = (
+    issue: DataQualityIssue,
+    title = ''
+  ): DataQualityTarget[] => {
+    const explicitTargets = issue.targets ?? [];
+    if (explicitTargets.length) return explicitTargets.map(enrichDataQualityTarget);
+    if (issue.sensorId !== undefined) {
+      return [
+        {
+          sensorId: issue.sensorId,
+          label: issue.sensor || `Sensor ${issue.sensorId}`,
+          from: issue.from,
+          to: issue.to
+        }
+      ];
+    }
 
-  const openDataQualityIssue = async (
-    issue: DataQualitySpec['issues'][number],
-    title: string
+    const text = `${title} ${issue.sensor}`;
+    const matched = new Map<number, DataQualityTarget>();
+    for (const { node } of topologyNodeMatches) {
+      if (node.sensorId === undefined) continue;
+      if (text.includes(node.id) || text.includes(node.label)) {
+        matched.set(node.sensorId, {
+          sensorId: node.sensorId,
+          nodeId: node.id,
+          label: node.label,
+          from: issue.from,
+          to: issue.to
+        });
+      }
+    }
+    return [...matched.values()];
+  };
+
+  const openDataQualityTarget = async (
+    target: DataQualityTarget,
+    issue: DataQualityIssue
   ) => {
-    const { nodeMatch, sensorId } = resolveDataQualityTarget(issue, title);
-    if (sensorId == null) return;
+    const nodeMatch = findTopologyNodeForTarget(target);
+    const sensorId = target.sensorId;
 
     if (nodeMatch) {
       setActiveTopo(nodeMatch.topologyIndex);
       setSelectedNodeIds([nodeMatch.node.id]);
     }
 
-    const range = { from: issue.from, to: issue.to };
+    const range = { from: target.from ?? issue.from, to: target.to ?? issue.to };
     const spec = await getSeries(sessionId, sensorId, range).catch(
       () => null
     );
@@ -353,7 +403,7 @@ export function Workspace({
     }
 
     const markedSpec: ChartSpec =
-      issue.from || issue.to
+      range.from || range.to
         ? {
             ...spec,
             markBands: [
@@ -369,8 +419,8 @@ export function Workspace({
 
     setDrawer({
       spec: markedSpec,
-      nodeId: nodeMatch?.node.id ?? `sensor:${sensorId}`,
-      nodeLabel: nodeMatch?.node.label ?? issue.sensor
+      nodeId: nodeMatch?.node.id ?? target.nodeId ?? `sensor:${sensorId}`,
+      nodeLabel: nodeMatch?.node.label ?? target.label
     });
   };
 
@@ -416,7 +466,7 @@ export function Workspace({
             style={{ paddingLeft: chatInset }}
           >
             {topologyWidgets.length > 0 && (
-              <div className="flex gap-1 overflow-x-auto border-b border-[var(--border)] px-2">
+              <div className="flex gap-1 overflow-hidden border-b border-[var(--border)] px-2">
                 {topologyWidgets.map((w, i) => (
                   <button
                     key={w.id}
@@ -460,17 +510,24 @@ export function Workspace({
                     <X />
                   </Button>
                 </div>
-                <ChartWidget
-                  spec={drawer.spec}
-                  height={180}
-                  bare
-                  selectionTarget={{
-                    sessionId,
-                    targetId: `node-chart:${drawer.nodeId}`,
-                    relatedNodeIds: [drawer.nodeId],
-                    label: drawer.nodeLabel
-                  }}
-                />
+                {drawer.spec ? (
+                  <ChartWidget
+                    spec={drawer.spec}
+                    height={180}
+                    bare
+                    selectionTarget={{
+                      sessionId,
+                      targetId: `node-chart:${drawer.nodeId}`,
+                      relatedNodeIds: [drawer.nodeId],
+                      label: drawer.nodeLabel
+                    }}
+                  />
+                ) : (
+                  <div className="flex h-[180px] items-center justify-center rounded-md border border-[var(--border)] bg-[var(--card)] text-[12px] text-[var(--muted-foreground)]">
+                    <Loader2 size={15} className="mr-2 animate-spin text-[var(--primary)]" />
+                    Loading sensor series
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -512,8 +569,8 @@ export function Workspace({
                 <WidgetFrame key={w.id} widgetId={w.id} sessionId={sessionId}>
                   <DetailWidgetView
                     widget={w}
-                    onDataQualityIssueClick={openDataQualityIssue}
-                    canOpenDataQualityIssue={canOpenDataQualityIssue}
+                    onDataQualityTargetClick={openDataQualityTarget}
+                    getDataQualityTargets={resolveLegacyDataQualityTargets}
                   />
                 </WidgetFrame>
               ))}

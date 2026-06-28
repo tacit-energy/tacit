@@ -411,6 +411,7 @@ app.post('/sessions/:id/decision', async c => {
     decisionType?: string;
     rationale?: string;
     relatedNodeIds?: string[];
+    insightSnapshot?: unknown;
     impact?: number;
   }>();
   const decisionType = body.decisionType as DecisionType;
@@ -431,6 +432,7 @@ app.post('/sessions/:id/decision', async c => {
     decisionType,
     rationale: body.rationale,
     relatedNodeIds: body.relatedNodeIds,
+    insightSnapshot: body.insightSnapshot,
     impact: body.impact ?? null
   });
   // Make the agent aware on its next turn (no tool call needed).

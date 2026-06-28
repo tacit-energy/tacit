@@ -4,8 +4,7 @@ import {
   ChevronDown,
   ChevronRight,
   ChevronUp,
-  ExternalLink,
-  History,
+  History as HistoryIcon,
   Lightbulb,
   Pencil,
   X
@@ -13,7 +12,7 @@ import {
 import type { InsightCardSpec, TopologySpec } from '@shared/types';
 import { Badge, Button, Card, Textarea } from '@/components/ui';
 import { ChartWidget } from './ChartWidget';
-import { TopologyWidget } from './TopologyWidget';
+import { DecisionDetailsModal } from './DecisionDetailsModal';
 import {
   postDecision,
   getSimilarDecisions,
@@ -21,7 +20,6 @@ import {
   type DecisionType
 } from '@/lib/api';
 import { formatDateTime, formatNumber } from '@/lib/format';
-import { sessionPath } from '@/lib/routes';
 
 const SEVERITY: Record<
   InsightCardSpec['severity'],
@@ -70,56 +68,6 @@ function DecisionButton({
         {desc}
       </span>
     </button>
-  );
-}
-
-function RelatedTopologyPreview({
-  topologies,
-  relatedNodeIds
-}: {
-  topologies?: TopologySpec[];
-  relatedNodeIds: string[];
-}) {
-  const related = new Set(relatedNodeIds);
-  const source = topologies?.find(t => t.nodes.some(n => related.has(n.id)));
-  if (!source || related.size === 0) return null;
-
-  const included = new Set(related);
-  for (const edge of source.edges) {
-    if (related.has(edge.source)) included.add(edge.target);
-    if (related.has(edge.target)) included.add(edge.source);
-  }
-
-  const nodes = source.nodes.filter(n => included.has(n.id));
-  const nodeIds = new Set(nodes.map(n => n.id));
-  const edges = source.edges.filter(e => nodeIds.has(e.source) && nodeIds.has(e.target));
-  if (!nodes.length) return null;
-
-  const previewSpec: TopologySpec = {
-    title: 'Related topology',
-    nodes: nodes.map(node =>
-      related.has(node.id)
-        ? {
-            ...node,
-            status: node.status ?? 'inferred'
-          }
-        : node
-    ),
-    edges,
-    highlight: relatedNodeIds
-  };
-
-  return (
-    <div>
-      <div className="overflow-hidden rounded-md">
-        <TopologyWidget
-          spec={previewSpec}
-          selectionHighlight={relatedNodeIds}
-          height={240}
-          scrollZoom={false}
-        />
-      </div>
-    </div>
   );
 }
 
@@ -201,6 +149,14 @@ export function InsightCard({
         decisionType: type,
         rationale: why,
         relatedNodeIds: spec.relatedNodeIds,
+        insightSnapshot: {
+          severity: spec.severity,
+          summary: spec.summary,
+          evidence: spec.evidence,
+          recommendations: spec.recommendations,
+          impact: spec.impact,
+          chart: spec.chart
+        },
         impact: spec.impact?.value
       });
       onDecided?.();
@@ -303,7 +259,7 @@ export function InsightCard({
           {precedent.length > 0 && (
             <div className="mt-3 rounded-md border border-[var(--border)] bg-[var(--secondary)] p-2.5">
               <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
-                <History size={12} /> Related
+                <HistoryIcon size={12} /> Related
               </div>
               <ul className="mt-2 space-y-1.5 text-[12px] text-[var(--card-foreground)]">
                 {precedent.map(d => (
@@ -317,7 +273,7 @@ export function InsightCard({
                       className="group flex w-full items-start gap-2 rounded-md border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-left transition hover:border-[var(--accent)] hover:bg-[var(--panel)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
                       aria-label={`Open past decision from ${formatDateTime(d.created_at)}`}
                     >
-                      <History
+                      <HistoryIcon
                         size={13}
                         className="mt-0.5 shrink-0 text-[var(--muted-foreground)] group-hover:text-[var(--accent)]"
                       />
@@ -458,119 +414,13 @@ export function InsightCard({
     </Card>
 
     {activePrecedent && (
-      <div
-        className={`fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4 ${
-          precedentClosing ? 'eo-modal-overlay-out' : 'eo-modal-overlay-in'
-        }`}
-        onClick={e => {
-          stop(e);
-          closePrecedent();
-        }}
-      >
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby={`decision-${activePrecedent.id}-title`}
-          className={`w-full max-w-lg rounded-lg border border-[var(--border)] bg-[var(--panel-strong)] p-4 shadow-[0_24px_90px_rgb(0_0_0/0.45)] ${
-            precedentClosing ? 'eo-modal-panel-out' : 'eo-modal-panel-in'
-          }`}
-          onClick={stop}
-        >
-          <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md bg-[var(--secondary)] text-[var(--accent)]">
-              <History size={16} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
-                Past decision
-              </div>
-              <h3
-                id={`decision-${activePrecedent.id}-title`}
-                className="mt-1 text-sm font-semibold text-[var(--foreground)]"
-              >
-                You {decisionLabel(activePrecedent.decision_type)} &quot;
-                {activePrecedent.insight_title}&quot;
-              </h3>
-              <div className="mt-1 text-[12px] text-[var(--muted-foreground)]">
-                {formatDateTime(activePrecedent.created_at)}
-              </div>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={closePrecedent}
-              aria-label="Close past decision"
-            >
-              <X />
-            </Button>
-          </div>
-
-          <div className="mt-4 space-y-3 text-[13px]">
-            {activePrecedent.rationale ? (
-              <div>
-                <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-                  Rationale
-                </div>
-                <p className="mt-1 leading-relaxed text-[var(--card-foreground)]">
-                  {activePrecedent.rationale}
-                </p>
-              </div>
-            ) : null}
-            <RelatedTopologyPreview
-              topologies={topologies}
-              relatedNodeIds={activePrecedent.related_node_ids}
-            />
-            {activePrecedent.related_node_ids.length ? (
-              <div>
-                <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-                  Related nodes
-                </div>
-                <div className="mt-1 flex flex-wrap gap-1.5">
-                  {activePrecedent.related_node_ids.map(nodeId => (
-                    <Badge key={nodeId} variant="outline">
-                      {nodeId}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-            {activePrecedent.impact != null ? (
-              <div>
-                <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-                  Recorded impact
-                </div>
-                <div className="mt-1 text-[var(--card-foreground)]">
-                  {formatNumber(activePrecedent.impact)}
-                </div>
-              </div>
-            ) : null}
-          </div>
-
-          <div className="mt-5 flex justify-end gap-2">
-            <Button variant="ghost" onClick={closePrecedent}>
-              Close
-            </Button>
-            {activePrecedent.session_id && activePrecedent.session_id !== sessionId ? (
-              <Button
-                asChild
-                variant="primary"
-              >
-                <a
-                  href={sessionPath(
-                    activePrecedent.dataset_id,
-                    activePrecedent.session_id
-                  )}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <ExternalLink size={14} />
-                  Open old session
-                </a>
-              </Button>
-            ) : null}
-          </div>
-        </div>
-      </div>
+      <DecisionDetailsModal
+        decision={activePrecedent}
+        topologies={topologies}
+        currentSessionId={sessionId}
+        closing={precedentClosing}
+        onClose={closePrecedent}
+      />
     )}
     </>
   );
