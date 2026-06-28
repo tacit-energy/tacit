@@ -104,6 +104,16 @@ function axisDomain(
   return [min - pad, max + pad];
 }
 
+function formatChartNumber(value: unknown): string {
+  const number = Number(value);
+  return Number.isFinite(number) ? number.toFixed(1) : String(value ?? '');
+}
+
+function formatReferenceLineLabel(label: string | undefined, value: number): string {
+  if (!label) return formatChartNumber(value);
+  return label.replace(/-?\d+\.\d+/g, match => formatChartNumber(match));
+}
+
 function seriesElement(
   s: ChartSpec['series'][number],
   i: number,
@@ -398,6 +408,7 @@ export function ChartWidget({
           <YAxis
             yAxisId="left"
             tick={axisTick}
+            tickFormatter={formatChartNumber}
             width={48}
             domain={leftDomain ?? ['auto', 'auto']}
             allowDataOverflow={false}
@@ -408,6 +419,7 @@ export function ChartWidget({
               yAxisId="right"
               orientation="right"
               tick={axisTick}
+              tickFormatter={formatChartNumber}
               width={48}
               domain={rightDomain ?? ['auto', 'auto']}
               allowDataOverflow={false}
@@ -478,7 +490,7 @@ export function ChartWidget({
               strokeDasharray="4 4"
               style={{ pointerEvents: 'none' }}
               label={{
-                value: r.label,
+                value: formatReferenceLineLabel(r.label, r.value),
                 fill: 'var(--muted-foreground)',
                 fontSize: 10,
                 pointerEvents: 'none'
