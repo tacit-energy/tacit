@@ -237,10 +237,10 @@ export class Session {
         if (prior.length) {
           const lines = prior.map(
             d =>
-              `- ${d.decision_type} "${d.insight_title}"${d.rationale ? `: ${d.rationale}` : ''}`
+              `- You previously chose ${d.decision_type} for "${d.insight_title}"${d.rationale ? `: ${d.rationale}` : ''}`
           );
           prefix.push(
-            `Prior operator decisions for this dataset (most recent first):\n${lines.join('\n')}`
+            `Your prior decisions for this dataset (most recent first):\n${lines.join('\n')}`
           );
         }
       }

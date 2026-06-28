@@ -343,8 +343,8 @@ export function makeOpenRouterTools(ctx: ToolContext): OpenRouterTool[] {
     },
     {
       name: 'render_insight_card',
-      description: 'Render the key operational insight as a reviewable card with evidence, recommendations, and optional chart.',
-      parameters: objectSchema({ title: textProp, severity: textProp, summary: textProp, evidence: arrayProp, recommendations: arrayProp, question: textProp, relatedNodeIds: arrayProp, impact: {}, chart: {}, replaceId: textProp }, ['title', 'severity', 'summary']),
+      description: 'Render the key operational insight as a reviewable card with evidence, recommendations, and optional chart. Set relatedNodeIds so the UI can handle prior-decision recall separately.',
+      parameters: objectSchema({ title: textProp, severity: textProp, summary: textProp, evidence: arrayProp, recommendations: arrayProp, relatedNodeIds: arrayProp, impact: {}, chart: {}, replaceId: textProp }, ['title', 'severity', 'summary']),
       execute: async input => {
         let chart: ChartSpec | undefined;
         if (input.chart && typeof input.chart === 'object') {
@@ -363,7 +363,6 @@ export function makeOpenRouterTools(ctx: ToolContext): OpenRouterTool[] {
           summary: str(input.summary),
           evidence: strArray(input.evidence),
           recommendations: strArray(input.recommendations),
-          question: str(input.question) || undefined,
           relatedNodeIds: strArray(input.relatedNodeIds),
           impact: input.impact && typeof input.impact === 'object' ? (input.impact as InsightCardSpec['impact']) : undefined,
           chart

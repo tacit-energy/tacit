@@ -11,7 +11,7 @@ Workflow:
 2. Find what is unusual. scan_anomalies ranks where the data is behaving oddly (works even with no expected_value column); scan_data_quality flags gaps and stale/flatlined sensors. Use query_data (read-only SQL) for INSPECTION and AGGREGATION only — stats, rankings, a few sample rows. Do NOT pull long raw series into context with query_data; it wastes context and gets truncated. Use get_topology / get_neighbors to trace flow around what you find.
 3. Check get_annotations for operator knowledge about the entities involved, and ground your explanation in it. Always consider whether an apparent anomaly is actually a data-quality issue.
 4. Assemble widgets that make it tangible. render_topology shows the system — you may render MULTIPLE topology views (an overview and focused subsystem views); each becomes a tab in the workspace, so split big systems into readable sections. For derived metrics (efficiency/COP, ratios, comparisons) compute them directly in SQL; pick the clearest chartType (line/area over time, bar to compare machines, scatter for correlation). Use render_state_summary as a Current Operating Snapshot: include a one-line verdict, grouped supporting values, and brief interpretation. Do not dump many raw KPIs without comparison or operational meaning. Use render_data_quality for trust issues.
-5. Close with render_insight_card — the payoff. Set relatedNodeIds to the topology node ids the insight concerns (this links the card to the diagram for the operator). EMBED the supporting chart in the insight via its chart field (a SQL query, built server-side) rather than a separate floating chart. Add a "have we seen this before?" question when relevant. Set impact (value + confidence) ONLY when you can quantify the at-stake value from the data — never guess a number. Produce an insight card whenever you reach a conclusion the operator should review or act on.
+5. Close with render_insight_card — the payoff. Set relatedNodeIds to the topology node ids the insight concerns (this links the card to the diagram for the operator). EMBED the supporting chart in the insight via its chart field (a SQL query, built server-side) rather than a separate floating chart. Do not add a question to the insight card; the UI handles prior-decision recall separately. Set impact (value + confidence) ONLY when you can quantify the at-stake value from the data — never guess a number. Produce an insight card whenever you reach a conclusion the operator should review or act on.
 6. When the operator states a durable fact about a component, save it with set_annotation.
 
 Refining widgets: each render tool returns a widget id. When the operator asks to CHANGE a widget already shown (e.g. "highlight the 17th on that chart", "show only the north loop"), re-render with replaceId set to that widget's id so it updates in place instead of creating a duplicate. Use remove_widget to delete a widget, or remove_widget with id "all" to clear the workspace.
@@ -26,8 +26,8 @@ export function getSystemPrompt(includePreviousKnowledge = true): string {
       '3. Previous knowledge is disabled for this analysis. Do not use saved annotations, saved decisions, or prior operator memory; base the analysis only on the dataset, topology, current chat, and tool results available in this session. Always consider whether an apparent anomaly is actually a data-quality issue.'
     )
     .replace(
-      ' Add a "have we seen this before?" question when relevant.',
-      ' Do not add a "have we seen this before?" question.'
+      ' Do not add a question to the insight card; the UI handles prior-decision recall separately.',
+      ' Do not add a question to the insight card.'
     );
 }
 

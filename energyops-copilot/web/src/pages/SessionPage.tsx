@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
 import { MessageCircle } from 'lucide-react';
 import { ChatPanel, MarkdownContent } from '@/chat/ChatPanel';
@@ -82,17 +82,19 @@ export function SessionPage({
   sessionId,
   providerSettings,
   onBack,
-  onOpenSettings
+  onOpenSettings,
+  onOpenSession
 }: {
   sessionId: string;
   providerSettings: ProviderSettings;
   onBack: () => void;
   onOpenSettings: () => void;
+  onOpenSession?: (sessionId: string) => void;
 }) {
   const [chatOpen, setChatOpen] = useState(false);
   const [nodeChartOpen, setNodeChartOpen] = useState(false);
   const [chatDrawerWidth, setChatDrawerWidth] = useState(drawerWidth);
-  const previousCompletedTurns = useRef<number | null>(null);
+  const closeChatAfterTurnBaseline = useRef<number | null>(null);
   const { state, send, answerPermission } = useAgentStream(sessionId, {
     claudeApiKey:
       providerSettings.provider === 'claude'
@@ -128,21 +130,41 @@ export function SessionPage({
     (state.completedTurns === 0 && state.working);
   const lastAssistant = useMemo(() => latestAssistantMessage(state), [state]);
 
+  const sendFromChat = useCallback(
+    (text: string) => {
+      closeChatAfterTurnBaseline.current = state.completedTurns;
+      send(text);
+    },
+    [send, state.completedTurns]
+  );
+
+  const explainInsight = useCallback(
+    (text: string) => {
+      closeChatAfterTurnBaseline.current = null;
+      setChatOpen(true);
+      send(text);
+    },
+    [send]
+  );
+
   useEffect(() => {
-    if (previousCompletedTurns.current === null) {
-      previousCompletedTurns.current = state.completedTurns;
-      return;
-    }
-    if (state.completedTurns > previousCompletedTurns.current) {
+    const baseline = closeChatAfterTurnBaseline.current;
+    if (baseline !== null && state.completedTurns > baseline) {
+      closeChatAfterTurnBaseline.current = null;
       setChatOpen(false);
     }
-    previousCompletedTurns.current = state.completedTurns;
   }, [state.completedTurns]);
 
   useEffect(() => {
     setChatOpen(false);
-    previousCompletedTurns.current = null;
+    closeChatAfterTurnBaseline.current = null;
   }, [sessionId]);
+
+  useEffect(() => {
+    if (!chatOpen || state.status === 'message failed') {
+      closeChatAfterTurnBaseline.current = null;
+    }
+  }, [chatOpen, state.status]);
 
   useEffect(() => {
     const onResize = () => setChatDrawerWidth(drawerWidth());
@@ -156,7 +178,6 @@ export function SessionPage({
         className="h-full min-h-0 min-w-0 overflow-hidden"
         initial={false}
         animate={{
-          x: chatOpen && !analyzing ? chatDrawerWidth : 0,
           opacity: analyzing ? 0 : 1,
           scale: analyzing ? 0.985 : 1,
           filter: analyzing ? 'blur(6px)' : 'blur(0px)'
@@ -168,7 +189,10 @@ export function SessionPage({
           sessionId={sessionId}
           onBack={onBack}
           onNodeChartOpenChange={setNodeChartOpen}
+          onExplainInsight={explainInsight}
           onOpenSettings={onOpenSettings}
+          onOpenSession={onOpenSession}
+          chatInset={chatOpen && !analyzing ? chatDrawerWidth : 0}
         />
       </motion.div>
 
@@ -193,11 +217,11 @@ export function SessionPage({
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
             transition={{ duration: 0.28, ease: 'easeOut' }}
-            className="absolute inset-y-0 left-0 z-30 w-[min(460px,100vw)] shadow-[24px_0_80px_rgb(0_0_0/0.42)]"
+            className="absolute inset-y-0 left-0 z-30 w-[min(460px,100vw)]"
           >
             <ChatPanel
               state={state}
-              send={send}
+              send={sendFromChat}
               answerPermission={answerPermission}
               onClose={() => setChatOpen(false)}
               autoFocusInput

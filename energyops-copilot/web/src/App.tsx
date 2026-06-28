@@ -123,6 +123,9 @@ function App() {
         providerSettings={providerSettings}
         onBack={() => setView({ name: 'dataset', datasetId: view.datasetId })}
         onOpenSettings={() => setSettingsOpen(true)}
+        onOpenSession={id =>
+          setView({ name: 'session', sessionId: id, datasetId: view.datasetId })
+        }
       />
     );
   }

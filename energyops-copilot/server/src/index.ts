@@ -417,7 +417,7 @@ app.post('/sessions/:id/decision', async c => {
   // Make the agent aware on its next turn (no tool call needed).
   if (s.includePreviousKnowledge) {
     s.noteDecision(
-      `Operator decision on insight "${decision.insight_title}": ${decisionType}` +
+      `You chose ${decisionType} for insight "${decision.insight_title}"` +
         (decision.rationale ? ` — ${decision.rationale}` : '') +
         '.'
     );

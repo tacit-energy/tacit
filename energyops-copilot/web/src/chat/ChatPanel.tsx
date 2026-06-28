@@ -352,6 +352,15 @@ function ToolRow({ item }: { item: Extract<FeedItem, { kind: 'tool' }> }) {
   );
 }
 
+function ThinkingIndicator() {
+  return (
+    <div className="flex max-w-[680px] items-center gap-2 self-start rounded-[var(--message-radius)] bg-[var(--secondary)] px-3.5 py-2.5 text-[14px] text-[var(--muted-foreground)]">
+      <Loader2 size={14} className="shrink-0 animate-spin text-[var(--accent)]" />
+      <span>Thinking...</span>
+    </div>
+  );
+}
+
 function PermissionCard({
   item,
   answerPermission
@@ -602,6 +611,9 @@ export function ChatPanel({
   const feedRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const shouldStickToBottomRef = useRef(true);
+  const lastFeedItem = state.feed[state.feed.length - 1];
+  const showThinkingIndicator =
+    state.working && !state.streaming && lastFeedItem?.kind === 'user';
 
   const scrollToBottom = () => {
     const el = feedRef.current;
@@ -610,7 +622,7 @@ export function ChatPanel({
 
   useEffect(() => {
     if (shouldStickToBottomRef.current) scrollToBottom();
-  }, [state.feed, state.streaming]);
+  }, [state.feed, state.streaming, showThinkingIndicator]);
 
   useEffect(() => {
     if (!autoFocusInput) return;
@@ -674,6 +686,7 @@ export function ChatPanel({
             <MarkdownContent text={state.streaming} />
           </div>
         )}
+        {showThinkingIndicator && <ThinkingIndicator />}
       </div>
 
       <footer className="flex gap-2 border-t border-[var(--border)] p-3">

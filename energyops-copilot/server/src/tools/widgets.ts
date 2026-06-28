@@ -365,14 +365,13 @@ export function widgetTools(ctx: ToolContext) {
 
     tool(
       'render_insight_card',
-      'Render the key operational insight as a reviewable card: a concise summary, evidence, recommended actions, and optionally a "seen before" question. This is the payoff of an analysis. Set severity info/watch/act. Set relatedNodeIds to the topology node ids this insight concerns (links the card to the diagram). Embed the supporting chart via `chart` (a SQL query, built server-side) instead of a standalone chart. Set impact only when you can quantify the at-stake value from data.',
+      'Render the key operational insight as a reviewable card: a concise summary, evidence, and recommended actions. This is the payoff of an analysis. Set severity info/watch/act. Set relatedNodeIds to the topology node ids this insight concerns (links the card to the diagram and prior-decision recall). Embed the supporting chart via `chart` (a SQL query, built server-side) instead of a standalone chart. Set impact only when you can quantify the at-stake value from data.',
       {
         title: z.string(),
         severity: z.enum(['info', 'watch', 'act']),
         summary: z.string(),
         evidence: z.array(z.string()).optional(),
         recommendations: z.array(z.string()).optional(),
-        question: z.string().optional(),
         relatedNodeIds: z
           .array(z.string())
           .optional()
@@ -408,7 +407,6 @@ export function widgetTools(ctx: ToolContext) {
           summary: input.summary,
           evidence: input.evidence,
           recommendations: input.recommendations,
-          question: input.question,
           relatedNodeIds: input.relatedNodeIds,
           impact: input.impact,
           chart

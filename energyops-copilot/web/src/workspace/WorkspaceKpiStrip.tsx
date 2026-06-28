@@ -31,10 +31,12 @@ function Stat({
 
 export function WorkspaceKpiStrip({
   widgets,
-  decisions
+  decisions,
+  chatInset = 0
 }: {
   widgets: Widget[];
   decisions: Decision[];
+  chatInset?: number;
 }) {
   const insightWidgets = widgets.filter(w => w.type === 'insight_card');
   const decidedIds = new Set(
@@ -67,7 +69,10 @@ export function WorkspaceKpiStrip({
   const conf = confRank < 99 ? ` · ${CONF_LABEL[confRank]} conf` : '';
 
   return (
-    <div className="flex flex-wrap items-center gap-1 border-b border-[var(--border)] bg-[var(--panel)] px-2">
+    <div
+      className="flex flex-wrap items-center gap-1 border-b border-[var(--border)] bg-[var(--panel)] px-2 transition-[padding] duration-300 ease-out"
+      style={{ paddingLeft: chatInset ? chatInset + 8 : undefined }}
+    >
       <Stat icon={<Lightbulb size={16} />} label="Open insights" value={String(open)} />
       <Stat
         icon={<CheckCircle2 size={16} />}
