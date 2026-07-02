@@ -1,6 +1,8 @@
-# EnergyOps Copilot
+# Tacit
 
-Run-focused notes for the EnergyOps Copilot app.
+Operational memory for energy systems.
+
+Tacit turns thousands of messy sensor streams into clear signals. It captures operator judgment, preserves institutional knowledge, and bridges statistical anomaly detection with the human context needed to make trusted decisions.
 
 ## What runs
 
