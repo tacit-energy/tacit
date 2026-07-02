@@ -1,5 +1,10 @@
-node_modules/
+.data/
 .env
+dist
+energyops_copilot_dataset_anonymized
 memory.db
 memory.db-*
-.data/
+node_modules
+node_modules/
+others
+track1Dataset
