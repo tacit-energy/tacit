@@ -25,7 +25,8 @@ http://localhost:5173
 
 ## First-time setup
 
-Create `server/.env` from the example:
+### Optional: Set AI Token
+If you want to save the AI Token key serverside (only recommended in private networks) create `server/.env` from the example:
 
 ```powershell
 cd server
@@ -38,6 +39,7 @@ Then set the token in `server/.env`:
 CLAUDE_CODE_OAUTH_TOKEN=...
 ```
 
+### Required: Install Dependencies
 If dependencies are missing, install them in each package:
 
 ```powershell
